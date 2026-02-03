@@ -404,6 +404,158 @@ enum TaxRegime {
 }
 
 // ============================================================================
+// PAYROLL PROCESSING
+// ============================================================================
+
+model PayrollRun {
+  id    String @id @default(cuid())
+  month Int    // 1-12
+  year  Int
+
+  // Processing status
+  status         PayrollRunStatus @default(PENDING)
+  current_stage  PayrollStage     @default(VALIDATION)
+
+  // Progress tracking
+  total_employees    Int @default(0)
+  processed_count    Int @default(0)
+  success_count      Int @default(0)
+  error_count        Int @default(0)
+
+  // Timing
+  started_at   DateTime?
+  completed_at DateTime?
+
+  // BullMQ job tracking
+  job_id String?
+
+  // Error details
+  errors Json? // Array of { employee_id, error_message }
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("PayrollRunCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+
+  // Relations
+  records PayrollRecord[]
+
+  @@unique([month, year])
+  @@map("payroll_runs")
+}
+
+enum PayrollRunStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REVERTED
+}
+
+enum PayrollStage {
+  VALIDATION      // Check attendance lock, salary structures
+  CALCULATION     // Calculate gross, deductions for each employee
+  STATUTORY       // Generate statutory files (ECR, ESI, TDS)
+  FINALIZATION    // Mark as complete, send notifications
+}
+
+model PayrollRecord {
+  id String @id @default(cuid())
+
+  // Links
+  payroll_run_id String
+  payroll_run    PayrollRun @relation(fields: [payroll_run_id], references: [id], onDelete: Cascade)
+  employee_id    String
+  employee       Employee   @relation(fields: [employee_id], references: [id])
+
+  // Period
+  month Int
+  year  Int
+
+  // Attendance data (from locked attendance)
+  working_days Int @default(0)
+  paid_days    Int @default(0)
+  lop_days     Int @default(0)
+
+  // Earnings (in paise)
+  basic_paise             Int @default(0)
+  hra_paise               Int @default(0)
+  special_allowance_paise Int @default(0)
+  lta_paise               Int @default(0)
+  medical_paise           Int @default(0)
+  conveyance_paise        Int @default(0)
+  other_allowances_paise  Int @default(0)
+
+  // Gross (before LOP)
+  gross_before_lop_paise Int @default(0)
+
+  // LOP deduction
+  lop_deduction_paise Int @default(0)
+
+  // Gross (after LOP)
+  gross_salary_paise Int @default(0)
+
+  // Statutory deductions (in paise)
+  // PF - Employee
+  pf_employee_paise Int @default(0)
+
+  // PF - Employer breakdown
+  pf_employer_epf_paise  Int @default(0) // 3.67%
+  pf_employer_eps_paise  Int @default(0) // 8.33% capped at Rs.1,250
+  pf_employer_edli_paise Int @default(0) // 0.50%
+  pf_admin_charges_paise Int @default(0) // ~0.51%
+  pf_total_employer_paise Int @default(0)
+
+  // PF base (for ECR)
+  pf_base_paise Int @default(0) // min(basic, 15000)
+
+  // ESI
+  esi_employee_paise Int @default(0) // 0.75%
+  esi_employer_paise Int @default(0) // 3.25%
+  esi_applicable     Boolean @default(false)
+
+  // PT
+  pt_paise Int @default(0)
+
+  // TDS
+  tds_paise             Int @default(0)
+  projected_annual_paise Int @default(0) // For TDS calculation
+  tax_regime            String @default("NEW")
+
+  // Other deductions
+  other_deductions_paise Int @default(0)
+
+  // Totals
+  total_deductions_paise Int @default(0)
+  net_salary_paise       Int @default(0)
+
+  // Employer cost
+  employer_cost_paise Int @default(0) // gross + employer PF + employer ESI
+
+  // Status
+  status       PayrollRecordStatus @default(DRAFT)
+  processed_at DateTime?
+  error        String?
+
+  // Audit fields
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([payroll_run_id, employee_id])
+  @@index([employee_id, month, year])
+  @@map("payroll_records")
+}
+
+enum PayrollRecordStatus {
+  DRAFT
+  CALCULATED
+  VERIFIED
+  PAID
+  ERROR
+}
+
+// ============================================================================
 // LEAVE MANAGEMENT
 // ============================================================================
 
