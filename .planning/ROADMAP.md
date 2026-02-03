@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Core data model, authentication, and audit infrastructure
 - [x] **Phase 2: Time & Attendance** - Attendance tracking and leave management workflows
-- [ ] **Phase 3: Payroll & Compliance** - Automated payroll with Indian statutory compliance
+- [x] **Phase 3: Payroll & Compliance** - Automated payroll with Indian statutory compliance
 - [ ] **Phase 4: Employee Self-Service** - Mobile-first portal for employees
 - [ ] **Phase 5: Supporting Workflows** - Onboarding, expenses, and loan management
 - [ ] **Phase 6: AI Assistant** - Chat interface for HR queries and policy Q&A
@@ -84,12 +84,18 @@ Plans:
   6. System generates PF ECR, ESI challan, Form 24Q (quarterly TDS), and Form 16 (annual TDS) files ready for portal upload
   7. System tracks statutory filing deadlines with 7/3/1 day alerts and prevents late payments
 
-**Plans**: TBD
+**Plans**: 9 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
+- [x] 03-01-PLAN.md — Salary structure model, 50% Basic Pay Rule validation, CRUD API
+- [x] 03-02-PLAN.md — Professional Tax slabs configuration (state-wise)
+- [x] 03-03-PLAN.md — BullMQ infrastructure, PayrollRun/PayrollRecord models, Redis setup
+- [x] 03-04-PLAN.md — Payroll calculation engine (PF, ESI, PT, TDS) with TDD
+- [x] 03-05-PLAN.md — Payslip PDF generation with @react-pdf/renderer
+- [x] 03-06-PLAN.md — ECR file generator for EPFO, ESI challan generator
+- [x] 03-07-PLAN.md — Form 24Q quarterly TDS return, Form 16 annual certificate
+- [x] 03-08-PLAN.md — Statutory deadline tracking with 7/3/1 day alerts
+- [x] 03-09-PLAN.md — Payroll admin UI (dashboard, run wizard, records view)
 
 ### Phase 4: Employee Self-Service
 **Goal**: Employees can access payslips, apply for leave, and manage personal information via mobile-first portal
@@ -168,7 +174,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete | 2026-02-04 |
 | 2. Time & Attendance | 5/5 | Complete | 2026-02-04 |
-| 3. Payroll & Compliance | 0/TBD | Not started | - |
+| 3. Payroll & Compliance | 9/9 | Complete | 2026-02-04 |
 | 4. Employee Self-Service | 0/TBD | Not started | - |
 | 5. Supporting Workflows | 0/TBD | Not started | - |
 | 6. AI Assistant | 0/TBD | Not started | - |
