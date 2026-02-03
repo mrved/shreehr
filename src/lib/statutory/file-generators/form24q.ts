@@ -219,7 +219,7 @@ export async function generateAnnexureI(
         employeeId: record.employee_id,
         pan,
         name: `${record.employee.first_name} ${record.employee.last_name}`,
-        designation: record.employee.designation?.name || 'N/A',
+        designation: record.employee.designation?.title || 'N/A',
         dateOfPayment: formatDateDMY(new Date(record.year, record.month - 1)),
         amountPaid: record.gross_salary_paise,
         tdsDeducted: record.tds_paise,

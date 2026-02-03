@@ -130,7 +130,7 @@ export async function GET(
     const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
     const zipFilename = `payslips-${year}-${String(month).padStart(2, '0')}.zip`;
 
-    return new Response(zipBuffer, {
+    return new Response(new Uint8Array(zipBuffer), {
       headers: {
         'Content-Type': 'application/zip',
         'Content-Disposition': `attachment; filename="${zipFilename}"`,
