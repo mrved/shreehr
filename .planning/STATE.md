@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 6 (Payroll & Compliance)
-Plan: 4 of 9 in current phase
+Plan: 6 of 9 in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 03-04-PLAN.md (Payroll Calculation Engine)
+Last activity: 2026-02-04 — Completed 03-06-PLAN.md (ECR and ESI Challan Generators)
 
-Progress: [█████░░░░░] ~40%
+Progress: [██████░░░░] ~47%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: 5.5 min
-- Total execution time: ~72 min
+- Total plans completed: 15
+- Average duration: 5.1 min
+- Total execution time: ~77 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████░░░░░] ~40%
 |-------|-------|-------|----------|
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
-| 03-payroll-compliance | 4 | 22min | 5.5min |
+| 03-payroll-compliance | 6 | 27min | 4.5min |
 
 **Recent Trend:**
-- Last 5 plans: 02-05 (5min), 03-03 (4min), 03-01 (5min), 03-02 (5min), 03-04 (8min)
-- Trend: Solid velocity (Phase 3 averaging 5.5min, TDD plan took longer as expected)
+- Last 5 plans: 03-03 (4min), 03-01 (5min), 03-02 (5min), 03-04 (8min), 03-06 (3min)
+- Trend: Excellent velocity on file generators (Phase 3 now averaging 4.5min)
 
 *Updated after each plan completion*
 
@@ -138,6 +138,16 @@ Recent decisions affecting current work:
 - LOP calculation based on working days (exclude weekends): (gross / working days) × LOP days
 - Upsert pattern for idempotent payroll processing (safe to re-run)
 
+**Plan 03-06 (ECR and ESI Challan Generators):**
+- ECR format uses EPFO-compliant #~# separators with 12 fields per employee line
+- ESI challan generated as CSV with summary totals at bottom for quick verification
+- IP Days (Insured Person days) calculated as: working days - LOP days
+- Statutory files stored in uploads/statutory/{runId}/ separate from employee documents
+- StatutoryFile model tracks all generated files with record count and total amount for audit
+- Establishment code and company name from environment variables (will move to database in Phase 4)
+- RBAC: Only ADMIN, SUPER_ADMIN, and PAYROLL_MANAGER can download statutory files
+- Files tracked in database enable re-download without regeneration
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -209,6 +219,14 @@ Recent decisions affecting current work:
 - src/lib/statutory/tds.ts — TDS calculation with new/old regime support
 - src/lib/payroll/calculator.ts — Complete payroll calculator orchestrating all deductions
 
+**Created (Plan 03-06):**
+- prisma/schema.prisma — StatutoryFile model and StatutoryFileType enum
+- src/lib/statutory/file-generators/ecr.ts — EPFO ECR file generator with #~# format
+- src/lib/statutory/file-generators/esi-challan.ts — ESIC challan CSV generator with summary totals
+- src/app/api/payroll/[runId]/statutory/ecr/route.ts — ECR download API with RBAC
+- src/app/api/payroll/[runId]/statutory/esi/route.ts — ESI challan download API with RBAC
+- src/lib/storage.ts — Added statutory file storage helpers
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -246,6 +264,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 03-04-PLAN.md (Payroll Calculation Engine)
-Stopped at: Completed Plan 03-04 with PF/ESI/TDS calculations and complete payroll calculator
+Last session: 2026-02-04 — Completed 03-06-PLAN.md (ECR and ESI Challan Generators)
+Stopped at: Completed Plan 03-06 with ECR and ESI file generators and download APIs
 Resume file: None
