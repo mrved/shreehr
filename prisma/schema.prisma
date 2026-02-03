@@ -60,6 +60,8 @@ model User {
   created_payroll_runs      PayrollRun[]           @relation("PayrollRunCreatedBy")
   approved_profile_updates  ProfileUpdateRequest[] @relation("ProfileUpdateApprovedBy")
   created_onboarding_records OnboardingRecord[]    @relation("OnboardingRecordCreatedBy")
+  created_expense_claims    ExpenseClaim[]         @relation("ExpenseClaimCreatedBy")
+  updated_expense_claims    ExpenseClaim[]         @relation("ExpenseClaimUpdatedBy")
 
   @@map("users")
 }
@@ -205,6 +207,7 @@ model Employee {
   profile_update_requests ProfileUpdateRequest[]
   investment_declarations InvestmentDeclaration[]
   onboarding_record       OnboardingRecord?
+  expense_claims          ExpenseClaim[]
 
   @@map("employees")
 }
@@ -1176,4 +1179,119 @@ enum OnboardingStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+// ============================================================================
+// EXPENSE MANAGEMENT
+// ============================================================================
+
+model ExpensePolicy {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  code        String  @unique // e.g., "TRAVEL", "FOOD", "EQUIPMENT"
+  description String?
+
+  // Policy limits (stored in paise, null means no limit)
+  max_amount_paise         Int?
+  auto_approve_below_paise Int? // Auto-approve if amount < this
+
+  // Policy configuration
+  requires_receipt   Boolean @default(true)
+  requires_approval  Boolean @default(true)
+  is_active          Boolean @default(true)
+
+  // Audit fields
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relations
+  expense_claims ExpenseClaim[]
+
+  @@map("expense_policies")
+}
+
+model ExpenseClaim {
+  id          String        @id @default(cuid())
+  employee_id String
+  employee    Employee      @relation(fields: [employee_id], references: [id])
+  policy_id   String
+  policy      ExpensePolicy @relation(fields: [policy_id], references: [id])
+
+  // Claim details (amount in paise)
+  amount_paise  Int
+  description   String
+  expense_date  DateTime @db.Date
+
+  // Receipt handling
+  receipt_path          String?
+  receipt_original_name String?
+
+  // Status and approval
+  status                 ExpenseStatus @default(DRAFT)
+  current_approval_level Int           @default(1)
+
+  // Policy snapshot (captures policy state at submission time)
+  policy_snapshot Json
+
+  // Rejection handling
+  rejection_reason String?
+
+  // Payroll integration
+  synced_to_payroll Boolean @default(false)
+  payroll_run_id    String?
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("ExpenseClaimCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("ExpenseClaimUpdatedBy", fields: [updated_by], references: [id])
+
+  // Relations
+  approvals ExpenseApproval[]
+
+  @@index([employee_id, status])
+  @@index([status, created_at])
+  @@map("expense_claims")
+}
+
+enum ExpenseStatus {
+  DRAFT
+  SUBMITTED
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  REIMBURSED
+}
+
+model ExpenseApproval {
+  id         String       @id @default(cuid())
+  expense_id String
+  expense    ExpenseClaim @relation(fields: [expense_id], references: [id], onDelete: Cascade)
+
+  // Approval level and role
+  level         Int
+  approver_role String // MANAGER, HR_MANAGER, ADMIN
+
+  // Approver details (nullable until acted upon)
+  approver_id String?
+  status      ApprovalStatus @default(PENDING)
+
+  // Action details
+  comments String?
+  acted_at DateTime?
+
+  // Audit
+  created_at DateTime @default(now())
+
+  @@index([expense_id, level])
+  @@index([approver_id, status])
+  @@map("expense_approvals")
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
