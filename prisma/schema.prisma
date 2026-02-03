@@ -62,6 +62,8 @@ model User {
   created_onboarding_records OnboardingRecord[]    @relation("OnboardingRecordCreatedBy")
   created_expense_claims    ExpenseClaim[]         @relation("ExpenseClaimCreatedBy")
   updated_expense_claims    ExpenseClaim[]         @relation("ExpenseClaimUpdatedBy")
+  created_loans             EmployeeLoan[]         @relation("LoanCreatedBy")
+  updated_loans             EmployeeLoan[]         @relation("LoanUpdatedBy")
 
   @@map("users")
 }
@@ -208,6 +210,7 @@ model Employee {
   investment_declarations InvestmentDeclaration[]
   onboarding_record       OnboardingRecord?
   expense_claims          ExpenseClaim[]
+  loans                   EmployeeLoan[]
 
   @@map("employees")
 }
@@ -1179,6 +1182,102 @@ enum OnboardingStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+// ============================================================================
+// EMPLOYEE LOANS
+// ============================================================================
+
+model EmployeeLoan {
+  id          String   @id @default(cuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  // Loan details
+  loan_type           String // "SALARY_ADVANCE", "PERSONAL", "EMERGENCY"
+  principal_paise     Int // Original loan amount
+  annual_interest_rate Float // Percentage e.g., 12.5
+  tenure_months       Int
+
+  // Calculated fields (EMI calculation using reducing balance method)
+  emi_paise              Int // Monthly EMI
+  total_interest_paise   Int // Total interest over tenure
+  total_repayment_paise  Int // Principal + total interest
+
+  // Disbursement
+  disbursed_paise    Int      @default(0) // Amount disbursed, could differ from principal
+  disbursement_date  DateTime? @db.Date
+
+  // Balance tracking
+  remaining_balance_paise Int // Current outstanding balance
+
+  // Tenure dates
+  start_date DateTime @db.Date // When deductions start
+  end_date   DateTime @db.Date // Calculated end date
+
+  // Status
+  status         LoanStatus @default(PENDING)
+  closed_at      DateTime?  @db.Date
+  closure_reason String?
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("LoanCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("LoanUpdatedBy", fields: [updated_by], references: [id])
+
+  // Relations
+  deductions LoanDeduction[]
+
+  @@index([employee_id, status])
+  @@index([status, start_date])
+  @@map("employee_loans")
+}
+
+model LoanDeduction {
+  id      String       @id @default(cuid())
+  loan_id String
+  loan    EmployeeLoan @relation(fields: [loan_id], references: [id], onDelete: Cascade)
+
+  // Period
+  month Int // 1-12
+  year  Int
+
+  // EMI breakdown (reducing balance method)
+  emi_amount_paise   Int // Total EMI for this month
+  principal_paise    Int // Principal portion of EMI
+  interest_paise     Int // Interest portion of EMI
+  balance_after_paise Int // Remaining balance after this deduction
+
+  // Payroll integration
+  payroll_run_id String? // Linked when synced with payroll
+
+  // Status
+  status DeductionStatus @default(SCHEDULED)
+
+  // Audit fields
+  created_at DateTime @default(now())
+
+  @@unique([loan_id, month, year])
+  @@index([loan_id, status])
+  @@index([month, year])
+  @@map("loan_deductions")
+}
+
+enum LoanStatus {
+  PENDING
+  ACTIVE
+  CLOSED
+  CANCELLED
+  DEFAULTED
+}
+
+enum DeductionStatus {
+  SCHEDULED
+  DEDUCTED
+  SKIPPED
 }
 
 // ============================================================================
