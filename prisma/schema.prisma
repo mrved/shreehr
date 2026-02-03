@@ -58,6 +58,7 @@ model User {
   created_salary_structures SalaryStructure[]      @relation("SalaryStructureCreatedBy")
   updated_salary_structures SalaryStructure[]      @relation("SalaryStructureUpdatedBy")
   created_payroll_runs      PayrollRun[]           @relation("PayrollRunCreatedBy")
+  approved_profile_updates  ProfileUpdateRequest[] @relation("ProfileUpdateApprovedBy")
 
   @@map("users")
 }
@@ -190,14 +191,16 @@ model Employee {
   updater    User?    @relation("EmployeeUpdatedBy", fields: [updated_by], references: [id])
 
   // Relations
-  user              User?
-  documents         Document[]
-  salary_records    SalaryRecord[]
-  salary_structures SalaryStructure[]
-  leave_balances    LeaveBalance[]
-  leave_requests    LeaveRequest[]
-  attendances       Attendance[]
-  payroll_records   PayrollRecord[]
+  user                    User?
+  documents               Document[]
+  salary_records          SalaryRecord[]
+  salary_structures       SalaryStructure[]
+  leave_balances          LeaveBalance[]
+  leave_requests          LeaveRequest[]
+  attendances             Attendance[]
+  payroll_records         PayrollRecord[]
+  profile_update_requests ProfileUpdateRequest[]
+  investment_declarations InvestmentDeclaration[]
 
   @@map("employees")
 }
@@ -913,6 +916,49 @@ enum StatutoryFileType {
 }
 
 // ============================================================================
+// PROFILE UPDATE REQUESTS (approval workflow)
+// ============================================================================
+
+model ProfileUpdateRequest {
+  id          String   @id @default(cuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  // Requested changes stored as JSON
+  // Contains: { field_name: { old: value, new: value } }
+  changes     Json
+
+  // Fields that can be updated by employees:
+  // address_line1, address_line2, city, state, postal_code
+  // emergency_contact, emergency_phone, personal_phone, personal_email
+
+  status          ProfileUpdateStatus @default(PENDING)
+  reason          String? // Employee's reason for update
+
+  // Approval tracking
+  approved_by     String?
+  approver        User?    @relation("ProfileUpdateApprovedBy", fields: [approved_by], references: [id])
+  approved_at     DateTime?
+  rejection_reason String?
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt
+  updated_by String?
+
+  @@index([employee_id, status])
+  @@index([status, created_at])
+  @@map("profile_update_requests")
+}
+
+enum ProfileUpdateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ============================================================================
 // STATUTORY DEADLINE TRACKING
 // ============================================================================
 
@@ -969,4 +1015,66 @@ enum FilingStatus {
   FILED
   OVERDUE
   NOT_APPLICABLE
+}
+
+// ============================================================================
+// INVESTMENT DECLARATIONS (for TDS calculation)
+// ============================================================================
+
+model InvestmentDeclaration {
+  id          String   @id @default(cuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  // Financial year
+  financial_year String // e.g., "2025-26"
+
+  // Section 80C (max Rs.1,50,000 total) - stored in paise
+  section_80c_ppf                 Int @default(0)
+  section_80c_elss                Int @default(0)
+  section_80c_life_insurance      Int @default(0)
+  section_80c_tuition_fees        Int @default(0)
+  section_80c_nps                 Int @default(0)
+  section_80c_home_loan_principal Int @default(0)
+  section_80c_sukanya             Int @default(0)
+  section_80c_other               Int @default(0)
+
+  // Section 80D Health Insurance (max Rs.25,000 self, Rs.50,000 parents if senior)
+  section_80d_self    Int @default(0)
+  section_80d_parents Int @default(0)
+  section_80d_checkup Int @default(0) // Max Rs.5,000
+
+  // HRA (House Rent Allowance)
+  hra_monthly_rent   Int     @default(0)
+  hra_landlord_name  String?
+  hra_landlord_pan   String? // Required if annual rent > Rs.1,00,000
+  hra_rental_address String?
+
+  // Other deductions
+  section_80e_education_loan    Int @default(0) // No limit
+  section_80g_donations         Int @default(0)
+  section_24_home_loan_interest Int @default(0) // Max Rs.2,00,000
+
+  // Status
+  status      InvestmentDeclarationStatus @default(DRAFT)
+  submitted_at DateTime?
+  verified_at DateTime?
+  verified_by String?
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt
+  updated_by String?
+
+  @@unique([employee_id, financial_year])
+  @@index([financial_year, status])
+  @@map("investment_declarations")
+}
+
+enum InvestmentDeclarationStatus {
+  DRAFT
+  SUBMITTED
+  VERIFIED
+  REJECTED
 }
