@@ -542,6 +542,12 @@ model PayrollRecord {
   // Other deductions
   other_deductions_paise Int @default(0)
 
+  // Expense reimbursements (added to net pay)
+  reimbursements_paise Int @default(0)
+
+  // Loan deductions (subtracted from net pay)
+  loan_deductions_paise Int @default(0)
+
   // Totals
   total_deductions_paise Int @default(0)
   net_salary_paise       Int @default(0)
@@ -557,6 +563,10 @@ model PayrollRecord {
   // Audit fields
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  // Relations to synced financial records
+  synced_expenses ExpenseClaim[]
+  synced_deductions LoanDeduction[]
 
   @@unique([payroll_run_id, employee_id])
   @@index([employee_id, month, year])
@@ -1252,7 +1262,8 @@ model LoanDeduction {
   balance_after_paise Int // Remaining balance after this deduction
 
   // Payroll integration
-  payroll_run_id String? // Linked when synced with payroll
+  payroll_record_id String? // Linked when synced with payroll
+  payroll_record    PayrollRecord? @relation(fields: [payroll_record_id], references: [id])
 
   // Status
   status DeductionStatus @default(SCHEDULED)
@@ -1337,7 +1348,8 @@ model ExpenseClaim {
 
   // Payroll integration
   synced_to_payroll Boolean @default(false)
-  payroll_run_id    String?
+  payroll_record_id String?
+  payroll_record    PayrollRecord? @relation(fields: [payroll_record_id], references: [id])
 
   // Audit fields
   created_at DateTime @default(now())
