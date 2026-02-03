@@ -113,11 +113,17 @@ Plans:
   6. Employee receives email/WhatsApp notification when payslip is available
   7. Portal works seamlessly on mobile browsers (responsive design, touch-optimized)
 
-**Plans**: TBD
+**Plans**: 8 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md — Email notification infrastructure (Resend + BullMQ)
+- [ ] 04-02-PLAN.md — Investment declaration schema and APIs (80C/80D/HRA)
+- [ ] 04-03-PLAN.md — Profile update workflow with admin approval
+- [ ] 04-04-PLAN.md — Employee dashboard and payslip viewing (mobile-first)
+- [ ] 04-05-PLAN.md — Attendance calendar and leave application (mobile-first)
+- [ ] 04-06-PLAN.md — Investment declaration UI with real-time validation
+- [ ] 04-07-PLAN.md — Profile pages and payslip notification integration
+- [ ] 04-08-PLAN.md — Mobile portal verification (checkpoint)
 
 ### Phase 5: Supporting Workflows
 **Goal**: HR can onboard new employees digitally, process expense reimbursements, and manage employee loans
@@ -175,6 +181,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation | 4/4 | Complete | 2026-02-04 |
 | 2. Time & Attendance | 5/5 | Complete | 2026-02-04 |
 | 3. Payroll & Compliance | 9/9 | Complete | 2026-02-04 |
-| 4. Employee Self-Service | 0/TBD | Not started | - |
+| 4. Employee Self-Service | 0/8 | Planned | - |
 | 5. Supporting Workflows | 0/TBD | Not started | - |
 | 6. AI Assistant | 0/TBD | Not started | - |
