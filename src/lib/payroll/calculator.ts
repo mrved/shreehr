@@ -1,10 +1,10 @@
-import { prisma } from '@/lib/db';
-import { type SalaryComponents } from './types';
-import { calculatePF, type EmployerPFBreakdown } from '@/lib/statutory/pf';
-import { calculateESI } from '@/lib/statutory/esi';
-import { calculatePT } from '@/lib/statutory/pt';
-import { calculateMonthlyTDS } from '@/lib/statutory/tds';
-import type { Gender } from '@prisma/client';
+import type { Gender } from "@prisma/client";
+import { prisma } from "@/lib/db";
+import { calculateESI } from "@/lib/statutory/esi";
+import { calculatePF, type EmployerPFBreakdown } from "@/lib/statutory/pf";
+import { calculatePT } from "@/lib/statutory/pt";
+import { calculateMonthlyTDS } from "@/lib/statutory/tds";
+import type { SalaryComponents } from "./types";
 
 export interface PayrollCalculationInput {
   employeeId: string;
@@ -18,7 +18,7 @@ export interface PayrollCalculationInput {
     medical_paise: number;
     conveyance_paise: number;
     other_allowances_paise: number;
-    tax_regime: 'OLD' | 'NEW';
+    tax_regime: "OLD" | "NEW";
   };
   attendance: {
     workingDays: number;
@@ -48,7 +48,19 @@ export interface PayrollCalculationResult {
 
   tdsAmount: number;
   projectedAnnualIncome: number;
-  taxRegime: 'OLD' | 'NEW';
+  taxRegime: "OLD" | "NEW";
+
+  // Expense reimbursements and loans
+  reimbursements_paise: number;
+  expense_ids: string[];
+  loan_deductions_paise: number;
+  loan_deduction_details: Array<{
+    deduction_id: string;
+    loan_id: string;
+    emi_paise: number;
+    principal_paise: number;
+    interest_paise: number;
+  }>;
 
   // Totals
   totalDeductions: number;
@@ -79,7 +91,7 @@ export function calculateGrossSalary(components: SalaryComponents): number {
 export function calculateLOP(
   grossMonthlyPaise: number,
   workingDays: number,
-  lopDays: number
+  lopDays: number,
 ): number {
   if (workingDays <= 0 || lopDays <= 0) return 0;
 
@@ -88,10 +100,102 @@ export function calculateLOP(
 }
 
 /**
+ * Get approved expenses for an employee that haven't been synced to payroll
+ */
+async function getUnsyncedExpenses(
+  employeeId: string,
+  month: number,
+  year: number,
+): Promise<{
+  total_paise: number;
+  expense_ids: string[];
+}> {
+  // Find expenses where:
+  // - employee_id matches
+  // - status = APPROVED
+  // - synced_to_payroll = false
+  // - expense_date is in the payroll month or earlier (approved expenses for reimbursement)
+  const payrollMonthEnd = new Date(year, month, 0); // Last day of the month
+
+  const expenses = await prisma.expenseClaim.findMany({
+    where: {
+      employee_id: employeeId,
+      status: "APPROVED",
+      synced_to_payroll: false,
+      expense_date: {
+        lte: payrollMonthEnd,
+      },
+    },
+    select: {
+      id: true,
+      amount_paise: true,
+    },
+  });
+
+  const total_paise = expenses.reduce((sum, exp) => sum + exp.amount_paise, 0);
+  const expense_ids = expenses.map((exp) => exp.id);
+
+  return { total_paise, expense_ids };
+}
+
+/**
+ * Get scheduled loan deductions for an employee for the given month
+ */
+async function getScheduledLoanDeductions(
+  employeeId: string,
+  month: number,
+  year: number,
+): Promise<{
+  total_paise: number;
+  deductions: Array<{
+    deduction_id: string;
+    loan_id: string;
+    emi_paise: number;
+    principal_paise: number;
+    interest_paise: number;
+  }>;
+}> {
+  // Find LoanDeduction where:
+  // - loan.employee_id matches
+  // - month and year match
+  // - status = SCHEDULED
+  // - loan.status = ACTIVE
+  const deductions = await prisma.loanDeduction.findMany({
+    where: {
+      month,
+      year,
+      status: "SCHEDULED",
+      loan: {
+        employee_id: employeeId,
+        status: "ACTIVE",
+      },
+    },
+    select: {
+      id: true,
+      loan_id: true,
+      emi_amount_paise: true,
+      principal_paise: true,
+      interest_paise: true,
+    },
+  });
+
+  const total_paise = deductions.reduce((sum, ded) => sum + ded.emi_amount_paise, 0);
+  const deductionDetails = deductions.map((ded) => ({
+    deduction_id: ded.id,
+    loan_id: ded.loan_id,
+    emi_paise: ded.emi_amount_paise,
+    principal_paise: ded.principal_paise,
+    interest_paise: ded.interest_paise,
+  }));
+
+  return { total_paise, deductions: deductionDetails };
+}
+
+/**
  * Calculate complete payroll for an employee
  */
 export async function calculatePayroll(
-  input: PayrollCalculationInput
+  input: PayrollCalculationInput,
 ): Promise<PayrollCalculationResult> {
   const { salaryStructure, attendance, workState, gender, month } = input;
 
@@ -99,11 +203,7 @@ export async function calculatePayroll(
   const grossBeforeLOP = calculateGrossSalary(salaryStructure);
 
   // 2. Calculate LOP deduction
-  const lopDeduction = calculateLOP(
-    grossBeforeLOP,
-    attendance.workingDays,
-    attendance.lopDays
-  );
+  const lopDeduction = calculateLOP(grossBeforeLOP, attendance.workingDays, attendance.lopDays);
 
   // 3. Gross after LOP
   const grossSalary = grossBeforeLOP - lopDeduction;
@@ -119,32 +219,30 @@ export async function calculatePayroll(
     stateCode: workState,
     grossSalaryPaise: grossSalary,
     month,
-    gender: gender || 'MALE', // Default to MALE if not specified
+    gender: gender || "MALE", // Default to MALE if not specified
   });
   const ptAmount = ptResult.isExempt ? 0 : ptResult.ptAmountPaise;
 
   // 7. Calculate TDS
-  const tdsResult = calculateMonthlyTDS(
-    grossSalary,
-    month,
-    salaryStructure.tax_regime
-  );
+  const tdsResult = calculateMonthlyTDS(grossSalary, month, salaryStructure.tax_regime);
 
   // 8. Total deductions (employee side)
   const totalDeductions =
-    pfResult.employeePF +
-    esiResult.employeeESI +
-    ptAmount +
-    tdsResult.monthlyTDS;
+    pfResult.employeePF + esiResult.employeeESI + ptAmount + tdsResult.monthlyTDS;
 
-  // 9. Net salary
-  const netSalary = grossSalary - totalDeductions;
+  // 9. Get expense reimbursements
+  const expenses = await getUnsyncedExpenses(input.employeeId, month, input.year);
+  const reimbursements_paise = expenses.total_paise;
 
-  // 10. Employer cost
-  const employerCost =
-    grossSalary +
-    pfResult.employerTotal +
-    esiResult.employerESI;
+  // 10. Get loan deductions
+  const loans = await getScheduledLoanDeductions(input.employeeId, month, input.year);
+  const loan_deductions_paise = loans.total_paise;
+
+  // 11. Net salary = gross - deductions + reimbursements - loan_emi
+  const netSalary = grossSalary - totalDeductions + reimbursements_paise - loan_deductions_paise;
+
+  // 12. Employer cost
+  const employerCost = grossSalary + pfResult.employerTotal + esiResult.employerESI;
 
   return {
     grossBeforeLOP,
@@ -165,6 +263,11 @@ export async function calculatePayroll(
     projectedAnnualIncome: tdsResult.projectedAnnualIncome,
     taxRegime: salaryStructure.tax_regime,
 
+    reimbursements_paise,
+    expense_ids: expenses.expense_ids,
+    loan_deductions_paise,
+    loan_deduction_details: loans.deductions,
+
     totalDeductions,
     netSalary,
     employerCost,
@@ -177,7 +280,7 @@ export async function calculatePayroll(
 export async function getAttendanceSummary(
   employeeId: string,
   month: number,
-  year: number
+  year: number,
 ): Promise<{
   workingDays: number;
   presentDays: number;
@@ -200,7 +303,7 @@ export async function getAttendanceSummary(
 
   // Calculate working days (exclude weekends)
   let workingDays = 0;
-  let currentDate = new Date(startDate);
+  const currentDate = new Date(startDate);
   while (currentDate <= endDate) {
     const dayOfWeek = currentDate.getDay();
     if (dayOfWeek !== 0 && dayOfWeek !== 6) {
@@ -214,15 +317,15 @@ export async function getAttendanceSummary(
   let lopDays = 0;
 
   for (const att of attendances) {
-    if (att.status === 'PRESENT') {
+    if (att.status === "PRESENT") {
       presentDays += 1;
-    } else if (att.status === 'HALF_DAY') {
+    } else if (att.status === "HALF_DAY") {
       presentDays += 0.5;
-    } else if (att.status === 'ON_LEAVE') {
+    } else if (att.status === "ON_LEAVE") {
       // Check if paid leave
       // For now, count as present (paid)
       presentDays += 1;
-    } else if (att.status === 'ABSENT') {
+    } else if (att.status === "ABSENT") {
       lopDays += 1;
     }
     // HOLIDAY and WEEKEND don't count either way
