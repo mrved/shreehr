@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 6 (Payroll & Compliance)
-Plan: 5 of 9 in current phase
+Plan: 7 of 9 in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 03-05-PLAN.md (PDF Payslip Generation)
+Last activity: 2026-02-04 — Completed 03-07-PLAN.md (Form 24Q and Form 16 TDS Filing)
 
-Progress: [█████░░░░░] ~44%
+Progress: [█████░░░░░] ~47%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: 5.1 min
-- Total execution time: ~82 min
+- Total execution time: ~86 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████░░░░░] ~44%
 |-------|-------|-------|----------|
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
-| 03-payroll-compliance | 7 | 32min | 4.6min |
+| 03-payroll-compliance | 8 | 36min | 4.5min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (5min), 03-02 (5min), 03-04 (8min), 03-06 (3min), 03-05 (5min)
-- Trend: Excellent velocity (Phase 3 averaging 4.6min, PDF generation within expected range)
+- Last 5 plans: 03-02 (5min), 03-04 (8min), 03-06 (3min), 03-05 (5min), 03-07 (4min)
+- Trend: Excellent velocity (Phase 3 averaging 4.5min, consistent statutory file generation speed)
 
 *Updated after each plan completion*
 
@@ -157,6 +157,18 @@ Recent decisions affecting current work:
 - RBAC: Only ADMIN, SUPER_ADMIN, and PAYROLL_MANAGER can download statutory files
 - Files tracked in database enable re-download without regeneration
 
+**Plan 03-07 (Form 24Q and Form 16 TDS Filing):**
+- Form 24Q Annexure I generated for all quarters (Q1-Q4) with TDS summary
+- Form 24Q Annexure II generated only for Q4 with annual salary details for Form 16
+- Form 16 PDF with Part A (employer/employee details) and Part B (income/tax computation)
+- Quarterly TDS breakdown shows payment and deduction for each quarter
+- Tax calculation supports both OLD and NEW regimes with different standard deductions
+- Rebate 87A applied for NEW regime incomes <= Rs.7L (up to Rs.25,000)
+- Health & Education Cess at 4% on tax after rebate
+- Financial year quarters: Q1(Apr-Jun), Q2(Jul-Sep), Q3(Oct-Dec), Q4(Jan-Mar)
+- Employee RBAC: Can download own Form 16, admin can download any employee's
+- TDS APIs accept quarter/year parameters for flexible reporting
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -243,6 +255,12 @@ Recent decisions affecting current work:
 - src/app/api/payroll/[runId]/statutory/esi/route.ts — ESI challan download API with RBAC
 - src/lib/storage.ts — Added statutory file storage helpers
 
+**Created (Plan 03-07):**
+- src/lib/statutory/file-generators/form24q.ts — Form 24Q generator with Annexure I and II
+- src/lib/statutory/file-generators/form16.ts — Form 16 PDF generator with Part A and B
+- src/app/api/payroll/tds/form24q/route.ts — Form 24Q download API with quarterly filtering
+- src/app/api/payroll/tds/form16/[employeeId]/route.ts — Form 16 download API with employee RBAC
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -258,6 +276,17 @@ Recent decisions affecting current work:
 3. Verify Redis connection: `docker compose logs redis`
 4. Seed PT slabs: `pnpm db:seed-pt` (after database is running)
 
+**User setup required for TDS filing (Plan 03-07):**
+1. Add company TDS details to .env file:
+   - COMPANY_TAN=YOUR_TAN_NUMBER
+   - COMPANY_PAN=YOUR_PAN_NUMBER
+   - COMPANY_NAME=YOUR_COMPANY_NAME
+   - COMPANY_ADDRESS=YOUR_COMPANY_ADDRESS
+   - COMPANY_RESPONSIBLE_PERSON=NAME
+   - COMPANY_RESPONSIBLE_DESIGNATION=DESIGNATION
+2. Ensure employees have encrypted PAN in database
+3. Ensure PayrollRecord has tax_regime field populated
+
 ### Blockers/Concerns
 
 **Build Issues:**
@@ -267,9 +296,10 @@ Recent decisions affecting current work:
 - Does not block functionality, can be addressed separately
 
 **Phase 3 Concerns:**
-- TDS calculation is simplified (no HRA exemption, LTA, 80C deductions) - will need enhancement in Plan 03-07
+- TDS calculation is simplified (no HRA exemption, LTA, 80C deductions) - completed basic Form 24Q/16 in Plan 03-07, enhancements needed
 - ESI contribution period continuity check is stubbed (checkESIContinuity returns false) - needs query of previous payroll records
-- Form 24Q/16 generation specifications need latest FVU file format from TRACES portal
+- Form 24Q generates JSON format, not FVU file format for TRACES portal upload - manual preparation needed
+- TDS payment tracking (challan numbers, BSR codes, dates) not implemented - shows deducted = deposited
 - PT slab accuracy should be verified against latest state government notifications before production
 - Additional PT states (WB, AP, AS, CG, GJ, MP, ML, OR, TR) need slab data
 
@@ -280,6 +310,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 03-05-PLAN.md (PDF Payslip Generation)
-Stopped at: Completed Plan 03-05 with PDF payslip generation and download APIs (individual + bulk)
+Last session: 2026-02-04 — Completed 03-07-PLAN.md (Form 24Q and Form 16 TDS Filing)
+Stopped at: Completed Plan 03-07 with Form 24Q quarterly return and Form 16 annual certificate generation
 Resume file: None
