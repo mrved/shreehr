@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 // GET /api/payroll/runs/[runId] - Get single run details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { runId: string } }
+  { params }: { params: Promise<{ runId: string }> }
 ) {
   const session = await auth();
   if (!session?.user) {
@@ -16,9 +16,11 @@ export async function GET(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  const { runId } = await params;
+
   try {
     const run = await prisma.payrollRun.findUnique({
-      where: { id: params.runId },
+      where: { id: runId },
       include: {
         _count: {
           select: { records: true },

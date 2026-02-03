@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 // GET /api/payroll/runs/[runId]/records - Get records for run with employee join
 export async function GET(
   request: NextRequest,
-  { params }: { params: { runId: string } }
+  { params }: { params: Promise<{ runId: string }> }
 ) {
   const session = await auth();
   if (!session?.user) {
@@ -16,9 +16,11 @@ export async function GET(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  const { runId } = await params;
+
   try {
     const records = await prisma.payrollRecord.findMany({
-      where: { payroll_run_id: params.runId },
+      where: { payroll_run_id: runId },
       include: {
         employee: {
           include: {
