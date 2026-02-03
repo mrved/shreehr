@@ -57,6 +57,7 @@ model User {
   approved_corrections      AttendanceCorrection[] @relation("CorrectionApprovedBy")
   created_salary_structures SalaryStructure[]      @relation("SalaryStructureCreatedBy")
   updated_salary_structures SalaryStructure[]      @relation("SalaryStructureUpdatedBy")
+  created_payroll_runs      PayrollRun[]           @relation("PayrollRunCreatedBy")
 
   @@map("users")
 }
@@ -196,6 +197,7 @@ model Employee {
   leave_balances    LeaveBalance[]
   leave_requests    LeaveRequest[]
   attendances       Attendance[]
+  payroll_records   PayrollRecord[]
 
   @@map("employees")
 }
