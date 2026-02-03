@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 5 of 6 (Supporting Workflows)
-Plan: 0 of TBD in current phase
-Status: Planning needed
-Last activity: 2026-02-04 — Completed Phase 4 (Employee Self-Service)
+Plan: 2 of TBD in current phase
+Status: In progress
+Last activity: 2026-02-04 — Completed 05-02-PLAN.md (Expense Management)
 
-Progress: [██████████░░] ~66%
+Progress: [██████████░░] ~68%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
-- Average duration: 5.0 min
-- Total execution time: ~140 min
+- Total plans completed: 28
+- Average duration: 5.3 min
+- Total execution time: ~152 min
 
 **By Phase:**
 
@@ -32,9 +32,10 @@ Progress: [██████████░░] ~66%
 | 02-time-attendance | 5 | 21min | 4min |
 | 03-payroll-compliance | 9 | 38min | 4.2min |
 | 04-employee-self-service | 8 | 52min | 6.5min |
+| 05-supporting-workflows | 2 | 12min | 6min |
 
 **Recent Trend:**
-- Last 5 plans: 04-05 (6min), 04-06 (7min), 04-07 (6min), 04-08 (2min), Phase 4 complete
+- Last 5 plans: 04-07 (6min), 04-08 (2min), 05-01 (6min), 05-02 (6min)
 - Trend: Excellent velocity (maintaining ~5-6min average)
 
 *Updated after each plan completion*
@@ -234,6 +235,27 @@ Recent decisions affecting current work:
 - Financial year calculation: April to March, YYYY-YY format matching Indian fiscal year
 - Document upload pattern: drag-drop zone + file picker + upload progress + file list
 
+**From Phase 5 execution:**
+
+**Plan 05-01 (Onboarding Workflows):**
+- Store checklist as JSON array instead of separate table for flexibility and atomicity
+- Use action-based status updates (accept, start_tasks, complete, cancel) instead of direct status field
+- Generate unique offer_token for candidate acceptance link instead of relying on email confirmation
+- Default checklist includes IT (laptop, email), Admin (desk), HR (docs), Manager (welcome) tasks
+- Verify all required checklist items completed before allowing transition to COMPLETED status
+- Assignee-based RBAC for checklist updates (can only update assigned tasks)
+- Workflow state machine pattern: ALLOWED_TRANSITIONS map with canTransition validation function
+- Action-based API pattern: PATCH with action enum instead of exposing status field directly
+
+**Plan 05-02 (Expense Management):**
+- Policy snapshot captured at submission time to prevent policy change issues
+- Multi-level approval routing: Manager (< Rs.500), HR_Manager (< Rs.2500), Admin (> Rs.2500)
+- Auto-approve logic for small expenses below policy threshold
+- Receipt storage in uploads/expenses/{claimId}/ with file validation (PDF/images, max 5MB)
+- Action-based PATCH API for submit/approve/reject workflow
+- RBAC filtering: employees see own, managers see subordinates' pending, admins see all
+- Sequential approval (must complete level N before level N+1)
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -408,6 +430,30 @@ Recent decisions affecting current work:
 **Modified (Plan 04-07):**
 - src/lib/queues/workers/payroll.worker.ts — Added email notification queueing in finalization stage using addEmailJob
 
+### Phase 5 Artifacts
+
+**Created (Plan 05-01):**
+- prisma/schema.prisma — OnboardingRecord model, OnboardingStatus enum
+- src/lib/validations/onboarding.ts — ChecklistItemSchema, CreateOnboardingSchema, UpdateOnboardingStatusSchema, UpdateChecklistSchema
+- src/lib/workflows/onboarding.ts — ALLOWED_TRANSITIONS, canTransitionOnboarding, generateDefaultChecklist, calculateChecklistProgress
+- src/app/api/onboarding/route.ts — GET (list with status filter), POST (create with email notification)
+- src/app/api/onboarding/[id]/route.ts — GET (detail), PATCH (action-based status update), DELETE (soft delete)
+- src/app/api/onboarding/[id]/checklist/route.ts — PATCH (update checklist item completion)
+- src/lib/email/templates/offer-letter-notification.ts — Offer letter email template
+
+**Modified (Plan 05-01):**
+- src/lib/email/templates/index.ts — Added offer-letter template to registry
+
+**Created (Plan 05-02):**
+- prisma/schema.prisma — ExpensePolicy, ExpenseClaim, ExpenseApproval models, ExpenseStatus, ApprovalStatus enums
+- src/lib/validations/expense.ts — Zod schemas for expense policies and claims
+- src/lib/workflows/expense.ts — Multi-level approval routing, state transitions, policy validation
+- src/app/api/expense-policies/route.ts — Policy list and create endpoints
+- src/app/api/expense-policies/[id]/route.ts — Policy CRUD operations
+- src/app/api/expenses/route.ts — Claim list and create with RBAC filtering
+- src/app/api/expenses/[id]/route.ts — Claim submit/approve/reject actions
+- src/app/api/expenses/[id]/receipt/route.ts — Receipt upload/download endpoints
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -472,6 +518,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed Phase 4 (Employee Self-Service)
-Stopped at: Phase 4 verified complete, ready for Phase 5 planning
+Last session: 2026-02-04 — Completed 05-02-PLAN.md (Expense Management)
+Stopped at: Completed Phase 5 Plan 2, ready for next plan
 Resume file: None
