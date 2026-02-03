@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Core data model, authentication, and audit infrastructure
 - [x] **Phase 2: Time & Attendance** - Attendance tracking and leave management workflows
 - [x] **Phase 3: Payroll & Compliance** - Automated payroll with Indian statutory compliance
-- [ ] **Phase 4: Employee Self-Service** - Mobile-first portal for employees
+- [x] **Phase 4: Employee Self-Service** - Mobile-first portal for employees
 - [ ] **Phase 5: Supporting Workflows** - Onboarding, expenses, and loan management
 - [ ] **Phase 6: AI Assistant** - Chat interface for HR queries and policy Q&A
 
@@ -116,14 +116,14 @@ Plans:
 **Plans**: 8 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Email notification infrastructure (Resend + BullMQ)
-- [ ] 04-02-PLAN.md — Investment declaration schema and APIs (80C/80D/HRA)
-- [ ] 04-03-PLAN.md — Profile update workflow with admin approval
-- [ ] 04-04-PLAN.md — Employee dashboard and payslip viewing (mobile-first)
-- [ ] 04-05-PLAN.md — Attendance calendar and leave application (mobile-first)
-- [ ] 04-06-PLAN.md — Investment declaration UI with real-time validation
-- [ ] 04-07-PLAN.md — Profile pages and payslip notification integration
-- [ ] 04-08-PLAN.md — Mobile portal verification (checkpoint)
+- [x] 04-01-PLAN.md — Email notification infrastructure (Resend + BullMQ)
+- [x] 04-02-PLAN.md — Investment declaration schema and APIs (80C/80D/HRA)
+- [x] 04-03-PLAN.md — Profile update workflow with admin approval
+- [x] 04-04-PLAN.md — Employee dashboard and payslip viewing (mobile-first)
+- [x] 04-05-PLAN.md — Attendance calendar and leave application (mobile-first)
+- [x] 04-06-PLAN.md — Investment declaration UI with real-time validation
+- [x] 04-07-PLAN.md — Profile pages and payslip notification integration
+- [x] 04-08-PLAN.md — Mobile portal verification (checkpoint)
 
 ### Phase 5: Supporting Workflows
 **Goal**: HR can onboard new employees digitally, process expense reimbursements, and manage employee loans
@@ -181,6 +181,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation | 4/4 | Complete | 2026-02-04 |
 | 2. Time & Attendance | 5/5 | Complete | 2026-02-04 |
 | 3. Payroll & Compliance | 9/9 | Complete | 2026-02-04 |
-| 4. Employee Self-Service | 0/8 | Planned | - |
+| 4. Employee Self-Service | 8/8 | Complete | 2026-02-04 |
 | 5. Supporting Workflows | 0/TBD | Not started | - |
 | 6. AI Assistant | 0/TBD | Not started | - |
