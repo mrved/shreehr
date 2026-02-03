@@ -11,28 +11,28 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
-Plan: 3 of TBD
+Plan: 4 of TBD
 Status: In progress
-Last activity: 2026-02-03 — Completed 01-03-PLAN.md (employee CRUD with PII encryption)
+Last activity: 2026-02-03 — Completed 01-04-PLAN.md (document storage and Keka import)
 
-Progress: [███░░░░░░░] ~30%
+Progress: [████░░░░░░] ~40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 8 min
-- Total execution time: 0.38 hours
+- Total plans completed: 4
+- Average duration: 7 min
+- Total execution time: 0.48 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 3 | 23min | 8min |
+| 01-foundation | 4 | 29min | 7min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (10min), 01-02 (6min), 01-03 (7min)
-- Trend: Stable (~7min average for last 2)
+- Last 5 plans: 01-01 (10min), 01-02 (6min), 01-03 (7min), 01-04 (6min)
+- Trend: Stable (~6-7min average for last 3)
 
 *Updated after each plan completion*
 
@@ -69,6 +69,15 @@ Recent decisions affecting current work:
 - Allow HR_MANAGER role same permissions as ADMIN for employee management
 - Zod validation schemas with Indian-specific regex (PAN, Aadhaar, IFSC)
 
+**From 01-04 execution:**
+- Store documents on local filesystem (./uploads/employees/{id}/) rather than cloud storage
+- Use integers (paise) for salary amounts instead of Decimal for precision
+- Store leave types as flexible strings instead of enum to support Keka's various types
+- Auto-create departments and designations during employee import
+- Two-pass employee import: first create employees, then assign managers
+- Track import errors in JSON field without failing entire batch
+- Soft delete documents with retention_until field for 8-year compliance
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -92,6 +101,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-03 19:37 - Completed 01-03 employee CRUD with PII encryption
-Stopped at: Completed 01-03-PLAN.md, created SUMMARY.md, updated STATE.md
+Last session: 2026-02-03 19:47 - Completed 01-04 document storage and Keka import
+Stopped at: Completed 01-04-PLAN.md, created SUMMARY.md, updated STATE.md
 Resume file: None
