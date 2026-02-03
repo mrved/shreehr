@@ -59,11 +59,14 @@ Plans:
   6. System syncs approved leave to attendance calendar and unapproved absence as LOP
   7. System locks attendance 5 days before payroll processing (with correction approval workflow)
 
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [x] 02-01-PLAN.md — Attendance model, check-in/out API, work hours calculation
+- [x] 02-02-PLAN.md — LeaveType/LeaveRequest models, leave type CRUD, leave request API with balance validation
+- [ ] 02-03-PLAN.md — Leave-to-attendance sync, leave balance APIs
+- [ ] 02-04-PLAN.md — Attendance and leave UI pages (employee, manager, admin views)
+- [ ] 02-05-PLAN.md — Attendance locking mechanism, correction approval workflow
 
 ### Phase 3: Payroll & Compliance
 **Goal**: Admin can run monthly payroll with accurate Indian statutory compliance and generate all required reports
@@ -164,7 +167,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete | 2026-02-04 |
-| 2. Time & Attendance | 0/TBD | Ready to execute | - |
+| 2. Time & Attendance | 2/5 | In progress | - |
 | 3. Payroll & Compliance | 0/TBD | Not started | - |
 | 4. Employee Self-Service | 0/TBD | Not started | - |
 | 5. Supporting Workflows | 0/TBD | Not started | - |

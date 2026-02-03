@@ -11,28 +11,29 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2 of 6 (Time & Attendance)
-Plan: 0 of TBD (planning needed)
-Status: Ready to plan
-Last activity: 2026-02-04 — Completed Phase 1: Foundation (all 4 plans verified)
+Plan: 2 of TBD (in progress)
+Status: In progress
+Last activity: 2026-02-03 — Completed 02-02-PLAN.md
 
-Progress: [██░░░░░░░░] ~17%
+Progress: [███░░░░░░░] ~20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 7 min
-- Total execution time: ~30 min
+- Total plans completed: 6
+- Average duration: 6 min
+- Total execution time: ~36 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 4 | 29min | 7min |
+| 02-time-attendance | 2 | 7min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (10min), 01-02 (6min), 01-03 (7min), 01-04 (6min)
-- Trend: Stable (~6-7min average for last 3)
+- Last 5 plans: 01-02 (6min), 01-03 (7min), 01-04 (6min), 02-01 (4min), 02-02 (3min)
+- Trend: Improving (3-4min for Phase 2 plans)
 
 *Updated after each plan completion*
 
@@ -72,6 +73,14 @@ Recent decisions affecting current work:
 - Track import errors in JSON field without failing entire batch
 - Soft delete documents with retention_until field for 8-year compliance
 
+**From Phase 2 execution:**
+- LeaveType model for configurable leave policies instead of hardcoded enum
+- Balance validation includes pending/approved requests to prevent over-booking
+- Weekend exclusion in leave days calculation (Saturday, Sunday)
+- Soft delete for leave types that have associated requests
+- Manager authorization via reporting_manager_id relationship
+- Auto-approve for leave types with requires_approval=false
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -89,6 +98,14 @@ Recent decisions affecting current work:
 - src/components/employees/ — Employee list and form components
 - src/components/auth/ — Login form
 
+### Phase 2 Artifacts
+
+**Created:**
+- prisma/schema.prisma — Added LeaveType and LeaveRequest models
+- src/lib/validations/leave.ts — Leave validation schemas and calculateLeaveDays helper
+- src/app/api/leave-types/ — Leave type CRUD (admin/HR only)
+- src/app/api/leave-requests/ — Leave request workflow with balance validation
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -101,10 +118,13 @@ Recent decisions affecting current work:
 ### Blockers/Concerns
 
 **Phase 2 Implementation:**
-- Need to add Attendance model to Prisma schema
-- Need to add LeaveType and LeaveRequest models
+- Need to add Attendance model to Prisma schema (if not already done in 02-01)
 - Attendance locking mechanism before payroll cut-off
 - Work hours calculation with half-day detection
+
+**Build Issues:**
+- Tailwind CSS PostCSS plugin error (pre-existing, not plan-related)
+- Requires @tailwindcss/postcss installation and config update
 
 **Phase 3 Planning:**
 - Will require deep research on Indian tax calculation edge cases (HRA formula, LTA rules, arrears taxation)
@@ -118,6 +138,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed Phase 1 Foundation (verified)
-Stopped at: Phase 1 verified, ready to plan Phase 2
+Last session: 2026-02-03 — Completed plan 02-02 (leave management)
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
