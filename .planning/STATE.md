@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2 of 6 (Time & Attendance)
-Plan: 2 of TBD (in progress)
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-03 — Completed 02-02-PLAN.md
+Last activity: 2026-02-03 — Completed 02-01-PLAN.md
 
-Progress: [███░░░░░░░] ~20%
+Progress: [███░░░░░░░] ~21%
 
 ## Performance Metrics
 
@@ -32,7 +32,7 @@ Progress: [███░░░░░░░] ~20%
 | 02-time-attendance | 2 | 7min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (6min), 01-03 (7min), 01-04 (6min), 02-01 (4min), 02-02 (3min)
+- Last 5 plans: 01-02 (6min), 01-03 (7min), 01-04 (6min), 02-02 (3min), 02-01 (4min)
 - Trend: Improving (3-4min for Phase 2 plans)
 
 *Updated after each plan completion*
@@ -80,6 +80,11 @@ Recent decisions affecting current work:
 - Soft delete for leave types that have associated requests
 - Manager authorization via reporting_manager_id relationship
 - Auto-approve for leave types with requires_approval=false
+- Work hours thresholds: >=7.5h (450 min) = PRESENT, >=4h (240 min) = HALF_DAY, <4h = ABSENT
+- Unique constraint on (employee_id, date) ensures one attendance record per day
+- AttendanceLock prevents changes to historical attendance with unlock approval workflow
+- Store work duration in minutes (not hours) for precision and flexibility
+- Regularization tracks who/when for audit compliance
 
 ### Phase 1 Artifacts
 
@@ -101,8 +106,10 @@ Recent decisions affecting current work:
 ### Phase 2 Artifacts
 
 **Created:**
-- prisma/schema.prisma — Added LeaveType and LeaveRequest models
+- prisma/schema.prisma — Added Attendance, AttendanceLock, LeaveType and LeaveRequest models
+- src/lib/validations/attendance.ts — Attendance validation schemas and calculateAttendanceStatus helper
 - src/lib/validations/leave.ts — Leave validation schemas and calculateLeaveDays helper
+- src/app/api/attendance/ — Check-in/check-out, list, and detail APIs with RBAC
 - src/app/api/leave-types/ — Leave type CRUD (admin/HR only)
 - src/app/api/leave-requests/ — Leave request workflow with balance validation
 
@@ -117,14 +124,11 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-**Phase 2 Implementation:**
-- Need to add Attendance model to Prisma schema (if not already done in 02-01)
-- Attendance locking mechanism before payroll cut-off
-- Work hours calculation with half-day detection
-
 **Build Issues:**
-- Tailwind CSS PostCSS plugin error (pre-existing, not plan-related)
+- Tailwind CSS PostCSS plugin error (pre-existing from Phase 1, not plan-related)
+- `pnpm build` fails but `pnpm tsc --noEmit` passes (code is correct)
 - Requires @tailwindcss/postcss installation and config update
+- Does not block functionality, can be addressed separately
 
 **Phase 3 Planning:**
 - Will require deep research on Indian tax calculation edge cases (HRA formula, LTA rules, arrears taxation)
@@ -138,6 +142,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-03 — Completed plan 02-02 (leave management)
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-02-03 — Completed plan 02-01 (attendance foundation)
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
