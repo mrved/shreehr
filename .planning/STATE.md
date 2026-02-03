@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 6 (Payroll & Compliance)
-Plan: 1 of 9 in current phase
+Plan: 2 of 9 in current phase
 Status: In progress
-Last activity: 2026-02-03 — Completed 03-01-PLAN.md (Salary Structure Configuration)
+Last activity: 2026-02-04 — Completed 03-02-PLAN.md (Professional Tax Configuration)
 
-Progress: [█████░░░░░] ~36%
+Progress: [█████░░░░░] ~38%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: 5.4 min
-- Total execution time: ~59 min
+- Total plans completed: 12
+- Average duration: 5.3 min
+- Total execution time: ~64 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████░░░░░] ~36%
 |-------|-------|-------|----------|
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
-| 03-payroll-compliance | 2 | 9min | 4.5min |
+| 03-payroll-compliance | 3 | 14min | 4.7min |
 
 **Recent Trend:**
-- Last 5 plans: 02-03 (1min), 02-04 (8min), 02-05 (5min), 03-03 (4min), 03-01 (5min)
-- Trend: Excellent velocity (Phase 3 maintaining 4-5min average)
+- Last 5 plans: 02-04 (8min), 02-05 (5min), 03-03 (4min), 03-01 (5min), 03-02 (5min)
+- Trend: Excellent velocity (Phase 3 maintaining consistent 4-5min average)
 
 *Updated after each plan completion*
 
@@ -108,6 +108,15 @@ Recent decisions affecting current work:
 - Zod refine for cross-field validation with descriptive error messages
 - Shortfall calculation in error messages to guide correction
 
+**Plan 03-02 (Professional Tax Configuration):**
+- PT slabs stored in database for runtime updates without code changes
+- Karnataka February PT is Rs.300 (not Rs.200) for proper annual total of Rs.2,400
+- Support month-specific PT rates via month field (null = applies to all months)
+- Support gender-based exemptions (Maharashtra women pay reduced rates)
+- Exempt states (DL, HR, HP, etc.) handled in code, no database slabs
+- Currency helpers: rupeeToPaise, rupeeToRupee, formatCurrency for consistency
+- Comprehensive statutory constants documented in constants.ts (PF, ESI, PT, TDS, Gratuity)
+
 **Plan 03-03 (BullMQ Infrastructure):**
 - BullMQ over Bull for modern TypeScript-first queue library
 - Process one payroll at a time (concurrency: 1) to prevent resource contention
@@ -168,6 +177,14 @@ Recent decisions affecting current work:
 - src/app/api/salary-structures/[id]/route.ts — GET/PATCH/DELETE endpoints for individual structures
 - prisma/schema.prisma — SalaryStructure model, TaxRegime enum, relations
 
+**Created (Plan 03-02):**
+- prisma/schema.prisma — ProfessionalTaxSlab model, PaymentFrequency enum
+- src/lib/payroll/constants.ts — Comprehensive statutory constants (PF, ESI, PT, TDS, Gratuity, Bonus)
+- src/lib/statutory/pt.ts — PT calculation with month-specific and gender-based logic
+- src/app/api/pt-slabs/route.ts — GET/POST endpoints for PT slabs with RBAC
+- src/app/api/pt-slabs/[state]/route.ts — State-specific GET/PUT/DELETE endpoints
+- prisma/seed-pt-slabs.ts — Seed data for KA, MH, TN, TS with accurate slab definitions
+
 **Created (Plan 03-03):**
 - prisma/schema.prisma — Added PayrollRun, PayrollRecord models with status/stage tracking
 - src/lib/queues/connection.ts — Redis connection singleton for BullMQ
@@ -188,6 +205,7 @@ Recent decisions affecting current work:
 1. Start Redis via Docker Compose: `docker compose up -d redis`
 2. Add REDIS_URL to .env file: `REDIS_URL="redis://localhost:6379"`
 3. Verify Redis connection: `docker compose logs redis`
+4. Seed PT slabs: `pnpm db:seed-pt` (after database is running)
 
 ### Blockers/Concerns
 
@@ -197,10 +215,11 @@ Recent decisions affecting current work:
 - Requires @tailwindcss/postcss installation and config update
 - Does not block functionality, can be addressed separately
 
-**Phase 3 Planning:**
+**Phase 3 Concerns:**
 - Will require deep research on Indian tax calculation edge cases (HRA formula, LTA rules, arrears taxation)
 - Form 24Q/16 generation specifications need latest FVU file format from TRACES portal
-- State-specific Professional Tax slabs and filing formats need validation
+- PT slab accuracy should be verified against latest state government notifications before production
+- Additional PT states (WB, AP, AS, CG, GJ, MP, ML, OR, TR) need slab data
 
 **Phase 6 Planning:**
 - Will require deep research on RAG implementation patterns (Vercel AI SDK + Ollama + Qdrant)
@@ -209,6 +228,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-03 — Completed 03-01-PLAN.md (Salary Structure Configuration)
-Stopped at: Completed Plan 03-01, Phase 3 in progress
+Last session: 2026-02-04 — Completed 03-02-PLAN.md (Professional Tax Configuration)
+Stopped at: Completed Plan 03-02 with PT slabs for KA, MH, TN, TS
 Resume file: None
