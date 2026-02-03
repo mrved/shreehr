@@ -11,29 +11,29 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2 of 6 (Time & Attendance)
-Plan: 4 of 5 in current phase
-Status: In progress (awaiting checkpoint verification)
-Last activity: 2026-02-04 — Completed 02-04-PLAN.md (Tasks 1-2, checkpoint pending)
+Plan: 5 of 5 in current phase
+Status: Phase 2 COMPLETE
+Last activity: 2026-02-04 — Completed 02-05-PLAN.md (Attendance lock and corrections)
 
-Progress: [████░░░░░░] ~28%
+Progress: [█████░░░░░] ~32%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 9
 - Average duration: 5.6 min
-- Total execution time: ~45 min
+- Total execution time: ~50 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 4 | 29min | 7min |
-| 02-time-attendance | 4 | 16min | 4min |
+| 02-time-attendance | 5 | 21min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (6min), 02-02 (3min), 02-01 (4min), 02-03 (1min), 02-04 (8min)
-- Trend: Good velocity (Phase 2 averaging 4min)
+- Last 5 plans: 02-02 (3min), 02-01 (4min), 02-03 (1min), 02-04 (8min), 02-05 (5min)
+- Trend: Good velocity (Phase 2 complete, averaging 4min)
 
 *Updated after each plan completion*
 
@@ -93,6 +93,8 @@ Recent decisions affecting current work:
 - Client components for interactive UI (check-in, calendars, forms)
 - Simple useToast hook with console/alert fallback for MVP
 - Prompt-based rejection reason input for manager approval flow
+- Correction workflow: only for locked periods with approved unlock
+- Lock lifecycle: lock -> request-unlock -> approve-unlock -> corrections -> re-lock
 
 ### Phase 1 Artifacts
 
@@ -129,6 +131,10 @@ Recent decisions affecting current work:
 - src/hooks/use-toast.ts — Toast notification hook
 - src/components/ui/switch.tsx — Toggle switch component
 - src/components/ui/progress.tsx — Progress bar component
+- src/app/api/attendance/lock/ — Attendance lock management API
+- src/app/api/attendance/corrections/ — Correction request and approval APIs
+- src/app/(dashboard)/attendance/lock/ — Admin lock management page
+- src/components/attendance/attendance-lock-manager.tsx — Lock management UI
 
 ### Pending Todos
 
@@ -159,6 +165,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed plan 02-04 (attendance & leave UI)
-Stopped at: 02-04-PLAN.md checkpoint (human-verify pending)
+Last session: 2026-02-04 — Completed plan 02-05 (attendance lock and corrections)
+Stopped at: Completed 02-05-PLAN.md - Phase 2 complete
 Resume file: None
