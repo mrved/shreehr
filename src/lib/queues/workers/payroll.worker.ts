@@ -6,6 +6,7 @@ import {
   calculatePayroll,
   getAttendanceSummary,
 } from '@/lib/payroll/calculator';
+import { addEmailJob } from '@/lib/email/queue';
 
 /**
  * Create and start the payroll worker
@@ -353,7 +354,38 @@ async function processStatutoryStage(
 async function processFinalizationStage(
   job: Job<PayrollJobData, PayrollJobResult>
 ): Promise<PayrollJobResult> {
-  const { payrollRunId } = job.data;
+  const { payrollRunId, month, year } = job.data;
+
+  // Get the payroll run for employee records
+  const payrollRun = await prisma.payrollRun.findUnique({
+    where: { id: payrollRunId },
+    include: {
+      records: {
+        where: {
+          status: 'CALCULATED',
+        },
+        include: {
+          employee: {
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              personal_email: true,
+              user: {
+                select: {
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!payrollRun) {
+    throw new Error('Payroll run not found');
+  }
 
   await prisma.payrollRun.update({
     where: { id: payrollRunId },
@@ -374,11 +406,43 @@ async function processFinalizationStage(
     },
   });
 
+  // Queue payslip email notifications for each employee
+  let emailsSent = 0;
+  let emailsFailed = 0;
+
+  for (const record of payrollRun.records) {
+    const employee = record.employee;
+    const email = employee.personal_email || employee.user?.email;
+
+    if (email) {
+      try {
+        await addEmailJob('payslip-available', email, {
+          employeeName: `${employee.first_name} ${employee.last_name}`,
+          month: month.toString(),
+          year: year.toString(),
+          payslipUrl: `/employee/payslips/${record.id}`,
+        });
+        emailsSent++;
+        console.log(`Queued payslip email for employee ${employee.id} (${email})`);
+      } catch (err) {
+        emailsFailed++;
+        console.error(`Failed to queue email for employee ${employee.id}:`, err);
+        // Don't throw - email failure shouldn't fail payroll
+      }
+    } else {
+      console.warn(`No email address for employee ${employee.id}, skipping notification`);
+    }
+  }
+
+  console.log(
+    `Payroll finalization complete: ${emailsSent} emails queued, ${emailsFailed} failed`
+  );
+
   await job.updateProgress(100);
 
   return {
     success: true,
-    processedCount: 0,
-    errorCount: 0,
+    processedCount: emailsSent,
+    errorCount: emailsFailed,
   };
 }
