@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 5 of 6 (Supporting Workflows)
-Plan: 2 of TBD in current phase
+Plan: 3 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 05-02-PLAN.md (Expense Management)
+Last activity: 2026-02-04 — Completed 05-03-PLAN.md (Employee Loan Management)
 
-Progress: [██████████░░] ~68%
+Progress: [██████████░░] ~69%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28
-- Average duration: 5.3 min
-- Total execution time: ~152 min
+- Total plans completed: 29
+- Average duration: 5.6 min
+- Total execution time: ~161 min
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [██████████░░] ~68%
 | 02-time-attendance | 5 | 21min | 4min |
 | 03-payroll-compliance | 9 | 38min | 4.2min |
 | 04-employee-self-service | 8 | 52min | 6.5min |
-| 05-supporting-workflows | 2 | 12min | 6min |
+| 05-supporting-workflows | 3 | 21min | 7min |
 
 **Recent Trend:**
-- Last 5 plans: 04-07 (6min), 04-08 (2min), 05-01 (6min), 05-02 (6min)
-- Trend: Excellent velocity (maintaining ~5-6min average)
+- Last 5 plans: 04-08 (2min), 05-01 (6min), 05-02 (6min), 05-03 (9min)
+- Trend: Excellent velocity (maintaining ~5-7min average)
 
 *Updated after each plan completion*
 
@@ -256,6 +256,16 @@ Recent decisions affecting current work:
 - RBAC filtering: employees see own, managers see subordinates' pending, admins see all
 - Sequential approval (must complete level N before level N+1)
 
+**Plan 05-03 (Employee Loan Management):**
+- EMI calculation using reducing balance method with zero-interest handling
+- Pre-create all LoanDeduction records on loan creation for payroll sync readiness
+- Unique constraint (loan_id, month, year) prevents double deduction
+- Calculate total interest from schedule (not formula) for rounding accuracy
+- Cancel action deletes SCHEDULED deductions, preserves DEDUCTED for audit trail
+- Only PENDING loans can be deleted, active loans must be cancelled/closed
+- Loan lifecycle: PENDING (created) → ACTIVE (disbursed) → CLOSED (repaid) or CANCELLED
+- LoanDeduction status: SCHEDULED (future) → DEDUCTED (processed) or SKIPPED
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -454,6 +464,15 @@ Recent decisions affecting current work:
 - src/app/api/expenses/[id]/route.ts — Claim submit/approve/reject actions
 - src/app/api/expenses/[id]/receipt/route.ts — Receipt upload/download endpoints
 
+**Created (Plan 05-03):**
+- prisma/schema.prisma — EmployeeLoan, LoanDeduction models, LoanStatus, DeductionStatus enums
+- src/lib/validations/loan.ts — CreateLoanSchema, UpdateLoanStatusSchema, LoanFilterSchema with Zod validation
+- src/lib/workflows/loan.ts — EMI calculation, amortization schedule generation, total interest calculation
+- src/lib/workflows/loan.test.ts — 9 comprehensive unit tests for EMI accuracy
+- src/app/api/loans/route.ts — List and create loans with RBAC and pre-created deductions
+- src/app/api/loans/[id]/route.ts — Loan detail, status transitions (disburse/close/cancel), delete
+- src/app/api/loans/[id]/schedule/route.ts — Full amortization schedule with status tracking
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -525,6 +544,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 05-02-PLAN.md (Expense Management)
-Stopped at: Completed Phase 5 Plan 2, ready for next plan
+Last session: 2026-02-04 — Completed 05-03-PLAN.md (Employee Loan Management)
+Stopped at: Completed Phase 5 Plan 3, ready for next plan
 Resume file: None
