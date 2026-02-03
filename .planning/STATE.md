@@ -11,29 +11,29 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2 of 6 (Time & Attendance)
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-03 — Completed 02-01-PLAN.md
+Last activity: 2026-02-03 — Completed 02-03-PLAN.md
 
-Progress: [███░░░░░░░] ~21%
+Progress: [███░░░░░░░] ~24%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 6 min
-- Total execution time: ~36 min
+- Total plans completed: 7
+- Average duration: 5 min
+- Total execution time: ~37 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 4 | 29min | 7min |
-| 02-time-attendance | 2 | 7min | 4min |
+| 02-time-attendance | 3 | 8min | 3min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (6min), 01-03 (7min), 01-04 (6min), 02-02 (3min), 02-01 (4min)
-- Trend: Improving (3-4min for Phase 2 plans)
+- Last 5 plans: 01-03 (7min), 01-04 (6min), 02-02 (3min), 02-01 (4min), 02-03 (1min)
+- Trend: Excellent improvement (Phase 2 averaging 3min)
 
 *Updated after each plan completion*
 
@@ -85,6 +85,11 @@ Recent decisions affecting current work:
 - AttendanceLock prevents changes to historical attendance with unlock approval workflow
 - Store work duration in minutes (not hours) for precision and flexibility
 - Regularization tracks who/when for audit compliance
+- Upsert pattern for attendance sync (idempotent, handles multiple sync runs)
+- LOP identification marks days without attendance or leave as ABSENT
+- Balance view includes pending requests to show real availability
+- Carry forward respects max_carry_forward limit from leave type
+- Manual balance adjustments update accrued/used for audit trail
 
 ### Phase 1 Artifacts
 
@@ -110,8 +115,10 @@ Recent decisions affecting current work:
 - src/lib/validations/attendance.ts — Attendance validation schemas and calculateAttendanceStatus helper
 - src/lib/validations/leave.ts — Leave validation schemas and calculateLeaveDays helper
 - src/app/api/attendance/ — Check-in/check-out, list, and detail APIs with RBAC
+- src/app/api/attendance/sync/ — Leave-to-attendance sync with LOP identification
 - src/app/api/leave-types/ — Leave type CRUD (admin/HR only)
 - src/app/api/leave-requests/ — Leave request workflow with balance validation
+- src/app/api/leave-balances/ — Balance viewing, initialization, and manual adjustment APIs
 
 ### Pending Todos
 
@@ -142,6 +149,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-03 — Completed plan 02-01 (attendance foundation)
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-02-03 — Completed plan 02-03 (leave-attendance sync and balance APIs)
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
