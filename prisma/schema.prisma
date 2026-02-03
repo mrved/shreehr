@@ -14,44 +14,47 @@ datasource db {
 // ============================================================================
 
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
-  name              String
-  password_hash     String
-  role              UserRole  @default(EMPLOYEE)
-  employee_id       String?   @unique
-  employee          Employee? @relation(fields: [employee_id], references: [id])
-  is_active         Boolean   @default(true)
-  last_login_at     DateTime?
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password_hash String
+  role          UserRole  @default(EMPLOYEE)
+  employee_id   String?   @unique
+  employee      Employee? @relation(fields: [employee_id], references: [id])
+  is_active     Boolean   @default(true)
+  last_login_at DateTime?
 
   // Audit fields
-  created_at        DateTime  @default(now())
-  created_by        String?
-  updated_at        DateTime  @updatedAt
-  updated_by        String?
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt
+  updated_by String?
 
   // Relations
-  created_employees  Employee[]       @relation("EmployeeCreatedBy")
-  updated_employees  Employee[]       @relation("EmployeeUpdatedBy")
-  created_departments Department[]    @relation("DepartmentCreatedBy")
-  updated_departments Department[]    @relation("DepartmentUpdatedBy")
-  created_designations Designation[]  @relation("DesignationCreatedBy")
-  updated_designations Designation[]  @relation("DesignationUpdatedBy")
-  created_documents  Document[]       @relation("DocumentCreatedBy")
-  updated_documents  Document[]       @relation("DocumentUpdatedBy")
-  created_salary_records SalaryRecord[] @relation("SalaryRecordCreatedBy")
-  updated_salary_records SalaryRecord[] @relation("SalaryRecordUpdatedBy")
-  created_leave_balances LeaveBalance[] @relation("LeaveBalanceCreatedBy")
-  updated_leave_balances LeaveBalance[] @relation("LeaveBalanceUpdatedBy")
-  created_import_batches ImportBatch[]  @relation("ImportBatchCreatedBy")
-  created_leave_types LeaveType[]      @relation("LeaveTypeCreatedBy")
-  updated_leave_types LeaveType[]      @relation("LeaveTypeUpdatedBy")
-  created_leave_requests LeaveRequest[] @relation("LeaveRequestCreatedBy")
-  updated_leave_requests LeaveRequest[] @relation("LeaveRequestUpdatedBy")
-  approved_leave_requests LeaveRequest[] @relation("LeaveRequestApprovedBy")
-  created_attendances Attendance[] @relation("AttendanceCreatedBy")
-  updated_attendances Attendance[] @relation("AttendanceUpdatedBy")
-  locked_attendance_periods AttendanceLock[] @relation("AttendanceLockLockedBy")
+  created_employees         Employee[]             @relation("EmployeeCreatedBy")
+  updated_employees         Employee[]             @relation("EmployeeUpdatedBy")
+  created_departments       Department[]           @relation("DepartmentCreatedBy")
+  updated_departments       Department[]           @relation("DepartmentUpdatedBy")
+  created_designations      Designation[]          @relation("DesignationCreatedBy")
+  updated_designations      Designation[]          @relation("DesignationUpdatedBy")
+  created_documents         Document[]             @relation("DocumentCreatedBy")
+  updated_documents         Document[]             @relation("DocumentUpdatedBy")
+  created_salary_records    SalaryRecord[]         @relation("SalaryRecordCreatedBy")
+  updated_salary_records    SalaryRecord[]         @relation("SalaryRecordUpdatedBy")
+  created_leave_balances    LeaveBalance[]         @relation("LeaveBalanceCreatedBy")
+  updated_leave_balances    LeaveBalance[]         @relation("LeaveBalanceUpdatedBy")
+  created_import_batches    ImportBatch[]          @relation("ImportBatchCreatedBy")
+  created_leave_types       LeaveType[]            @relation("LeaveTypeCreatedBy")
+  updated_leave_types       LeaveType[]            @relation("LeaveTypeUpdatedBy")
+  created_leave_requests    LeaveRequest[]         @relation("LeaveRequestCreatedBy")
+  updated_leave_requests    LeaveRequest[]         @relation("LeaveRequestUpdatedBy")
+  approved_leave_requests   LeaveRequest[]         @relation("LeaveRequestApprovedBy")
+  created_attendances       Attendance[]           @relation("AttendanceCreatedBy")
+  updated_attendances       Attendance[]           @relation("AttendanceUpdatedBy")
+  locked_attendance_periods AttendanceLock[]       @relation("AttendanceLockLockedBy")
+  created_corrections       AttendanceCorrection[] @relation("CorrectionCreatedBy")
+  updated_corrections       AttendanceCorrection[] @relation("CorrectionUpdatedBy")
+  approved_corrections      AttendanceCorrection[] @relation("CorrectionApprovedBy")
 
   @@map("users")
 }
@@ -69,46 +72,46 @@ enum UserRole {
 // ============================================================================
 
 model Department {
-  id           String   @id @default(cuid())
-  name         String   @unique
-  code         String   @unique
-  description  String?
-  parent_id    String?
-  parent       Department?  @relation("DepartmentHierarchy", fields: [parent_id], references: [id])
-  children     Department[] @relation("DepartmentHierarchy")
-  is_active    Boolean  @default(true)
+  id          String       @id @default(cuid())
+  name        String       @unique
+  code        String       @unique
+  description String?
+  parent_id   String?
+  parent      Department?  @relation("DepartmentHierarchy", fields: [parent_id], references: [id])
+  children    Department[] @relation("DepartmentHierarchy")
+  is_active   Boolean      @default(true)
 
   // Audit fields
-  created_at   DateTime @default(now())
-  created_by   String?
-  creator      User?    @relation("DepartmentCreatedBy", fields: [created_by], references: [id])
-  updated_at   DateTime @updatedAt
-  updated_by   String?
-  updater      User?    @relation("DepartmentUpdatedBy", fields: [updated_by], references: [id])
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("DepartmentCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("DepartmentUpdatedBy", fields: [updated_by], references: [id])
 
   // Relations
-  employees    Employee[]
+  employees Employee[]
 
   @@map("departments")
 }
 
 model Designation {
-  id           String   @id @default(cuid())
-  title        String   @unique
-  description  String?
-  level        Int      @default(1)
-  is_active    Boolean  @default(true)
+  id          String  @id @default(cuid())
+  title       String  @unique
+  description String?
+  level       Int     @default(1)
+  is_active   Boolean @default(true)
 
   // Audit fields
-  created_at   DateTime @default(now())
-  created_by   String?
-  creator      User?    @relation("DesignationCreatedBy", fields: [created_by], references: [id])
-  updated_at   DateTime @updatedAt
-  updated_by   String?
-  updater      User?    @relation("DesignationUpdatedBy", fields: [updated_by], references: [id])
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("DesignationCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("DesignationUpdatedBy", fields: [updated_by], references: [id])
 
   // Relations
-  employees    Employee[]
+  employees Employee[]
 
   @@map("designations")
 }
@@ -118,78 +121,78 @@ model Designation {
 // ============================================================================
 
 model Employee {
-  id                    String      @id @default(cuid())
-  employee_code         String      @unique
+  id            String @id @default(cuid())
+  employee_code String @unique
 
   // Personal Information
-  first_name            String
-  middle_name           String?
-  last_name             String
-  date_of_birth         DateTime
-  gender                Gender
-  marital_status        MaritalStatus @default(SINGLE)
-  blood_group           String?
+  first_name     String
+  middle_name    String?
+  last_name      String
+  date_of_birth  DateTime
+  gender         Gender
+  marital_status MaritalStatus @default(SINGLE)
+  blood_group    String?
 
   // Contact Information
-  personal_email        String?
-  personal_phone        String
-  emergency_contact     String?
-  emergency_phone       String?
+  personal_email    String?
+  personal_phone    String
+  emergency_contact String?
+  emergency_phone   String?
 
   // Address
-  address_line1         String
-  address_line2         String?
-  city                  String
-  state                 String
-  postal_code           String
-  country               String      @default("India")
+  address_line1 String
+  address_line2 String?
+  city          String
+  state         String
+  postal_code   String
+  country       String  @default("India")
 
   // PII - Encrypted fields (stored as encrypted strings)
-  pan_encrypted         String?     // PAN card number
-  aadhaar_encrypted     String?     // Aadhaar number
-  bank_account_encrypted String?    // Bank account number
+  pan_encrypted          String? // PAN card number
+  aadhaar_encrypted      String? // Aadhaar number
+  bank_account_encrypted String? // Bank account number
 
   // Bank Details (non-PII)
-  bank_name             String?
-  bank_branch           String?
-  bank_ifsc             String?
+  bank_name   String?
+  bank_branch String?
+  bank_ifsc   String?
 
   // Employment Details
-  department_id         String
-  department            Department  @relation(fields: [department_id], references: [id])
-  designation_id        String
-  designation           Designation @relation(fields: [designation_id], references: [id])
-  reporting_manager_id  String?
-  reporting_manager     Employee?   @relation("EmployeeReportsTo", fields: [reporting_manager_id], references: [id])
-  subordinates          Employee[]  @relation("EmployeeReportsTo")
+  department_id        String
+  department           Department  @relation(fields: [department_id], references: [id])
+  designation_id       String
+  designation          Designation @relation(fields: [designation_id], references: [id])
+  reporting_manager_id String?
+  reporting_manager    Employee?   @relation("EmployeeReportsTo", fields: [reporting_manager_id], references: [id])
+  subordinates         Employee[]  @relation("EmployeeReportsTo")
 
   // Employment Status
-  date_of_joining       DateTime
-  date_of_leaving       DateTime?
-  employment_type       EmploymentType @default(FULL_TIME)
-  employment_status     EmploymentStatus @default(ACTIVE)
+  date_of_joining   DateTime
+  date_of_leaving   DateTime?
+  employment_type   EmploymentType   @default(FULL_TIME)
+  employment_status EmploymentStatus @default(ACTIVE)
 
   // Statutory Compliance
-  uan                   String?     // Universal Account Number (PF)
-  esic_number           String?     // ESIC number
+  uan                    String? // Universal Account Number (PF)
+  esic_number            String? // ESIC number
   previous_employer_name String?
   previous_employer_uan  String?
 
   // Audit fields
-  created_at            DateTime    @default(now())
-  created_by            String?
-  creator               User?       @relation("EmployeeCreatedBy", fields: [created_by], references: [id])
-  updated_at            DateTime    @updatedAt
-  updated_by            String?
-  updater               User?       @relation("EmployeeUpdatedBy", fields: [updated_by], references: [id])
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("EmployeeCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("EmployeeUpdatedBy", fields: [updated_by], references: [id])
 
   // Relations
-  user                  User?
-  documents             Document[]
-  salary_records        SalaryRecord[]
-  leave_balances        LeaveBalance[]
-  leave_requests        LeaveRequest[]
-  attendances           Attendance[]
+  user           User?
+  documents      Document[]
+  salary_records SalaryRecord[]
+  leave_balances LeaveBalance[]
+  leave_requests LeaveRequest[]
+  attendances    Attendance[]
 
   @@map("employees")
 }
@@ -227,33 +230,33 @@ enum EmploymentStatus {
 // ============================================================================
 
 model Document {
-  id              String       @id @default(cuid())
-  employee_id     String
-  employee        Employee     @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
-  type            DocumentType
-  file_name       String       // Unique generated filename
-  original_name   String       // Original uploaded filename
-  storage_path    String       // Full path on local filesystem
-  file_size       Int          // bytes
-  mime_type       String
-  description     String?
+  type          DocumentType
+  file_name     String // Unique generated filename
+  original_name String // Original uploaded filename
+  storage_path  String // Full path on local filesystem
+  file_size     Int // bytes
+  mime_type     String
+  description   String?
 
-  uploaded_at     DateTime     @default(now())
-  retention_until DateTime     // 8 years from upload
+  uploaded_at     DateTime  @default(now())
+  retention_until DateTime // 8 years from upload
   verified_at     DateTime?
   verified_by     String?
 
-  is_deleted      Boolean      @default(false)
-  deleted_at      DateTime?
+  is_deleted Boolean   @default(false)
+  deleted_at DateTime?
 
   // Audit fields
-  created_at      DateTime     @default(now())
-  created_by      String?
-  creator         User?        @relation("DocumentCreatedBy", fields: [created_by], references: [id])
-  updated_at      DateTime     @updatedAt
-  updated_by      String?
-  updater         User?        @relation("DocumentUpdatedBy", fields: [updated_by], references: [id])
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("DocumentCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("DocumentUpdatedBy", fields: [updated_by], references: [id])
 
   @@map("documents")
 }
@@ -280,56 +283,56 @@ enum DocumentType {
 // ============================================================================
 
 model SalaryRecord {
-  id                    String   @id @default(cuid())
-  employee_id           String
-  employee              Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   // Salary Period
-  month                 Int      // 1-12
-  year                  Int
+  month Int // 1-12
+  year  Int
 
   // Salary Structure (stored in paise for precision)
-  basic_pay             Int      @default(0)
-  hra                   Int      @default(0)
-  conveyance            Int      @default(0)
-  special_allowance     Int      @default(0)
-  other_allowances      Int      @default(0)
+  basic_pay         Int @default(0)
+  hra               Int @default(0)
+  conveyance        Int @default(0)
+  special_allowance Int @default(0)
+  other_allowances  Int @default(0)
 
   // Deductions (stored in paise)
-  pf_employee           Int      @default(0)
-  pf_employer           Int      @default(0)
-  esi_employee          Int      @default(0)
-  esi_employer          Int      @default(0)
-  professional_tax      Int      @default(0)
-  tds                   Int      @default(0)
-  other_deductions      Int      @default(0)
+  pf_employee      Int @default(0)
+  pf_employer      Int @default(0)
+  esi_employee     Int @default(0)
+  esi_employer     Int @default(0)
+  professional_tax Int @default(0)
+  tds              Int @default(0)
+  other_deductions Int @default(0)
 
   // Totals (stored in paise)
-  gross_salary          Int      @default(0)
-  net_salary            Int      @default(0)
+  gross_salary Int @default(0)
+  net_salary   Int @default(0)
 
   // Payment Details
-  payment_date          DateTime?
-  payment_mode          PaymentMode @default(BANK_TRANSFER)
-  payment_reference     String?
+  payment_date      DateTime?
+  payment_mode      PaymentMode @default(BANK_TRANSFER)
+  payment_reference String?
 
   // Status
-  status                SalaryStatus @default(DRAFT)
-  approved_by           String?
-  approved_at           DateTime?
+  status      SalaryStatus @default(DRAFT)
+  approved_by String?
+  approved_at DateTime?
 
   // Import tracking
-  source                String   @default("MANUAL")
-  import_batch_id       String?
-  import_batch          ImportBatch? @relation(fields: [import_batch_id], references: [id])
+  source          String       @default("MANUAL")
+  import_batch_id String?
+  import_batch    ImportBatch? @relation(fields: [import_batch_id], references: [id])
 
   // Audit fields
-  created_at            DateTime @default(now())
-  created_by            String?
-  creator               User?    @relation("SalaryRecordCreatedBy", fields: [created_by], references: [id])
-  updated_at            DateTime @updatedAt
-  updated_by            String?
-  updater               User?    @relation("SalaryRecordUpdatedBy", fields: [updated_by], references: [id])
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("SalaryRecordCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("SalaryRecordUpdatedBy", fields: [updated_by], references: [id])
 
   @@unique([employee_id, month, year])
   @@index([month, year])
@@ -355,96 +358,96 @@ enum SalaryStatus {
 // ============================================================================
 
 model LeaveBalance {
-  id              String   @id @default(cuid())
-  employee_id     String
-  employee        Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
-  year            Int
-  leave_type      String   // String for flexibility (Keka has various types)
+  year       Int
+  leave_type String // String for flexibility (Keka has various types)
 
-  opening         Float    @default(0)
-  accrued         Float    @default(0)
-  used            Float    @default(0)
-  balance         Float    @default(0)
+  opening Float @default(0)
+  accrued Float @default(0)
+  used    Float @default(0)
+  balance Float @default(0)
 
   // Import tracking
-  source          String   @default("MANUAL")
+  source          String       @default("MANUAL")
   import_batch_id String?
   import_batch    ImportBatch? @relation(fields: [import_batch_id], references: [id])
 
   // Audit fields
-  created_at      DateTime @default(now())
-  created_by      String?
-  creator         User?    @relation("LeaveBalanceCreatedBy", fields: [created_by], references: [id])
-  updated_at      DateTime @updatedAt
-  updated_by      String?
-  updater         User?    @relation("LeaveBalanceUpdatedBy", fields: [updated_by], references: [id])
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("LeaveBalanceCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("LeaveBalanceUpdatedBy", fields: [updated_by], references: [id])
 
   @@unique([employee_id, leave_type, year])
   @@map("leave_balances")
 }
 
 model LeaveType {
-  id                String   @id @default(cuid())
-  name              String   @unique  // e.g., "Casual Leave", "Sick Leave"
-  code              String   @unique  // e.g., "CL", "SL", "EL"
-  description       String?
+  id          String  @id @default(cuid())
+  name        String  @unique // e.g., "Casual Leave", "Sick Leave"
+  code        String  @unique // e.g., "CL", "SL", "EL"
+  description String?
 
-  annual_quota      Float    @default(0)  // Default annual entitlement (can be fractional for half-days)
-  max_carry_forward Float    @default(0)  // Max days that can be carried to next year
-  is_paid           Boolean  @default(true)  // Paid leave or LOP
-  requires_approval Boolean  @default(true)
-  min_days_notice   Int      @default(0)  // Advance notice required
+  annual_quota      Float   @default(0) // Default annual entitlement (can be fractional for half-days)
+  max_carry_forward Float   @default(0) // Max days that can be carried to next year
+  is_paid           Boolean @default(true) // Paid leave or LOP
+  requires_approval Boolean @default(true)
+  min_days_notice   Int     @default(0) // Advance notice required
 
-  is_active         Boolean  @default(true)
+  is_active Boolean @default(true)
 
   // Audit fields
-  created_at        DateTime @default(now())
-  created_by        String?
-  creator           User?    @relation("LeaveTypeCreatedBy", fields: [created_by], references: [id])
-  updated_at        DateTime @updatedAt
-  updated_by        String?
-  updater           User?    @relation("LeaveTypeUpdatedBy", fields: [updated_by], references: [id])
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("LeaveTypeCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("LeaveTypeUpdatedBy", fields: [updated_by], references: [id])
 
   // Relations
-  leave_requests    LeaveRequest[]
+  leave_requests LeaveRequest[]
 
   @@map("leave_types")
 }
 
 model LeaveRequest {
-  id              String   @id @default(cuid())
-  employee_id     String
-  employee        Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
-  leave_type_id   String
-  leave_type      LeaveType @relation(fields: [leave_type_id], references: [id])
+  id            String    @id @default(cuid())
+  employee_id   String
+  employee      Employee  @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  leave_type_id String
+  leave_type    LeaveType @relation(fields: [leave_type_id], references: [id])
 
   start_date      DateTime @db.Date
   end_date        DateTime @db.Date
-  days_count      Float    // Calculated from dates (supports half-days)
+  days_count      Float // Calculated from dates (supports half-days)
   is_half_day     Boolean  @default(false)
-  half_day_period String?  // "FIRST_HALF" or "SECOND_HALF"
+  half_day_period String? // "FIRST_HALF" or "SECOND_HALF"
 
-  reason          String
-  status          LeaveRequestStatus @default(PENDING)
+  reason String
+  status LeaveRequestStatus @default(PENDING)
 
   // Approval tracking
-  approved_by     String?
-  approver        User?    @relation("LeaveRequestApprovedBy", fields: [approved_by], references: [id])
-  approved_at     DateTime?
+  approved_by      String?
+  approver         User?     @relation("LeaveRequestApprovedBy", fields: [approved_by], references: [id])
+  approved_at      DateTime?
   rejection_reason String?
 
   // Cancellation
-  cancelled_at    DateTime?
+  cancelled_at        DateTime?
   cancellation_reason String?
 
   // Audit fields
-  created_at      DateTime @default(now())
-  created_by      String?
-  creator         User?    @relation("LeaveRequestCreatedBy", fields: [created_by], references: [id])
-  updated_at      DateTime @updatedAt
-  updated_by      String?
-  updater         User?    @relation("LeaveRequestUpdatedBy", fields: [updated_by], references: [id])
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("LeaveRequestCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("LeaveRequestUpdatedBy", fields: [updated_by], references: [id])
 
   @@index([employee_id, status])
   @@index([start_date, end_date])
@@ -463,30 +466,33 @@ enum LeaveRequestStatus {
 // ============================================================================
 
 model Attendance {
-  id              String   @id @default(cuid())
-  employee_id     String
-  employee        Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
-  date            DateTime @db.Date  // The attendance date
-  check_in        DateTime?          // Check-in timestamp
-  check_out       DateTime?          // Check-out timestamp
-  work_minutes    Int      @default(0)  // Calculated work duration in minutes
+  date         DateTime  @db.Date // The attendance date
+  check_in     DateTime? // Check-in timestamp
+  check_out    DateTime? // Check-out timestamp
+  work_minutes Int       @default(0) // Calculated work duration in minutes
 
-  status          AttendanceStatus @default(ABSENT)
-  source          AttendanceSource @default(WEB)
+  status AttendanceStatus @default(ABSENT)
+  source AttendanceSource @default(WEB)
 
-  remarks         String?
-  is_regularized  Boolean  @default(false)  // If manually corrected
-  regularized_by  String?
-  regularized_at  DateTime?
+  remarks        String?
+  is_regularized Boolean   @default(false) // If manually corrected
+  regularized_by String?
+  regularized_at DateTime?
 
   // Audit fields
-  created_at      DateTime @default(now())
-  created_by      String?
-  creator         User?    @relation("AttendanceCreatedBy", fields: [created_by], references: [id])
-  updated_at      DateTime @updatedAt
-  updated_by      String?
-  updater         User?    @relation("AttendanceUpdatedBy", fields: [updated_by], references: [id])
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("AttendanceCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("AttendanceUpdatedBy", fields: [updated_by], references: [id])
+
+  // Relations for corrections
+  corrections AttendanceCorrection[]
 
   @@unique([employee_id, date])
   @@index([date])
@@ -512,20 +518,20 @@ enum AttendanceSource {
 }
 
 model AttendanceLock {
-  id          String   @id @default(cuid())
-  month       Int      // 1-12
-  year        Int
+  id    String @id @default(cuid())
+  month Int // 1-12
+  year  Int
 
-  locked_at   DateTime @default(now())
-  locked_by   String
-  locker      User     @relation("AttendanceLockLockedBy", fields: [locked_by], references: [id])
+  locked_at DateTime @default(now())
+  locked_by String
+  locker    User     @relation("AttendanceLockLockedBy", fields: [locked_by], references: [id])
 
   // Allow corrections with approval
-  unlock_requested_by  String?
-  unlock_requested_at  DateTime?
-  unlock_reason        String?
-  unlock_approved_by   String?
-  unlock_approved_at   DateTime?
+  unlock_requested_by String?
+  unlock_requested_at DateTime?
+  unlock_reason       String?
+  unlock_approved_by  String?
+  unlock_approved_at  DateTime?
 
   @@unique([month, year])
   @@map("attendance_locks")
@@ -536,32 +542,32 @@ model AttendanceLock {
 // ============================================================================
 
 model ImportBatch {
-  id                String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  type              ImportType
-  file_name         String
-  file_path         String?
+  type      ImportType
+  file_name String
+  file_path String?
 
-  total_records     Int
-  success_count     Int      @default(0)
-  error_count       Int      @default(0)
+  total_records Int
+  success_count Int @default(0)
+  error_count   Int @default(0)
 
-  status            ImportStatus @default(PENDING)
-  errors            Json?
+  status ImportStatus @default(PENDING)
+  errors Json?
 
-  started_at        DateTime @default(now())
-  completed_at      DateTime?
+  started_at   DateTime  @default(now())
+  completed_at DateTime?
 
   // Audit fields
-  created_at        DateTime @default(now())
-  created_by        String?
-  creator           User?    @relation("ImportBatchCreatedBy", fields: [created_by], references: [id])
-  updated_at        DateTime @updatedAt
-  updated_by        String?
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("ImportBatchCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
 
   // Relations
-  salary_records    SalaryRecord[]
-  leave_balances    LeaveBalance[]
+  salary_records SalaryRecord[]
+  leave_balances LeaveBalance[]
 
   @@map("import_batches")
 }
@@ -579,4 +585,43 @@ enum ImportStatus {
   COMPLETED
   FAILED
   PARTIALLY_COMPLETED
+}
+
+// ============================================================================
+// ATTENDANCE CORRECTIONS
+// ============================================================================
+
+model AttendanceCorrection {
+  id            String     @id @default(cuid())
+  attendance_id String
+  attendance    Attendance @relation(fields: [attendance_id], references: [id])
+
+  // Requested changes
+  new_check_in  DateTime?
+  new_check_out DateTime?
+  reason        String
+
+  status CorrectionStatus @default(PENDING)
+
+  // Approval tracking
+  approved_by      String?
+  approver         User?     @relation("CorrectionApprovedBy", fields: [approved_by], references: [id])
+  approved_at      DateTime?
+  rejection_reason String?
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("CorrectionCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("CorrectionUpdatedBy", fields: [updated_by], references: [id])
+
+  @@map("attendance_corrections")
+}
+
+enum CorrectionStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
