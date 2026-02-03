@@ -55,6 +55,8 @@ model User {
   created_corrections       AttendanceCorrection[] @relation("CorrectionCreatedBy")
   updated_corrections       AttendanceCorrection[] @relation("CorrectionUpdatedBy")
   approved_corrections      AttendanceCorrection[] @relation("CorrectionApprovedBy")
+  created_salary_structures SalaryStructure[]      @relation("SalaryStructureCreatedBy")
+  updated_salary_structures SalaryStructure[]      @relation("SalaryStructureUpdatedBy")
 
   @@map("users")
 }
@@ -187,12 +189,13 @@ model Employee {
   updater    User?    @relation("EmployeeUpdatedBy", fields: [updated_by], references: [id])
 
   // Relations
-  user           User?
-  documents      Document[]
-  salary_records SalaryRecord[]
-  leave_balances LeaveBalance[]
-  leave_requests LeaveRequest[]
-  attendances    Attendance[]
+  user              User?
+  documents         Document[]
+  salary_records    SalaryRecord[]
+  salary_structures SalaryStructure[]
+  leave_balances    LeaveBalance[]
+  leave_requests    LeaveRequest[]
+  attendances       Attendance[]
 
   @@map("employees")
 }
@@ -351,6 +354,53 @@ enum SalaryStatus {
   APPROVED
   PAID
   CANCELLED
+}
+
+model SalaryStructure {
+  id          String   @id @default(cuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  // Effective period
+  effective_from DateTime  @db.Date
+  effective_to   DateTime? @db.Date
+
+  // Salary components in paise (100 paise = 1 rupee)
+  basic_paise             Int
+  hra_paise               Int @default(0)
+  special_allowance_paise Int @default(0)
+  lta_paise               Int @default(0)
+  medical_paise           Int @default(0)
+  conveyance_paise        Int @default(0)
+  other_allowances_paise  Int @default(0)
+
+  // Computed fields stored for reference
+  gross_monthly_paise Int // Sum of all components
+  annual_ctc_paise    Int // gross * 12 + employer PF + employer ESI
+
+  // Compliance validation
+  basic_percentage Float   // Basic as % of gross (must be >= 50)
+  is_compliant     Boolean @default(true) // 50% rule compliance
+
+  // Tax regime for TDS
+  tax_regime TaxRegime @default(NEW)
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("SalaryStructureCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+  updater    User?    @relation("SalaryStructureUpdatedBy", fields: [updated_by], references: [id])
+
+  @@index([employee_id])
+  @@index([effective_from])
+  @@map("salary_structures")
+}
+
+enum TaxRegime {
+  OLD
+  NEW
 }
 
 // ============================================================================
@@ -624,4 +674,45 @@ enum CorrectionStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+// ============================================================================
+// PROFESSIONAL TAX CONFIGURATION
+// ============================================================================
+
+model ProfessionalTaxSlab {
+  id         String @id @default(cuid())
+  state_code String // "KA", "MH", "TN", "TS" etc.
+
+  // Slab range (stored in paise)
+  salary_from Int // Inclusive, monthly gross
+  salary_to   Int? // Inclusive, null means unlimited
+
+  // Tax amount (stored in paise)
+  tax_amount Int
+
+  // Month-specific override
+  month Int? // 1-12, null means applies to all months
+
+  // Gender exemption
+  applies_to_gender Gender? // null means applies to all genders
+
+  frequency PaymentFrequency @default(MONTHLY)
+
+  is_active Boolean @default(true)
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt
+  updated_by String?
+
+  @@index([state_code, is_active])
+  @@index([state_code, month])
+  @@map("professional_tax_slabs")
+}
+
+enum PaymentFrequency {
+  MONTHLY
+  YEARLY
 }
