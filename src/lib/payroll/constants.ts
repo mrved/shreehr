@@ -14,6 +14,7 @@
  * Employee + Employer contributions are calculated on basic+DA, capped at this limit.
  */
 export const PF_WAGE_CEILING = 15000;
+export const PF_WAGE_CEILING_PAISE = 1500000; // Rs.15,000 in paise
 
 /**
  * Employee PF contribution rate
@@ -32,14 +33,14 @@ export const PF_EMPLOYER_RATE = 0.12;
  * - 3.67% goes to EPF (Employee Provident Fund)
  * - 8.33% goes to EPS (Employee Pension Scheme)
  */
-export const PF_EPF_RATE = 0.0367;
-export const PF_EPS_RATE = 0.0833;
+export const EPF_EMPLOYER_RATE = 0.0367;
+export const EPS_RATE = 0.0833;
 
 /**
- * EPS wage ceiling per month (in rupees)
- * 8.33% EPS contribution is calculated on basic+DA, capped at Rs.15,000
+ * EPS maximum monthly contribution (in paise)
+ * 8.33% EPS is capped at Rs.1,250 per month
  */
-export const EPS_WAGE_CEILING = 15000;
+export const EPS_MAX_MONTHLY_PAISE = 125000; // Rs.1,250 in paise
 
 /**
  * EDLI (Employee Deposit Linked Insurance) contribution rate
@@ -50,9 +51,9 @@ export const EDLI_MAX = 7500; // in paise (Rs.75)
 
 /**
  * Administrative charges on PF
- * 0.85% on wage ceiling for EPFO admin
+ * 0.51% on wage ceiling for EPFO admin (0.50% + 0.01% EDLI admin)
  */
-export const PF_ADMIN_RATE = 0.0085;
+export const PF_ADMIN_RATE = 0.0051;
 
 // ============================================================================
 // EMPLOYEE STATE INSURANCE (ESI) - ESIC
@@ -63,6 +64,7 @@ export const PF_ADMIN_RATE = 0.0085;
  * Applicable if gross salary <= Rs.21,000/month
  */
 export const ESI_WAGE_CEILING = 21000;
+export const ESI_WAGE_CEILING_PAISE = 2100000; // Rs.21,000 in paise
 
 /**
  * Employee ESI contribution rate
@@ -125,10 +127,10 @@ export const PT_MAX_ANNUAL_KA = 240000; // in paise
 // ============================================================================
 
 /**
- * Standard deduction under new tax regime
- * Rs.50,000 for salaried employees (FY 2023-24 onwards)
+ * Standard deduction under new tax regime (Budget 2024)
+ * Rs.75,000 for salaried employees (FY 2024-25 onwards)
  */
-export const STANDARD_DEDUCTION = 5000000; // in paise (Rs.50,000)
+export const TDS_STANDARD_DEDUCTION_PAISE = 7500000; // in paise (Rs.75,000)
 
 /**
  * Basic exemption limit (new tax regime FY 2023-24)
