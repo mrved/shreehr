@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 4 of 6 (Employee Self-Service)
-Plan: 5 of TBD in current phase
+Plan: 4 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 04-05-PLAN.md
+Last activity: 2026-02-04 — Completed 04-04-PLAN.md
 
-Progress: [██████░░░░] ~56%
+Progress: [██████░░░░] ~53%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
-- Average duration: 4.8 min
-- Total execution time: ~101 min
+- Total plans completed: 20
+- Average duration: 5.0 min
+- Total execution time: ~100 min
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [██████░░░░] ~56%
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
 | 03-payroll-compliance | 9 | 38min | 4.2min |
-| 04-employee-self-service | 3 | 13min | 4.3min |
+| 04-employee-self-service | 2 | 12min | 6min |
 
 **Recent Trend:**
-- Last 5 plans: 03-07 (4min), 03-08 (6min), 04-01 (3min), 04-03 (5min), 04-05 (5min)
-- Trend: Excellent velocity (Phase 4 maintaining ~4min average)
+- Last 5 plans: 03-07 (4min), 03-08 (6min), 03-09 (5min), 04-02 (6min), 04-04 (6min)
+- Trend: Excellent velocity (maintaining ~4-6min average)
 
 *Updated after each plan completion*
 
@@ -205,6 +205,16 @@ Recent decisions affecting current work:
 - UPDATABLE_FIELDS whitelist pattern for employee-modifiable fields
 - Changes diff format: { field_name: { old: value, new: value } }
 
+**Plan 04-04 (Employee Portal with Mobile-First UI):**
+- Separate (employee) route group isolated from (dashboard) for role-based access
+- Fixed bottom navigation on mobile (<md), sidebar on desktop (md+)
+- Dual-view pattern: cards on mobile, tables on desktop for list views
+- PDF viewing with react-pdf library (zoom, pagination, touch-friendly)
+- Payslip list and detail pages with inline PDF viewer
+- Form 16 certificate list with completed FY filtering (after March)
+- Dashboard stats showing leave balance, last payslip, pending requests
+- Simplified payslip API endpoint taking record ID instead of runId + employeeId
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -326,12 +336,30 @@ Recent decisions affecting current work:
 - src/lib/email/templates/index.ts — Template registry with getTemplate lookup
 - .env.example — Added RESEND_API_KEY and EMAIL_FROM environment variables
 
+**Created (Plan 04-02):**
+- src/lib/validations/investment.ts — Zod schemas for 80C, 80D, HRA, other deductions with Indian tax limit validation
+- src/app/api/investments/route.ts — GET (list with RBAC filtering) and POST (create) endpoints
+- src/app/api/investments/[id]/route.ts — GET (detail), PATCH (update/submit/verify/reject), DELETE endpoints
+
 **Created (Plan 04-03):**
 - prisma/schema.prisma — ProfileUpdateRequest model, ProfileUpdateStatus enum
 - src/lib/validations/profile.ts — Profile update validation schemas with UPDATABLE_FIELDS whitelist
 - src/app/api/profile/route.ts — GET endpoint for current employee profile with masked PII
 - src/app/api/profile/update-requests/route.ts — GET (list) and POST (create) endpoints for update requests
 - src/app/api/profile/update-requests/[id]/route.ts — GET (view) and PATCH (approve/reject) endpoints
+
+**Created (Plan 04-04):**
+- src/app/(employee)/layout.tsx — Employee portal layout with auth check, role redirect, mobile bottom nav
+- src/app/(employee)/dashboard/page.tsx — Employee dashboard with leave balances, last payslip, pending requests
+- src/components/employee/dashboard-stats.tsx — Stats cards showing leave balance, last payslip, pending requests
+- src/app/(employee)/payslips/page.tsx — Payslip list page fetching employee payroll records
+- src/app/(employee)/payslips/[id]/page.tsx — Payslip detail page with inline PDF viewer
+- src/components/employee/payslip-list.tsx — Responsive payslip list (cards mobile, table desktop)
+- src/components/employee/pdf-viewer.tsx — PDF viewer with zoom and navigation controls using react-pdf
+- src/app/api/payroll/payslips/[id]/download/route.tsx — API endpoint for downloading payslips by record ID
+- src/app/(employee)/tax/page.tsx — Tax documents landing page with links
+- src/app/(employee)/tax/form16/page.tsx — Form 16 list page with completed FY filtering
+- src/components/employee/form16-list.tsx — Form 16 certificate list (cards mobile, table desktop)
 
 **Created (Plan 04-05):**
 - src/components/employee/attendance-calendar.tsx — Mobile-first calendar with color-coded days, monthly summary, day detail view
@@ -396,8 +424,15 @@ Recent decisions affecting current work:
 - Embedding model selection and chunking strategies for HR policy documents
 - Permission-aware data access in RAG queries (RBAC enforcement)
 
+**User setup required for email notifications (Plan 04-01):**
+1. Sign up for Resend account at https://resend.com
+2. Generate API key from Resend dashboard
+3. Add to .env file: RESEND_API_KEY=your_api_key
+4. Add from email to .env: EMAIL_FROM=noreply@yourdomain.com
+5. Start email worker: `pnpm worker:email` (or add to process manager)
+
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 04-05-PLAN.md (Attendance & Leave Employee Portal)
-Stopped at: Completed 04-05-PLAN.md, Phase 4 in progress
+Last session: 2026-02-04 — Completed Plan 04-04 (Employee Portal with Mobile-First UI)
+Stopped at: Completed 04-04-PLAN.md execution, Phase 4 in progress
 Resume file: None
