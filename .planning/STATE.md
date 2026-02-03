@@ -11,28 +11,28 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
-Plan: 1 of TBD
+Plan: 2 of TBD
 Status: In progress
-Last activity: 2026-02-04 — Completed 01-01-PLAN.md (foundation setup)
+Last activity: 2026-02-04 — Completed 01-02-PLAN.md (authentication and dashboard)
 
-Progress: [█░░░░░░░░░] ~10%
+Progress: [██░░░░░░░░] ~20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 10 min
-- Total execution time: 0.17 hours
+- Total plans completed: 2
+- Average duration: 8 min
+- Total execution time: 0.27 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 1 | 10min | 10min |
+| 01-foundation | 2 | 16min | 8min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (10min)
-- Trend: First plan complete
+- Last 5 plans: 01-01 (10min), 01-02 (6min)
+- Trend: Accelerating (6min vs 10min)
 
 *Updated after each plan completion*
 
@@ -55,13 +55,21 @@ Recent decisions affecting current work:
 - Use pnpm for package management (faster, disk-efficient)
 - Audit fields on all entities (created_at, created_by, updated_at, updated_by)
 
+**From 01-02 execution:**
+- Use NextAuth v5 (beta) for future-proof authentication
+- JWT session strategy over database sessions for simplicity
+- Role stored in JWT token for efficient authorization checks
+- Route groups for layout separation ((auth) vs (dashboard))
+- Middleware-based route protection with redirect logic
+
 ### Pending Todos
 
-**User setup required before development:**
+**User setup required before login works:**
 1. Install PostgreSQL or run Docker container
 2. Generate encryption key: `openssl rand -hex 32`
 3. Configure .env file with DATABASE_URL and ENCRYPTION_KEY
 4. Run `pnpm db:push` to create database schema
+5. Run `pnpm db:seed` to create admin user (admin@shreehr.local / admin123)
 
 ### Blockers/Concerns
 
@@ -77,6 +85,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 00:56 - Completed 01-01 foundation setup
-Stopped at: Completed 01-01-PLAN.md, created SUMMARY.md, updated STATE.md
+Last session: 2026-02-04 01:06 - Completed 01-02 authentication and dashboard
+Stopped at: Completed 01-02-PLAN.md, created SUMMARY.md, updated STATE.md
 Resume file: None
