@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 4 of 6 (Employee Self-Service)
-Plan: 7 of TBD in current phase
+Plan: 6 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 04-07-PLAN.md
+Last activity: 2026-02-04 — Completed 04-06-PLAN.md
 
 Progress: [██████░░░░] ~55%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 22
 - Average duration: 5.0 min
-- Total execution time: ~105 min
+- Total execution time: ~112 min
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [██████░░░░] ~55%
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
 | 03-payroll-compliance | 9 | 38min | 4.2min |
-| 04-employee-self-service | 3 | 17min | 5.7min |
+| 04-employee-self-service | 4 | 24min | 6min |
 
 **Recent Trend:**
-- Last 5 plans: 03-08 (6min), 03-09 (5min), 04-02 (6min), 04-04 (6min), 04-07 (5min)
-- Trend: Excellent velocity (maintaining ~5-6min average)
+- Last 5 plans: 03-09 (5min), 04-02 (6min), 04-04 (6min), 04-05 (6min), 04-06 (7min)
+- Trend: Excellent velocity (maintaining ~6min average)
 
 *Updated after each plan completion*
 
@@ -225,6 +225,15 @@ Recent decisions affecting current work:
 - Dashboard stats showing leave balance, last payslip, pending requests
 - Simplified payslip API endpoint taking record ID instead of runId + employeeId
 
+**Plan 04-06 (Investment Declaration UI):**
+- Store document metadata in InvestmentProofDocument model with soft delete for 8-year retention
+- Enable document upload only after saving declaration as draft (needs declarationId)
+- Group documents by section (80C, 80D, HRA, OTHER) for organization
+- Collapsible form sections to reduce mobile scroll with totals in header
+- Real-time 80C total calculation with remaining limit display to prevent exceeding max
+- Financial year calculation: April to March, YYYY-YY format matching Indian fiscal year
+- Document upload pattern: drag-drop zone + file picker + upload progress + file list
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -378,6 +387,15 @@ Recent decisions affecting current work:
 - src/components/employee/leave-request-form.tsx — Leave application form with React Hook Form, Zod validation, real-time balance checking
 - src/app/(employee)/leave/page.tsx — Leave dashboard with balances and recent requests
 - src/app/(employee)/leave/apply/page.tsx — Leave application page wrapper
+
+**Created (Plan 04-06):**
+- prisma/schema.prisma — InvestmentProofDocument model with section, retention, soft delete
+- src/components/employee/investment-declaration-form.tsx — Multi-section form with real-time 80C validation, collapsible sections, currency inputs
+- src/components/employee/investment-summary.tsx — Declaration visualization with section breakdowns and tax savings estimate
+- src/components/employee/document-upload.tsx — Drag-and-drop upload with file validation, progress, and document list
+- src/app/(employee)/investments/page.tsx — Investment list page with current FY declaration and document count
+- src/app/(employee)/investments/declare/page.tsx — Declare page for creating/editing with FY calculation
+- src/app/api/investments/[declarationId]/documents/route.ts — Document upload API (GET, POST, DELETE)
 
 **Created (Plan 04-07):**
 - src/components/employee/profile-view.tsx — Profile view component showing personal, contact, address, employment, and statutory info in sections
