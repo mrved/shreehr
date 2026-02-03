@@ -1067,6 +1067,9 @@ model InvestmentDeclaration {
   updated_at DateTime @updatedAt
   updated_by String?
 
+  // Relations
+  proof_documents InvestmentProofDocument[]
+
   @@unique([employee_id, financial_year])
   @@index([financial_year, status])
   @@map("investment_declarations")
@@ -1077,4 +1080,33 @@ enum InvestmentDeclarationStatus {
   SUBMITTED
   VERIFIED
   REJECTED
+}
+
+model InvestmentProofDocument {
+  id             String                @id @default(cuid())
+  declaration_id String
+  declaration    InvestmentDeclaration @relation(fields: [declaration_id], references: [id], onDelete: Cascade)
+
+  // File details
+  file_name      String // Unique generated filename
+  original_name  String // Original uploaded filename
+  storage_path   String // Full path on local filesystem
+  section        String // '80C', '80D', 'HRA', 'OTHER'
+  mime_type      String
+  size_bytes     Int
+
+  // Retention (8 years from upload)
+  retention_until DateTime
+
+  // Soft delete
+  is_deleted Boolean   @default(false)
+  deleted_at DateTime?
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt
+
+  @@index([declaration_id, section])
+  @@map("investment_proof_documents")
 }
