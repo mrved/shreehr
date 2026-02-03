@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 5 of 6 (Supporting Workflows)
-Plan: 3 of TBD in current phase
+Plan: 4 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 05-03-PLAN.md (Employee Loan Management)
+Last activity: 2026-02-04 — Completed 05-04-PLAN.md (Payroll Integration for Expenses and Loans)
 
-Progress: [██████████░░] ~69%
+Progress: [██████████░░] ~70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29
-- Average duration: 5.6 min
-- Total execution time: ~161 min
+- Total plans completed: 30
+- Average duration: 5.5 min
+- Total execution time: ~164 min
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [██████████░░] ~69%
 | 02-time-attendance | 5 | 21min | 4min |
 | 03-payroll-compliance | 9 | 38min | 4.2min |
 | 04-employee-self-service | 8 | 52min | 6.5min |
-| 05-supporting-workflows | 3 | 21min | 7min |
+| 05-supporting-workflows | 4 | 24min | 6min |
 
 **Recent Trend:**
-- Last 5 plans: 04-08 (2min), 05-01 (6min), 05-02 (6min), 05-03 (9min)
-- Trend: Excellent velocity (maintaining ~5-7min average)
+- Last 5 plans: 05-01 (6min), 05-02 (6min), 05-03 (9min), 05-04 (3min)
+- Trend: Excellent velocity (maintaining ~5-6min average, 05-04 was fastest)
 
 *Updated after each plan completion*
 
@@ -265,6 +265,16 @@ Recent decisions affecting current work:
 - Only PENDING loans can be deleted, active loans must be cancelled/closed
 - Loan lifecycle: PENDING (created) → ACTIVE (disbursed) → CLOSED (repaid) or CANCELLED
 - LoanDeduction status: SCHEDULED (future) → DEDUCTED (processed) or SKIPPED
+
+**Plan 05-04 (Payroll Integration for Expenses and Loans):**
+- Net pay formula: Gross - Deductions + Reimbursements - Loan EMI
+- Expenses transition to REIMBURSED during payroll sync with payroll_record_id link
+- Loan deductions transition to DEDUCTED with payroll_record_id link
+- Loan balance decremented by principal paid (not total EMI)
+- Loans auto-close when remaining_balance_paise ≤ 0
+- Expense sync queries: WHERE status=APPROVED AND synced_to_payroll=false
+- Loan sync queries: WHERE status=SCHEDULED AND loan.status=ACTIVE
+- All loan updates wrapped in transactions for atomicity
 
 ### Phase 1 Artifacts
 
@@ -544,6 +554,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 05-03-PLAN.md (Employee Loan Management)
-Stopped at: Completed Phase 5 Plan 3, ready for next plan
+Last session: 2026-02-04 — Completed 05-04-PLAN.md (Payroll Integration for Expenses and Loans)
+Stopped at: Completed Phase 5 Plan 4, ready for next plan
 Resume file: None
