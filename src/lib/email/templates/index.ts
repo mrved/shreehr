@@ -3,10 +3,11 @@
  * Export all templates and provide dynamic lookup
  */
 
-import { payslipNotificationTemplate } from './payslip-notification';
+import { offerLetterNotification } from "./offer-letter-notification";
+import { payslipNotificationTemplate } from "./payslip-notification";
 
 // Re-export all templates
-export { payslipNotificationTemplate };
+export { payslipNotificationTemplate, offerLetterNotification };
 
 /**
  * Email template function type
@@ -21,7 +22,8 @@ type TemplateFunction = (data: any) => {
  * Template registry
  */
 const templates: Record<string, TemplateFunction> = {
-  'payslip-notification': payslipNotificationTemplate,
+  "payslip-notification": payslipNotificationTemplate,
+  "offer-letter": offerLetterNotification,
 };
 
 /**
