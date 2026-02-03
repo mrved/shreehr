@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 4 of 6 (Employee Self-Service)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-04 — Completed Phase 3 (Payroll & Compliance)
+Plan: 3 of TBD in current phase
+Status: In progress
+Last activity: 2026-02-04 — Completed 04-03-PLAN.md
 
-Progress: [██████░░░░] ~50%
+Progress: [██████░░░░] ~54%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
-- Average duration: 4.9 min
-- Total execution time: ~88 min
+- Total plans completed: 20
+- Average duration: 4.8 min
+- Total execution time: ~96 min
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Progress: [██████░░░░] ~50%
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
 | 03-payroll-compliance | 9 | 38min | 4.2min |
+| 04-employee-self-service | 2 | 8min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 03-04 (8min), 03-06 (3min), 03-05 (5min), 03-07 (4min), 03-08 (6min)
-- Trend: Excellent velocity (Phase 3 averaging 4.2min, consistent execution speed)
+- Last 5 plans: 03-05 (5min), 03-07 (4min), 03-08 (6min), 04-01 (3min), 04-03 (5min)
+- Trend: Excellent velocity (Phase 4 maintaining 4min average)
 
 *Updated after each plan completion*
 
@@ -185,6 +186,25 @@ Recent decisions affecting current work:
 - Progressive disclosure pattern: Validate button enables Run button only after successful validation
 - Client-side validation checks prerequisites (attendance lock, existing payroll) before API submission
 
+**From Phase 4 execution:**
+
+**Plan 04-01 (Email Notification Infrastructure):**
+- Use Resend SDK over Nodemailer for better DX and webhook tracking
+- Worker concurrency of 5 for email sending (balance between throughput and rate limits)
+- 24h retention for completed jobs, 7 days for failed jobs
+- Template registry pattern with dynamic lookup for extensibility
+- Email templates return { subject, html, text } structure
+- addEmailJob helper for queue operations instead of direct queue.add
+- Template data passed as generic Record<string, any> for flexibility
+
+**Plan 04-03 (Profile Update Request Workflow):**
+- Store changes as JSON diff with old/new values for audit trail
+- Only allow updating non-sensitive fields (address, contact, emergency info)
+- Prevent duplicate pending requests per employee
+- Apply approved changes in transaction with status update
+- UPDATABLE_FIELDS whitelist pattern for employee-modifiable fields
+- Changes diff format: { field_name: { old: value, new: value } }
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -296,6 +316,23 @@ Recent decisions affecting current work:
 - src/app/api/payroll/runs/[runId]/route.ts — GET endpoint for single run details
 - src/app/api/payroll/runs/[runId]/records/route.ts — GET endpoint for run records
 
+### Phase 4 Artifacts
+
+**Created (Plan 04-01):**
+- src/lib/email/resend.ts — Resend SDK wrapper with sendEmail function
+- src/lib/email/queue.ts — BullMQ email queue with addEmailJob helper
+- src/lib/email/worker.ts — Email worker with concurrency and retry configuration
+- src/lib/email/templates/payslip-notification.ts — Payslip notification email template
+- src/lib/email/templates/index.ts — Template registry with getTemplate lookup
+- .env.example — Added RESEND_API_KEY and EMAIL_FROM environment variables
+
+**Created (Plan 04-03):**
+- prisma/schema.prisma — ProfileUpdateRequest model, ProfileUpdateStatus enum
+- src/lib/validations/profile.ts — Profile update validation schemas with UPDATABLE_FIELDS whitelist
+- src/app/api/profile/route.ts — GET endpoint for current employee profile with masked PII
+- src/app/api/profile/update-requests/route.ts — GET (list) and POST (create) endpoints for update requests
+- src/app/api/profile/update-requests/[id]/route.ts — GET (view) and PATCH (approve/reject) endpoints
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -353,6 +390,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed Phase 3 (Payroll & Compliance)
-Stopped at: Completed all 9 plans of Phase 3, ready to plan Phase 4
+Last session: 2026-02-04 — Completed 04-03-PLAN.md (Profile Update Request Workflow)
+Stopped at: Completed 04-03-PLAN.md, Phase 4 in progress
 Resume file: None
