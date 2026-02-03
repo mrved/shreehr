@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 6 (Payroll & Compliance)
-Plan: 2 of 9 in current phase
+Plan: 4 of 9 in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 03-02-PLAN.md (Professional Tax Configuration)
+Last activity: 2026-02-04 — Completed 03-04-PLAN.md (Payroll Calculation Engine)
 
-Progress: [█████░░░░░] ~38%
+Progress: [█████░░░░░] ~40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: 5.3 min
-- Total execution time: ~64 min
+- Total plans completed: 13
+- Average duration: 5.5 min
+- Total execution time: ~72 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████░░░░░] ~38%
 |-------|-------|-------|----------|
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
-| 03-payroll-compliance | 3 | 14min | 4.7min |
+| 03-payroll-compliance | 4 | 22min | 5.5min |
 
 **Recent Trend:**
-- Last 5 plans: 02-04 (8min), 02-05 (5min), 03-03 (4min), 03-01 (5min), 03-02 (5min)
-- Trend: Excellent velocity (Phase 3 maintaining consistent 4-5min average)
+- Last 5 plans: 02-05 (5min), 03-03 (4min), 03-01 (5min), 03-02 (5min), 03-04 (8min)
+- Trend: Solid velocity (Phase 3 averaging 5.5min, TDD plan took longer as expected)
 
 *Updated after each plan completion*
 
@@ -128,6 +128,16 @@ Recent decisions affecting current work:
 - All payroll monetary values stored in paise (integer precision)
 - PF breakdown stored separately (EPF, EPS, EDLI, admin charges) for ECR accuracy
 
+**Plan 03-04 (Payroll Calculation Engine):**
+- TDD for PF calculations to ensure correctness of wage ceiling and EPS cap logic
+- PF admin rate is 0.51% (0.50% EDLI admin + 0.01% inspection), not 0.85%
+- Standard deduction updated to Rs.75,000 for new regime (Budget 2024), Rs.50,000 for old regime
+- EPS effectively capped at Rs.1,249.50 (8.33% of Rs.15,000 wage ceiling)
+- ESI contribution period tracking for continuity across 6-month periods (Apr-Sep, Oct-Mar)
+- TDS calculation projects annual income and spreads tax over remaining FY months
+- LOP calculation based on working days (exclude weekends): (gross / working days) × LOP days
+- Upsert pattern for idempotent payroll processing (safe to re-run)
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -192,6 +202,13 @@ Recent decisions affecting current work:
 - src/lib/queues/workers/payroll.worker.ts — Worker with stage-based processing (validation, calculation, statutory, finalization)
 - docker-compose.yml — PostgreSQL and Redis services with persistent volumes
 
+**Created (Plan 03-04):**
+- src/lib/statutory/pf.ts — PF calculation with wage ceiling and employer breakdown (EPF/EPS/EDLI)
+- src/lib/statutory/pf.test.ts — 12 unit tests for PF calculation (TDD)
+- src/lib/statutory/esi.ts — ESI calculation with wage ceiling check
+- src/lib/statutory/tds.ts — TDS calculation with new/old regime support
+- src/lib/payroll/calculator.ts — Complete payroll calculator orchestrating all deductions
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -216,7 +233,8 @@ Recent decisions affecting current work:
 - Does not block functionality, can be addressed separately
 
 **Phase 3 Concerns:**
-- Will require deep research on Indian tax calculation edge cases (HRA formula, LTA rules, arrears taxation)
+- TDS calculation is simplified (no HRA exemption, LTA, 80C deductions) - will need enhancement in Plan 03-07
+- ESI contribution period continuity check is stubbed (checkESIContinuity returns false) - needs query of previous payroll records
 - Form 24Q/16 generation specifications need latest FVU file format from TRACES portal
 - PT slab accuracy should be verified against latest state government notifications before production
 - Additional PT states (WB, AP, AS, CG, GJ, MP, ML, OR, TR) need slab data
@@ -228,6 +246,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 03-02-PLAN.md (Professional Tax Configuration)
-Stopped at: Completed Plan 03-02 with PT slabs for KA, MH, TN, TS
+Last session: 2026-02-04 — Completed 03-04-PLAN.md (Payroll Calculation Engine)
+Stopped at: Completed Plan 03-04 with PF/ESI/TDS calculations and complete payroll calculator
 Resume file: None
