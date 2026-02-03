@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 6 (Payroll & Compliance)
-Plan: 6 of 9 in current phase
+Plan: 5 of 9 in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 03-06-PLAN.md (ECR and ESI Challan Generators)
+Last activity: 2026-02-04 — Completed 03-05-PLAN.md (PDF Payslip Generation)
 
-Progress: [██████░░░░] ~47%
+Progress: [█████░░░░░] ~44%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: 5.1 min
-- Total execution time: ~77 min
+- Total execution time: ~82 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [██████░░░░] ~47%
 |-------|-------|-------|----------|
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
-| 03-payroll-compliance | 6 | 27min | 4.5min |
+| 03-payroll-compliance | 7 | 32min | 4.6min |
 
 **Recent Trend:**
-- Last 5 plans: 03-03 (4min), 03-01 (5min), 03-02 (5min), 03-04 (8min), 03-06 (3min)
-- Trend: Excellent velocity on file generators (Phase 3 now averaging 4.5min)
+- Last 5 plans: 03-01 (5min), 03-02 (5min), 03-04 (8min), 03-06 (3min), 03-05 (5min)
+- Trend: Excellent velocity (Phase 3 averaging 4.6min, PDF generation within expected range)
 
 *Updated after each plan completion*
 
@@ -138,6 +138,15 @@ Recent decisions affecting current work:
 - LOP calculation based on working days (exclude weekends): (gross / working days) × LOP days
 - Upsert pattern for idempotent payroll processing (safe to re-run)
 
+**Plan 03-05 (PDF Payslip Generation):**
+- Use @react-pdf/renderer for declarative PDF generation with React components
+- Use NextAuth v5 auth() function instead of getServerSession for session management
+- Mask PAN showing only last 4 digits on payslips for privacy
+- Use Indian numbering system (Lakh, Crore) for net pay in words
+- Individual payslip download API with RBAC (employees own only, admin all)
+- Bulk ZIP download with jszip for all employees in a payroll run
+- Stream-to-buffer conversion for PDF to ZIP compatibility
+
 **Plan 03-06 (ECR and ESI Challan Generators):**
 - ECR format uses EPFO-compliant #~# separators with 12 fields per employee line
 - ESI challan generated as CSV with summary totals at bottom for quick verification
@@ -219,6 +228,13 @@ Recent decisions affecting current work:
 - src/lib/statutory/tds.ts — TDS calculation with new/old regime support
 - src/lib/payroll/calculator.ts — Complete payroll calculator orchestrating all deductions
 
+**Created (Plan 03-05):**
+- src/lib/pdf/utils.ts — Currency formatting, PAN masking, number to words with Indian numbering
+- src/lib/pdf/components/index.tsx — Reusable PDF styles and components (InfoRow, TotalRow, SectionTitle)
+- src/lib/pdf/payslip.tsx — PayslipDocument React component with full payslip layout
+- src/app/api/payroll/[runId]/payslips/[employeeId]/route.ts — Individual payslip download API
+- src/app/api/payroll/[runId]/payslips/download-all/route.ts — Bulk ZIP download API
+
 **Created (Plan 03-06):**
 - prisma/schema.prisma — StatutoryFile model and StatutoryFileType enum
 - src/lib/statutory/file-generators/ecr.ts — EPFO ECR file generator with #~# format
@@ -264,6 +280,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 03-06-PLAN.md (ECR and ESI Challan Generators)
-Stopped at: Completed Plan 03-06 with ECR and ESI file generators and download APIs
+Last session: 2026-02-04 — Completed 03-05-PLAN.md (PDF Payslip Generation)
+Stopped at: Completed Plan 03-05 with PDF payslip generation and download APIs (individual + bulk)
 Resume file: None
