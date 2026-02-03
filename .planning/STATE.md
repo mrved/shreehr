@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 6 (Payroll & Compliance)
-Plan: 0 of TBD in current phase
-Status: Planning needed
-Last activity: 2026-02-04 — Completed Phase 2 (verified 7/7 must-haves)
+Plan: 1 of 9 in current phase
+Status: In progress
+Last activity: 2026-02-04 — Completed 03-03-PLAN.md (BullMQ Infrastructure)
 
-Progress: [█████░░░░░] ~33%
+Progress: [█████░░░░░] ~35%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 5.6 min
-- Total execution time: ~50 min
+- Total plans completed: 10
+- Average duration: 5.4 min
+- Total execution time: ~54 min
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [█████░░░░░] ~33%
 |-------|-------|-------|----------|
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
+| 03-payroll-compliance | 1 | 4min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (3min), 02-01 (4min), 02-03 (1min), 02-04 (8min), 02-05 (5min)
-- Trend: Good velocity (Phase 2 complete, averaging 4min)
+- Last 5 plans: 02-01 (4min), 02-03 (1min), 02-04 (8min), 02-05 (5min), 03-03 (4min)
+- Trend: Excellent velocity (Phase 3 started strong, maintaining 4min average)
 
 *Updated after each plan completion*
 
@@ -96,6 +97,17 @@ Recent decisions affecting current work:
 - Correction workflow: only for locked periods with approved unlock
 - Lock lifecycle: lock -> request-unlock -> approve-unlock -> corrections -> re-lock
 
+**From Phase 3 execution (Plan 03-03):**
+- BullMQ over Bull for modern TypeScript-first queue library
+- Process one payroll at a time (concurrency: 1) to prevent resource contention
+- Stage-based payroll processing: validation → calculation → statutory → finalization
+- Keep completed jobs 24h, failed jobs 7 days for debugging
+- Exponential backoff with 3 retry attempts for transient failures
+- Singleton pattern for Redis connection to prevent connection pool exhaustion
+- Job IDs include payroll run ID and stage for idempotency
+- All payroll monetary values stored in paise (integer precision)
+- PF breakdown stored separately (EPF, EPS, EDLI, admin charges) for ECR accuracy
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -136,6 +148,15 @@ Recent decisions affecting current work:
 - src/app/(dashboard)/attendance/lock/ — Admin lock management page
 - src/components/attendance/attendance-lock-manager.tsx — Lock management UI
 
+### Phase 3 Artifacts
+
+**Created:**
+- prisma/schema.prisma — Added PayrollRun, PayrollRecord models with status/stage tracking
+- src/lib/queues/connection.ts — Redis connection singleton for BullMQ
+- src/lib/queues/payroll.queue.ts — BullMQ queue with addPayrollJob, getPayrollJobStatus, cancelPayrollJobs
+- src/lib/queues/workers/payroll.worker.ts — Worker with stage-based processing (validation, calculation, statutory, finalization)
+- docker-compose.yml — PostgreSQL and Redis services with persistent volumes
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -144,6 +165,11 @@ Recent decisions affecting current work:
 3. Configure .env file with DATABASE_URL and ENCRYPTION_KEY
 4. Run `pnpm db:push` to create database schema
 5. Run `pnpm db:seed` to create admin user (admin@shreehr.local / admin123)
+
+**User setup required before payroll processing works:**
+1. Start Redis via Docker Compose: `docker compose up -d redis`
+2. Add REDIS_URL to .env file: `REDIS_URL="redis://localhost:6379"`
+3. Verify Redis connection: `docker compose logs redis`
 
 ### Blockers/Concerns
 
@@ -165,6 +191,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed Phase 2 verification, ready for Phase 3
-Stopped at: Phase 2 verified, Phase 3 needs planning
+Last session: 2026-02-04 — Completed 03-03-PLAN.md (BullMQ Infrastructure)
+Stopped at: Completed Plan 03-03, ready for Plan 03-04 (Payroll Calculation Engine)
 Resume file: None
