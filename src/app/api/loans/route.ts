@@ -1,7 +1,7 @@
+import type { Prisma } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";
 import { paiseToRupees } from "@/lib/payroll/types";
 import { CreateLoanSchema, LoanFilterSchema } from "@/lib/validations/loan";
 import {
