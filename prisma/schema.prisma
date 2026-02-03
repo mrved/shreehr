@@ -441,7 +441,8 @@ model PayrollRun {
   updated_at DateTime @updatedAt
 
   // Relations
-  records PayrollRecord[]
+  records         PayrollRecord[]
+  statutory_files StatutoryFile[]
 
   @@unique([month, year])
   @@map("payroll_runs")
@@ -869,4 +870,44 @@ model ProfessionalTaxSlab {
 enum PaymentFrequency {
   MONTHLY
   YEARLY
+}
+
+// ============================================================================
+// STATUTORY FILE TRACKING
+// ============================================================================
+
+model StatutoryFile {
+  id String @id @default(cuid())
+
+  // File details
+  type         StatutoryFileType
+  filename     String
+  filepath     String
+  record_count Int               @default(0)
+  total_amount Int               @default(0) // In paise
+
+  // Associated period
+  month Int
+  year  Int
+
+  // Relations
+  payroll_run_id String?
+  payroll_run    PayrollRun? @relation(fields: [payroll_run_id], references: [id], onDelete: Cascade)
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt
+
+  @@index([type, month, year])
+  @@index([payroll_run_id])
+  @@map("statutory_files")
+}
+
+enum StatutoryFileType {
+  ECR
+  ESI_CHALLAN
+  FORM_24Q
+  FORM_16
+  PT_RETURN
 }
