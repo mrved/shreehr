@@ -911,3 +911,62 @@ enum StatutoryFileType {
   FORM_16
   PT_RETURN
 }
+
+// ============================================================================
+// STATUTORY DEADLINE TRACKING
+// ============================================================================
+
+model StatutoryDeadline {
+  id String @id @default(cuid())
+
+  type        DeadlineType
+  description String
+
+  // Period this deadline is for
+  month Int
+  year  Int
+
+  // Due date
+  due_date DateTime @db.Date
+
+  // Filing status
+  status FilingStatus @default(PENDING)
+
+  // Filing details (when completed)
+  filed_at          DateTime?
+  filing_reference  String? // Challan/Acknowledgment number
+  amount_filed_paise Int?
+
+  // Alert tracking
+  alert_7_day_sent   Boolean @default(false)
+  alert_3_day_sent   Boolean @default(false)
+  alert_1_day_sent   Boolean @default(false)
+  overdue_alert_sent Boolean @default(false)
+
+  // Audit
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  filed_by   String?
+
+  @@unique([type, month, year])
+  @@index([due_date, status])
+  @@map("statutory_deadlines")
+}
+
+enum DeadlineType {
+  PF_PAYMENT     // PF contribution payment
+  PF_RETURN      // ECR filing
+  ESI_PAYMENT    // ESI contribution payment
+  ESI_RETURN     // ESI return filing
+  TDS_DEPOSIT    // TDS deposit (7th of month)
+  TDS_RETURN_24Q // Form 24Q quarterly return
+  PT_PAYMENT     // Professional Tax payment
+  FORM_16        // Annual Form 16 issuance
+}
+
+enum FilingStatus {
+  PENDING
+  FILED
+  OVERDUE
+  NOT_APPLICABLE
+}
