@@ -44,6 +44,11 @@ model User {
   created_leave_balances LeaveBalance[] @relation("LeaveBalanceCreatedBy")
   updated_leave_balances LeaveBalance[] @relation("LeaveBalanceUpdatedBy")
   created_import_batches ImportBatch[]  @relation("ImportBatchCreatedBy")
+  created_leave_types LeaveType[]      @relation("LeaveTypeCreatedBy")
+  updated_leave_types LeaveType[]      @relation("LeaveTypeUpdatedBy")
+  created_leave_requests LeaveRequest[] @relation("LeaveRequestCreatedBy")
+  updated_leave_requests LeaveRequest[] @relation("LeaveRequestUpdatedBy")
+  approved_leave_requests LeaveRequest[] @relation("LeaveRequestApprovedBy")
 
   @@map("users")
 }
@@ -180,6 +185,7 @@ model Employee {
   documents             Document[]
   salary_records        SalaryRecord[]
   leave_balances        LeaveBalance[]
+  leave_requests        LeaveRequest[]
 
   @@map("employees")
 }
@@ -374,15 +380,78 @@ model LeaveBalance {
   @@map("leave_balances")
 }
 
-enum LeaveType {
-  CASUAL_LEAVE
-  EARNED_LEAVE
-  SICK_LEAVE
-  PRIVILEGE_LEAVE
-  MATERNITY_LEAVE
-  PATERNITY_LEAVE
-  COMPENSATORY_OFF
-  LOSS_OF_PAY
+model LeaveType {
+  id                String   @id @default(cuid())
+  name              String   @unique  // e.g., "Casual Leave", "Sick Leave"
+  code              String   @unique  // e.g., "CL", "SL", "EL"
+  description       String?
+
+  annual_quota      Float    @default(0)  // Default annual entitlement (can be fractional for half-days)
+  max_carry_forward Float    @default(0)  // Max days that can be carried to next year
+  is_paid           Boolean  @default(true)  // Paid leave or LOP
+  requires_approval Boolean  @default(true)
+  min_days_notice   Int      @default(0)  // Advance notice required
+
+  is_active         Boolean  @default(true)
+
+  // Audit fields
+  created_at        DateTime @default(now())
+  created_by        String?
+  creator           User?    @relation("LeaveTypeCreatedBy", fields: [created_by], references: [id])
+  updated_at        DateTime @updatedAt
+  updated_by        String?
+  updater           User?    @relation("LeaveTypeUpdatedBy", fields: [updated_by], references: [id])
+
+  // Relations
+  leave_requests    LeaveRequest[]
+
+  @@map("leave_types")
+}
+
+model LeaveRequest {
+  id              String   @id @default(cuid())
+  employee_id     String
+  employee        Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  leave_type_id   String
+  leave_type      LeaveType @relation(fields: [leave_type_id], references: [id])
+
+  start_date      DateTime @db.Date
+  end_date        DateTime @db.Date
+  days_count      Float    // Calculated from dates (supports half-days)
+  is_half_day     Boolean  @default(false)
+  half_day_period String?  // "FIRST_HALF" or "SECOND_HALF"
+
+  reason          String
+  status          LeaveRequestStatus @default(PENDING)
+
+  // Approval tracking
+  approved_by     String?
+  approver        User?    @relation("LeaveRequestApprovedBy", fields: [approved_by], references: [id])
+  approved_at     DateTime?
+  rejection_reason String?
+
+  // Cancellation
+  cancelled_at    DateTime?
+  cancellation_reason String?
+
+  // Audit fields
+  created_at      DateTime @default(now())
+  created_by      String?
+  creator         User?    @relation("LeaveRequestCreatedBy", fields: [created_by], references: [id])
+  updated_at      DateTime @updatedAt
+  updated_by      String?
+  updater         User?    @relation("LeaveRequestUpdatedBy", fields: [updated_by], references: [id])
+
+  @@index([employee_id, status])
+  @@index([start_date, end_date])
+  @@map("leave_requests")
+}
+
+enum LeaveRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
 }
 
 // ============================================================================
