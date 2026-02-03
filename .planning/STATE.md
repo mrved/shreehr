@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 4 of 6 (Employee Self-Service)
-Plan: 3 of TBD in current phase
+Plan: 5 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 04-03-PLAN.md
+Last activity: 2026-02-04 — Completed 04-05-PLAN.md
 
-Progress: [██████░░░░] ~54%
+Progress: [██████░░░░] ~56%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
+- Total plans completed: 21
 - Average duration: 4.8 min
-- Total execution time: ~96 min
+- Total execution time: ~101 min
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [██████░░░░] ~54%
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
 | 03-payroll-compliance | 9 | 38min | 4.2min |
-| 04-employee-self-service | 2 | 8min | 4min |
+| 04-employee-self-service | 3 | 13min | 4.3min |
 
 **Recent Trend:**
-- Last 5 plans: 03-05 (5min), 03-07 (4min), 03-08 (6min), 04-01 (3min), 04-03 (5min)
-- Trend: Excellent velocity (Phase 4 maintaining 4min average)
+- Last 5 plans: 03-07 (4min), 03-08 (6min), 04-01 (3min), 04-03 (5min), 04-05 (5min)
+- Trend: Excellent velocity (Phase 4 maintaining ~4min average)
 
 *Updated after each plan completion*
 
@@ -333,6 +333,14 @@ Recent decisions affecting current work:
 - src/app/api/profile/update-requests/route.ts — GET (list) and POST (create) endpoints for update requests
 - src/app/api/profile/update-requests/[id]/route.ts — GET (view) and PATCH (approve/reject) endpoints
 
+**Created (Plan 04-05):**
+- src/components/employee/attendance-calendar.tsx — Mobile-first calendar with color-coded days, monthly summary, day detail view
+- src/app/(employee)/attendance/page.tsx — Attendance viewing page fetching records for current employee
+- src/components/employee/leave-balance-cards.tsx — Visual balance cards with progress bars and usage breakdown
+- src/components/employee/leave-request-form.tsx — Leave application form with React Hook Form, Zod validation, real-time balance checking
+- src/app/(employee)/leave/page.tsx — Leave dashboard with balances and recent requests
+- src/app/(employee)/leave/apply/page.tsx — Leave application page wrapper
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -390,6 +398,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 04-03-PLAN.md (Profile Update Request Workflow)
-Stopped at: Completed 04-03-PLAN.md, Phase 4 in progress
+Last session: 2026-02-04 — Completed 04-05-PLAN.md (Attendance & Leave Employee Portal)
+Stopped at: Completed 04-05-PLAN.md, Phase 4 in progress
 Resume file: None
