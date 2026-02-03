@@ -197,6 +197,16 @@ Recent decisions affecting current work:
 - addEmailJob helper for queue operations instead of direct queue.add
 - Template data passed as generic Record<string, any> for flexibility
 
+**Plan 04-02 (Investment Declaration APIs):**
+- Store all investment amounts in paise (integers) for precision consistency with payroll
+- Use Zod refine for Section 80C total validation with descriptive error messages
+- Only DRAFT declarations can be edited or deleted (status enforcement)
+- One declaration per employee per financial year (unique constraint)
+- Support action-based PATCH for status transitions (submit, verify, reject)
+- Investment validation with Indian tax rules: 80C max Rs.1.5L, 80D self max Rs.25K, parents max Rs.50K
+- Landlord PAN required when annual HRA rent exceeds Rs.1,00,000
+- RBAC pattern: employees see own, admins/HR/payroll managers see all
+
 **Plan 04-03 (Profile Update Request Workflow):**
 - Store changes as JSON diff with old/new values for audit trail
 - Only allow updating non-sensitive fields (address, contact, emergency info)
@@ -433,6 +443,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed Plan 04-04 (Employee Portal with Mobile-First UI)
-Stopped at: Completed 04-04-PLAN.md execution, Phase 4 in progress
+Last session: 2026-02-04 — Completed Plan 04-02 (Investment Declaration APIs)
+Stopped at: Completed 04-02-PLAN.md execution, Phase 4 in progress
 Resume file: None
