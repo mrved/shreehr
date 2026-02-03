@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Time & Attendance** - Attendance tracking and leave management workflows
 - [x] **Phase 3: Payroll & Compliance** - Automated payroll with Indian statutory compliance
 - [x] **Phase 4: Employee Self-Service** - Mobile-first portal for employees
-- [ ] **Phase 5: Supporting Workflows** - Onboarding, expenses, and loan management
+- [x] **Phase 5: Supporting Workflows** - Onboarding, expenses, and loan management
 - [ ] **Phase 6: AI Assistant** - Chat interface for HR queries and policy Q&A
 
 ## Phase Details
@@ -145,12 +145,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Onboarding schema, workflow logic, and APIs
-- [ ] 05-02-PLAN.md — Expense schema, policy configuration, multi-level approval APIs
-- [ ] 05-03-PLAN.md — Loan schema, EMI calculation, amortization schedule APIs
-- [ ] 05-04-PLAN.md — Payroll integration for expense reimbursement and loan deduction
-- [ ] 05-05-PLAN.md — Supporting workflows UI (dashboard and employee portal pages)
-- [ ] 05-06-PLAN.md — End-to-end verification (checkpoint)
+- [x] 05-01-PLAN.md — Onboarding schema, workflow logic, and APIs
+- [x] 05-02-PLAN.md — Expense schema, policy configuration, multi-level approval APIs
+- [x] 05-03-PLAN.md — Loan schema, EMI calculation, amortization schedule APIs
+- [x] 05-04-PLAN.md — Payroll integration for expense reimbursement and loan deduction
+- [x] 05-05-PLAN.md — Supporting workflows UI (dashboard and employee portal pages)
+- [x] 05-06-PLAN.md — End-to-end verification (checkpoint)
 
 ### Phase 6: AI Assistant
 **Goal**: Employees can ask HR queries and policy questions via AI chat that respects role-based access
@@ -185,5 +185,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Time & Attendance | 5/5 | Complete | 2026-02-04 |
 | 3. Payroll & Compliance | 9/9 | Complete | 2026-02-04 |
 | 4. Employee Self-Service | 8/8 | Complete | 2026-02-04 |
-| 5. Supporting Workflows | 0/6 | Planning complete | - |
+| 5. Supporting Workflows | 6/6 | Complete | 2026-02-04 |
 | 6. AI Assistant | 0/TBD | Not started | - |

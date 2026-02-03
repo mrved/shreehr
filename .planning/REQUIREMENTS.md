@@ -201,21 +201,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ESS-05 | Phase 4 | Complete |
 | ESS-06 | Phase 4 | Complete |
 | ESS-07 | Phase 4 | Complete |
-| ONB-01 | Phase 5 | Pending |
-| ONB-02 | Phase 5 | Pending |
-| ONB-03 | Phase 5 | Pending |
-| ONB-04 | Phase 5 | Pending |
-| ONB-05 | Phase 5 | Pending |
-| EXP-01 | Phase 5 | Pending |
-| EXP-02 | Phase 5 | Pending |
-| EXP-03 | Phase 5 | Pending |
-| EXP-04 | Phase 5 | Pending |
-| EXP-05 | Phase 5 | Pending |
-| LOAN-01 | Phase 5 | Pending |
-| LOAN-02 | Phase 5 | Pending |
-| LOAN-03 | Phase 5 | Pending |
-| LOAN-04 | Phase 5 | Pending |
-| LOAN-05 | Phase 5 | Pending |
+| ONB-01 | Phase 5 | Complete |
+| ONB-02 | Phase 5 | Complete |
+| ONB-03 | Phase 5 | Complete |
+| ONB-04 | Phase 5 | Complete |
+| ONB-05 | Phase 5 | Complete |
+| EXP-01 | Phase 5 | Complete |
+| EXP-02 | Phase 5 | Complete |
+| EXP-03 | Phase 5 | Complete |
+| EXP-04 | Phase 5 | Complete |
+| EXP-05 | Phase 5 | Complete |
+| LOAN-01 | Phase 5 | Complete |
+| LOAN-02 | Phase 5 | Complete |
+| LOAN-03 | Phase 5 | Complete |
+| LOAN-04 | Phase 5 | Complete |
+| LOAN-05 | Phase 5 | Complete |
 | AI-01 | Phase 6 | Pending |
 | AI-02 | Phase 6 | Pending |
 | AI-03 | Phase 6 | Pending |
@@ -250,4 +250,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after Phase 4 completion*
+*Last updated: 2026-02-04 after Phase 5 completion*
