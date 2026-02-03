@@ -15,7 +15,8 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:seed": "npx tsx src/lib/seed-admin.ts"
+    "db:seed": "npx tsx src/lib/seed-admin.ts",
+    "db:seed-pt": "npx tsx prisma/seed-pt-slabs.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
