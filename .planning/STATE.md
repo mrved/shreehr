@@ -516,6 +516,13 @@ Recent decisions affecting current work:
 4. Add from email to .env: EMAIL_FROM=noreply@yourdomain.com
 5. Start email worker: `pnpm worker:email` (or add to process manager)
 
+**User setup required for onboarding workflows (Plan 05-01):**
+1. Add COMPANY_NAME and NEXT_PUBLIC_APP_URL to .env file:
+   - COMPANY_NAME=ShreeHR
+   - NEXT_PUBLIC_APP_URL=http://localhost:3000
+2. Ensure email worker running for offer letter notifications
+3. Implement frontend page `/onboarding/accept?token=...` for candidate acceptance flow
+
 ## Session Continuity
 
 Last session: 2026-02-04 — Completed 05-02-PLAN.md (Expense Management)
