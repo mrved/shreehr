@@ -224,10 +224,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AI-06 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 60 total
-- Mapped to phases: 60
+- v1 requirements: 68 total
+- Mapped to phases: 68
 - Unmapped: 0 ✓
+
+**Requirements by category:**
+- Core HR: 11 requirements
+- Payroll: 6 requirements
+- Statutory Compliance: 10 requirements
+- Attendance: 6 requirements
+- Leave: 7 requirements
+- Employee Self-Service: 7 requirements
+- Onboarding: 5 requirements
+- Expense Management: 5 requirements
+- Employee Loans: 5 requirements
+- AI Assistant: 6 requirements
+
+**Requirements by phase:**
+- Phase 1 (Foundation): 11 requirements
+- Phase 2 (Time & Attendance): 13 requirements
+- Phase 3 (Payroll & Compliance): 16 requirements
+- Phase 4 (Employee Self-Service): 7 requirements
+- Phase 5 (Supporting Workflows): 15 requirements
+- Phase 6 (AI Assistant): 6 requirements
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after initial definition*
+*Last updated: 2026-02-04 after roadmap creation*
