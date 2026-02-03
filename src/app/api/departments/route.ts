@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
     const department = await prisma.department.create({
       data: {
         name: validated.name,
+        code: validated.name.substring(0, 10).toUpperCase().replace(/\s/g, ""),
         description: validated.description,
         is_active: validated.isActive ?? true,
         created_by: session.user.id,

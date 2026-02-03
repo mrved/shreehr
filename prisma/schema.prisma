@@ -63,6 +63,7 @@ enum UserRole {
 model Department {
   id           String   @id @default(cuid())
   name         String   @unique
+  code         String   @unique
   description  String?
   parent_id    String?
   parent       Department?  @relation("DepartmentHierarchy", fields: [parent_id], references: [id])
@@ -220,15 +221,21 @@ model Document {
   employee_id     String
   employee        Employee     @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
-  document_type   DocumentType
-  document_name   String
-  file_path       String       // S3/local storage path
+  type            DocumentType
+  file_name       String       // Unique generated filename
+  original_name   String       // Original uploaded filename
+  storage_path    String       // Full path on local filesystem
   file_size       Int          // bytes
   mime_type       String
+  description     String?
 
   uploaded_at     DateTime     @default(now())
+  retention_until DateTime     // 8 years from upload
   verified_at     DateTime?
   verified_by     String?
+
+  is_deleted      Boolean      @default(false)
+  deleted_at      DateTime?
 
   // Audit fields
   created_at      DateTime     @default(now())
@@ -242,14 +249,17 @@ model Document {
 }
 
 enum DocumentType {
-  AADHAAR
-  PAN
+  OFFER_LETTER
+  ID_PROOF
+  ADDRESS_PROOF
+  EDUCATION_CERT
+  EXPERIENCE_CERT
+  PAN_CARD
+  AADHAAR_CARD
+  BANK_PROOF
   PASSPORT
   DRIVING_LICENSE
   BANK_STATEMENT
-  EDUCATION_CERTIFICATE
-  EXPERIENCE_LETTER
-  OFFER_LETTER
   RESIGNATION_LETTER
   RELIEVING_LETTER
   OTHER
@@ -267,27 +277,26 @@ model SalaryRecord {
   // Salary Period
   month                 Int      // 1-12
   year                  Int
-  financial_year        String   // "2024-25"
 
-  // Salary Structure
-  basic_salary          Decimal  @db.Decimal(10, 2)
-  hra                   Decimal  @db.Decimal(10, 2)
-  special_allowance     Decimal  @db.Decimal(10, 2)
-  other_allowances      Decimal  @db.Decimal(10, 2) @default(0)
+  // Salary Structure (stored in paise for precision)
+  basic_pay             Int      @default(0)
+  hra                   Int      @default(0)
+  conveyance            Int      @default(0)
+  special_allowance     Int      @default(0)
+  other_allowances      Int      @default(0)
 
-  // Deductions
-  pf_employee           Decimal  @db.Decimal(10, 2) @default(0)
-  pf_employer           Decimal  @db.Decimal(10, 2) @default(0)
-  esic_employee         Decimal  @db.Decimal(10, 2) @default(0)
-  esic_employer         Decimal  @db.Decimal(10, 2) @default(0)
-  professional_tax      Decimal  @db.Decimal(10, 2) @default(0)
-  tds                   Decimal  @db.Decimal(10, 2) @default(0)
-  other_deductions      Decimal  @db.Decimal(10, 2) @default(0)
+  // Deductions (stored in paise)
+  pf_employee           Int      @default(0)
+  pf_employer           Int      @default(0)
+  esi_employee          Int      @default(0)
+  esi_employer          Int      @default(0)
+  professional_tax      Int      @default(0)
+  tds                   Int      @default(0)
+  other_deductions      Int      @default(0)
 
-  // Totals
-  gross_salary          Decimal  @db.Decimal(10, 2)
-  total_deductions      Decimal  @db.Decimal(10, 2)
-  net_salary            Decimal  @db.Decimal(10, 2)
+  // Totals (stored in paise)
+  gross_salary          Int      @default(0)
+  net_salary            Int      @default(0)
 
   // Payment Details
   payment_date          DateTime?
@@ -300,6 +309,7 @@ model SalaryRecord {
   approved_at           DateTime?
 
   // Import tracking
+  source                String   @default("MANUAL")
   import_batch_id       String?
   import_batch          ImportBatch? @relation(fields: [import_batch_id], references: [id])
 
@@ -313,7 +323,6 @@ model SalaryRecord {
 
   @@unique([employee_id, month, year])
   @@index([month, year])
-  @@index([financial_year])
   @@map("salary_records")
 }
 
@@ -341,12 +350,17 @@ model LeaveBalance {
   employee        Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   year            Int
-  leave_type      LeaveType
+  leave_type      String   // String for flexibility (Keka has various types)
 
-  opening_balance Decimal  @db.Decimal(5, 2)
-  earned          Decimal  @db.Decimal(5, 2) @default(0)
-  taken           Decimal  @db.Decimal(5, 2) @default(0)
-  closing_balance Decimal  @db.Decimal(5, 2)
+  opening         Float    @default(0)
+  accrued         Float    @default(0)
+  used            Float    @default(0)
+  balance         Float    @default(0)
+
+  // Import tracking
+  source          String   @default("MANUAL")
+  import_batch_id String?
+  import_batch    ImportBatch? @relation(fields: [import_batch_id], references: [id])
 
   // Audit fields
   created_at      DateTime @default(now())
@@ -356,7 +370,7 @@ model LeaveBalance {
   updated_by      String?
   updater         User?    @relation("LeaveBalanceUpdatedBy", fields: [updated_by], references: [id])
 
-  @@unique([employee_id, year, leave_type])
+  @@unique([employee_id, leave_type, year])
   @@map("leave_balances")
 }
 
@@ -378,16 +392,16 @@ enum LeaveType {
 model ImportBatch {
   id                String   @id @default(cuid())
 
-  import_type       ImportType
+  type              ImportType
   file_name         String
   file_path         String?
 
   total_records     Int
   success_count     Int      @default(0)
-  failure_count     Int      @default(0)
+  error_count       Int      @default(0)
 
   status            ImportStatus @default(PENDING)
-  error_log         String?  @db.Text
+  errors            Json?
 
   started_at        DateTime @default(now())
   completed_at      DateTime?
@@ -396,17 +410,20 @@ model ImportBatch {
   created_at        DateTime @default(now())
   created_by        String?
   creator           User?    @relation("ImportBatchCreatedBy", fields: [created_by], references: [id])
+  updated_at        DateTime @updatedAt
+  updated_by        String?
 
   // Relations
   salary_records    SalaryRecord[]
+  leave_balances    LeaveBalance[]
 
   @@map("import_batches")
 }
 
 enum ImportType {
-  EMPLOYEE
-  SALARY
-  LEAVE_BALANCE
+  EMPLOYEES
+  SALARY_HISTORY
+  LEAVE_BALANCES
   KEKA_MIGRATION
 }
 

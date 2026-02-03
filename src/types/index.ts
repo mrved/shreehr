@@ -19,10 +19,22 @@ export type {
   DocumentType,
   PaymentMode,
   SalaryStatus,
-  LeaveType,
   ImportType,
   ImportStatus,
 } from "@prisma/client";
+
+// Document types for UI selection
+export const DOCUMENT_TYPES = [
+  "OFFER_LETTER",
+  "ID_PROOF",
+  "ADDRESS_PROOF",
+  "EDUCATION_CERT",
+  "EXPERIENCE_CERT",
+  "PAN_CARD",
+  "AADHAAR_CARD",
+  "BANK_PROOF",
+  "OTHER",
+] as const;
 
 // Audit fields interface for entities
 export interface AuditFields {
