@@ -39,6 +39,13 @@ function getEmployeeDir(employeeId: string): string {
 }
 
 /**
+ * Get storage path for statutory files
+ */
+export function getStatutoryDir(payrollRunId: string): string {
+  return join(UPLOAD_DIR, "statutory", payrollRunId);
+}
+
+/**
  * Save a file to storage
  */
 export async function saveFile(
@@ -125,4 +132,23 @@ export function validateFile(
     return { valid: false, error: "File size exceeds 10MB limit." };
   }
   return { valid: true };
+}
+
+/**
+ * Save a statutory file to storage
+ */
+export async function saveStatutoryFile(
+  payrollRunId: string,
+  content: string,
+  filename: string,
+): Promise<string> {
+  const statutoryDir = getStatutoryDir(payrollRunId);
+
+  // Ensure directory exists
+  await mkdir(statutoryDir, { recursive: true });
+
+  const storagePath = join(statutoryDir, filename);
+  await writeFile(storagePath, content, "utf-8");
+
+  return storagePath;
 }
