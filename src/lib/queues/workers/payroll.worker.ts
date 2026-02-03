@@ -1,19 +1,16 @@
-import { Worker, Job } from 'bullmq';
-import { getQueueConnection } from '../connection';
-import { PayrollJobData, PayrollJobResult, addPayrollJob } from '../payroll.queue';
-import { prisma } from '@/lib/db';
-import {
-  calculatePayroll,
-  getAttendanceSummary,
-} from '@/lib/payroll/calculator';
-import { addEmailJob } from '@/lib/email/queue';
+import { type Job, Worker } from "bullmq";
+import { prisma } from "@/lib/db";
+import { addEmailJob } from "@/lib/email/queue";
+import { calculatePayroll, getAttendanceSummary } from "@/lib/payroll/calculator";
+import { getQueueConnection } from "../connection";
+import { addPayrollJob, type PayrollJobData, type PayrollJobResult } from "../payroll.queue";
 
 /**
  * Create and start the payroll worker
  */
 export function createPayrollWorker(): Worker<PayrollJobData, PayrollJobResult> {
   const worker = new Worker<PayrollJobData, PayrollJobResult>(
-    'payroll',
+    "payroll",
     async (job: Job<PayrollJobData, PayrollJobResult>) => {
       console.log(`Processing payroll job: ${job.id}, stage: ${job.data.stage}`);
 
@@ -23,9 +20,9 @@ export function createPayrollWorker(): Worker<PayrollJobData, PayrollJobResult> 
       await prisma.payrollRun.update({
         where: { id: payrollRunId },
         data: {
-          status: 'PROCESSING',
+          status: "PROCESSING",
           current_stage: stage.toUpperCase() as any,
-          ...(stage === 'validation' ? { started_at: new Date() } : {}),
+          ...(stage === "validation" ? { started_at: new Date() } : {}),
         },
       });
 
@@ -33,16 +30,16 @@ export function createPayrollWorker(): Worker<PayrollJobData, PayrollJobResult> 
         let result: PayrollJobResult;
 
         switch (stage) {
-          case 'validation':
+          case "validation":
             result = await processValidationStage(job);
             break;
-          case 'calculation':
+          case "calculation":
             result = await processCalculationStage(job);
             break;
-          case 'statutory':
+          case "statutory":
             result = await processStatutoryStage(job);
             break;
-          case 'finalization':
+          case "finalization":
             result = await processFinalizationStage(job);
             break;
           default:
@@ -64,7 +61,7 @@ export function createPayrollWorker(): Worker<PayrollJobData, PayrollJobResult> 
         await prisma.payrollRun.update({
           where: { id: payrollRunId },
           data: {
-            status: 'FAILED',
+            status: "FAILED",
             errors: [{ stage, message: error.message }],
           },
         });
@@ -75,14 +72,14 @@ export function createPayrollWorker(): Worker<PayrollJobData, PayrollJobResult> 
     {
       ...getQueueConnection(),
       concurrency: 1,
-    }
+    },
   );
 
-  worker.on('completed', (job, result) => {
+  worker.on("completed", (job, result) => {
     console.log(`Payroll job ${job.id} completed:`, result);
   });
 
-  worker.on('failed', (job, error) => {
+  worker.on("failed", (job, error) => {
     console.error(`Payroll job ${job?.id} failed:`, error.message);
   });
 
@@ -90,7 +87,7 @@ export function createPayrollWorker(): Worker<PayrollJobData, PayrollJobResult> 
 }
 
 async function processValidationStage(
-  job: Job<PayrollJobData, PayrollJobResult>
+  job: Job<PayrollJobData, PayrollJobResult>,
 ): Promise<PayrollJobResult> {
   const { payrollRunId, month, year } = job.data;
   const errors: Array<{ employeeId: string; message: string }> = [];
@@ -105,23 +102,20 @@ async function processValidationStage(
       success: false,
       processedCount: 0,
       errorCount: 1,
-      errors: [{ employeeId: '', message: `Attendance not locked for ${year}-${month}` }],
+      errors: [{ employeeId: "", message: `Attendance not locked for ${year}-${month}` }],
     };
   }
 
   // 2. Get active employees
   const employees = await prisma.employee.findMany({
-    where: { employment_status: 'ACTIVE' },
+    where: { employment_status: "ACTIVE" },
     include: {
       salary_structures: {
         where: {
           effective_from: { lte: new Date() },
-          OR: [
-            { effective_to: null },
-            { effective_to: { gte: new Date() } },
-          ],
+          OR: [{ effective_to: null }, { effective_to: { gte: new Date() } }],
         },
-        orderBy: { effective_from: 'desc' },
+        orderBy: { effective_from: "desc" },
         take: 1,
       },
     },
@@ -167,12 +161,12 @@ async function processValidationStage(
     success: true,
     processedCount: employees.length,
     errorCount: 0,
-    nextStage: 'calculation',
+    nextStage: "calculation",
   };
 }
 
 async function processCalculationStage(
-  job: Job<PayrollJobData, PayrollJobResult>
+  job: Job<PayrollJobData, PayrollJobResult>,
 ): Promise<PayrollJobResult> {
   const { payrollRunId, month, year } = job.data;
   const errors: Array<{ employeeId: string; message: string }> = [];
@@ -184,23 +178,20 @@ async function processCalculationStage(
   });
 
   if (!payrollRun) {
-    throw new Error('PayrollRun not found');
+    throw new Error("PayrollRun not found");
   }
 
   // Get active employees with salary structures
   const employees = await prisma.employee.findMany({
-    where: { employment_status: 'ACTIVE' },
+    where: { employment_status: "ACTIVE" },
     include: {
       salary_structures: {
         where: {
           effective_from: { lte: new Date() },
           is_compliant: true,
-          OR: [
-            { effective_to: null },
-            { effective_to: { gte: new Date() } },
-          ],
+          OR: [{ effective_to: null }, { effective_to: { gte: new Date() } }],
         },
-        orderBy: { effective_from: 'desc' },
+        orderBy: { effective_from: "desc" },
         take: 1,
       },
     },
@@ -238,7 +229,7 @@ async function processCalculationStage(
       });
 
       // Create PayrollRecord
-      await prisma.payrollRecord.upsert({
+      const payrollRecord = await prisma.payrollRecord.upsert({
         where: {
           payroll_run_id_employee_id: {
             payroll_run_id: payrollRunId,
@@ -285,11 +276,14 @@ async function processCalculationStage(
           projected_annual_paise: result.projectedAnnualIncome,
           tax_regime: result.taxRegime,
 
+          reimbursements_paise: result.reimbursements_paise,
+          loan_deductions_paise: result.loan_deductions_paise,
+
           total_deductions_paise: result.totalDeductions,
           net_salary_paise: result.netSalary,
           employer_cost_paise: result.employerCost,
 
-          status: 'CALCULATED',
+          status: "CALCULATED",
           processed_at: new Date(),
         },
         update: {
@@ -298,12 +292,66 @@ async function processCalculationStage(
           paid_days: attendance.paidDays,
           lop_days: attendance.lopDays,
           gross_salary_paise: result.grossSalary,
+          reimbursements_paise: result.reimbursements_paise,
+          loan_deductions_paise: result.loan_deductions_paise,
           total_deductions_paise: result.totalDeductions,
           net_salary_paise: result.netSalary,
-          status: 'CALCULATED',
+          status: "CALCULATED",
           processed_at: new Date(),
         },
       });
+
+      // Sync expenses: mark as synced and link to payroll record
+      if (result.expense_ids?.length > 0) {
+        await prisma.expenseClaim.updateMany({
+          where: { id: { in: result.expense_ids } },
+          data: {
+            synced_to_payroll: true,
+            payroll_record_id: payrollRecord.id,
+            status: "REIMBURSED", // Transition to REIMBURSED
+          },
+        });
+      }
+
+      // Sync loan deductions: mark as deducted and update loan balance
+      if (result.loan_deduction_details?.length > 0) {
+        for (const deduction of result.loan_deduction_details) {
+          await prisma.$transaction([
+            // Update deduction status
+            prisma.loanDeduction.update({
+              where: { id: deduction.deduction_id },
+              data: {
+                status: "DEDUCTED",
+                payroll_record_id: payrollRecord.id,
+              },
+            }),
+            // Update loan remaining balance
+            prisma.employeeLoan.update({
+              where: { id: deduction.loan_id },
+              data: {
+                remaining_balance_paise: {
+                  decrement: deduction.principal_paise,
+                },
+              },
+            }),
+          ]);
+
+          // Check if loan is fully paid and close it
+          const loan = await prisma.employeeLoan.findUnique({
+            where: { id: deduction.loan_id },
+          });
+          if (loan && loan.remaining_balance_paise <= 0) {
+            await prisma.employeeLoan.update({
+              where: { id: deduction.loan_id },
+              data: {
+                status: "CLOSED",
+                closed_at: new Date(),
+                remaining_balance_paise: 0, // Ensure it's exactly 0
+              },
+            });
+          }
+        }
+      }
 
       processedCount++;
     } catch (error: any) {
@@ -333,12 +381,12 @@ async function processCalculationStage(
     processedCount,
     errorCount: errors.length,
     errors: errors.length > 0 ? errors : undefined,
-    nextStage: errors.length === 0 ? 'statutory' : undefined,
+    nextStage: errors.length === 0 ? "statutory" : undefined,
   };
 }
 
 async function processStatutoryStage(
-  job: Job<PayrollJobData, PayrollJobResult>
+  job: Job<PayrollJobData, PayrollJobResult>,
 ): Promise<PayrollJobResult> {
   // TODO: Implement in Plan 06 (ECR, ESI challan generation)
   await job.updateProgress(100);
@@ -347,12 +395,12 @@ async function processStatutoryStage(
     success: true,
     processedCount: 0,
     errorCount: 0,
-    nextStage: 'finalization',
+    nextStage: "finalization",
   };
 }
 
 async function processFinalizationStage(
-  job: Job<PayrollJobData, PayrollJobResult>
+  job: Job<PayrollJobData, PayrollJobResult>,
 ): Promise<PayrollJobResult> {
   const { payrollRunId, month, year } = job.data;
 
@@ -362,7 +410,7 @@ async function processFinalizationStage(
     include: {
       records: {
         where: {
-          status: 'CALCULATED',
+          status: "CALCULATED",
         },
         include: {
           employee: {
@@ -384,13 +432,13 @@ async function processFinalizationStage(
   });
 
   if (!payrollRun) {
-    throw new Error('Payroll run not found');
+    throw new Error("Payroll run not found");
   }
 
   await prisma.payrollRun.update({
     where: { id: payrollRunId },
     data: {
-      status: 'COMPLETED',
+      status: "COMPLETED",
       completed_at: new Date(),
     },
   });
@@ -399,10 +447,10 @@ async function processFinalizationStage(
   await prisma.payrollRecord.updateMany({
     where: {
       payroll_run_id: payrollRunId,
-      status: 'CALCULATED',
+      status: "CALCULATED",
     },
     data: {
-      status: 'VERIFIED',
+      status: "VERIFIED",
     },
   });
 
@@ -416,7 +464,7 @@ async function processFinalizationStage(
 
     if (email) {
       try {
-        await addEmailJob('payslip-available', email, {
+        await addEmailJob("payslip-available", email, {
           employeeName: `${employee.first_name} ${employee.last_name}`,
           month: month.toString(),
           year: year.toString(),
@@ -434,9 +482,7 @@ async function processFinalizationStage(
     }
   }
 
-  console.log(
-    `Payroll finalization complete: ${emailsSent} emails queued, ${emailsFailed} failed`
-  );
+  console.log(`Payroll finalization complete: ${emailsSent} emails queued, ${emailsFailed} failed`);
 
   await job.updateProgress(100);
 
