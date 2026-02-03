@@ -142,12 +142,15 @@ Plans:
   7. Admin can create employee loan with tenure and interest rate, system calculates EMI
   8. System auto-deducts EMI from monthly salary and employee can view loan balance/repayment schedule
 
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [ ] 05-01-PLAN.md — Onboarding schema, workflow logic, and APIs
+- [ ] 05-02-PLAN.md — Expense schema, policy configuration, multi-level approval APIs
+- [ ] 05-03-PLAN.md — Loan schema, EMI calculation, amortization schedule APIs
+- [ ] 05-04-PLAN.md — Payroll integration for expense reimbursement and loan deduction
+- [ ] 05-05-PLAN.md — Supporting workflows UI (dashboard and employee portal pages)
+- [ ] 05-06-PLAN.md — End-to-end verification (checkpoint)
 
 ### Phase 6: AI Assistant
 **Goal**: Employees can ask HR queries and policy questions via AI chat that respects role-based access
@@ -182,5 +185,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Time & Attendance | 5/5 | Complete | 2026-02-04 |
 | 3. Payroll & Compliance | 9/9 | Complete | 2026-02-04 |
 | 4. Employee Self-Service | 8/8 | Complete | 2026-02-04 |
-| 5. Supporting Workflows | 0/TBD | Not started | - |
+| 5. Supporting Workflows | 0/6 | Planning complete | - |
 | 6. AI Assistant | 0/TBD | Not started | - |
