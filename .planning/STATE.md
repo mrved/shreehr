@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 6 (Payroll & Compliance)
-Plan: 9 of 9 in current phase
-Status: Phase complete
-Last activity: 2026-02-04 — Completed 03-09-PLAN.md (Payroll Admin UI)
+Plan: 8 of 9 in current phase
+Status: In progress
+Last activity: 2026-02-04 — Completed 03-08-PLAN.md (Statutory Deadline Tracking)
 
-Progress: [█████░░░░░] ~50%
+Progress: [█████░░░░░] ~49%
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 18
-- Average duration: 5.0 min
-- Total execution time: ~89 min
+- Average duration: 4.9 min
+- Total execution time: ~88 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████░░░░░] ~50%
 |-------|-------|-------|----------|
 | 01-foundation | 4 | 29min | 7min |
 | 02-time-attendance | 5 | 21min | 4min |
-| 03-payroll-compliance | 9 | 39min | 4.3min |
+| 03-payroll-compliance | 9 | 38min | 4.2min |
 
 **Recent Trend:**
-- Last 5 plans: 03-04 (8min), 03-06 (3min), 03-05 (5min), 03-07 (4min), 03-09 (3min)
-- Trend: Outstanding velocity (Phase 3 completed at 4.3min average, UI tasks especially fast)
+- Last 5 plans: 03-04 (8min), 03-06 (3min), 03-05 (5min), 03-07 (4min), 03-08 (6min)
+- Trend: Excellent velocity (Phase 3 averaging 4.2min, consistent execution speed)
 
 *Updated after each plan completion*
 
@@ -169,6 +169,15 @@ Recent decisions affecting current work:
 - Employee RBAC: Can download own Form 16, admin can download any employee's
 - TDS APIs accept quarter/year parameters for flexible reporting
 
+**Plan 03-08 (Statutory Deadline Tracking):**
+- Store deadline type, month, year as unique constraint for upsert pattern
+- Alert flags (7/3/1 day) prevent duplicate alert sending
+- Overdue status applied automatically by cron to enable filtering
+- Compliance score calculated from 3-month history (filed on time / total applicable)
+- Cron endpoint uses Bearer token authorization for security
+- Deadline calculation handles monthly (Xth of next month), quarterly (Form 24Q dates), annual (June 15 for Form 16)
+- Severity-based alerts: CRITICAL (<= 1 day or overdue), WARNING (<= 3 days), INFO (7 days)
+
 **Plan 03-09 (Payroll Admin UI):**
 - Poll every 3 seconds for PROCESSING status updates instead of WebSocket for simplicity
 - Validate attendance lock client-side before submission to provide better UX
@@ -268,6 +277,14 @@ Recent decisions affecting current work:
 - src/app/api/payroll/tds/form24q/route.ts — Form 24Q download API with quarterly filtering
 - src/app/api/payroll/tds/form16/[employeeId]/route.ts — Form 16 download API with employee RBAC
 
+**Created (Plan 03-08):**
+- prisma/schema.prisma — StatutoryDeadline model, DeadlineType enum, FilingStatus enum
+- src/lib/statutory/deadlines.ts — Deadline calculation, alert checking, and filing utilities
+- src/app/api/statutory/deadlines/route.ts — GET (list with filtering) and POST (generate for month) endpoints
+- src/app/api/statutory/deadlines/[id]/route.ts — GET (detail) and PATCH (mark as filed) endpoints
+- src/app/api/cron/statutory-alerts/route.ts — Daily cron endpoint for alert checking
+- src/app/api/dashboard/statutory/route.ts — Dashboard summary with compliance score
+
 **Created (Plan 03-09):**
 - src/app/(dashboard)/payroll/page.tsx — Dashboard with recent runs and quick stats
 - src/app/(dashboard)/payroll/run/page.tsx — Run payroll page
@@ -305,6 +322,12 @@ Recent decisions affecting current work:
 2. Ensure employees have encrypted PAN in database
 3. Ensure PayrollRecord has tax_regime field populated
 
+**User setup required for deadline tracking (Plan 03-08):**
+1. Run `pnpm db:push` to create StatutoryDeadline table
+2. Generate initial deadlines: POST to /api/statutory/deadlines with {month, year}
+3. (Optional) Set CRON_SECRET in .env for cron endpoint security
+4. Configure daily cron job to call /api/cron/statutory-alerts
+
 ### Blockers/Concerns
 
 **Build Issues:**
@@ -320,6 +343,8 @@ Recent decisions affecting current work:
 - TDS payment tracking (challan numbers, BSR codes, dates) not implemented - shows deducted = deposited
 - PT slab accuracy should be verified against latest state government notifications before production
 - Additional PT states (WB, AP, AS, CG, GJ, MP, ML, OR, TR) need slab data
+- Deadline alert flags track that alerts should be sent, but actual notification sending (email/SMS) not implemented
+- Form 16 generator has TypeScript errors (pre-existing from 03-07) - needs fixing before production use
 
 **Phase 6 Planning:**
 - Will require deep research on RAG implementation patterns (Vercel AI SDK + Ollama + Qdrant)
@@ -328,6 +353,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 03-09-PLAN.md (Payroll Admin UI)
-Stopped at: Completed Plan 03-09 with full payroll management interface - Phase 3 complete!
+Last session: 2026-02-04 — Completed 03-08-PLAN.md (Statutory Deadline Tracking)
+Stopped at: Completed Plan 03-08 with deadline tracking, alert system, and compliance scoring
 Resume file: None
