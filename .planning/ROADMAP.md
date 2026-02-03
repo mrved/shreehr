@@ -35,12 +35,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Admin can assign employees to departments with role-based access (Admin/Manager/Employee)
   5. Admin can import full Keka HR data (employees, salary history, leave balances) with validation
 
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md — Project setup, Prisma schema, PII encryption
+- [ ] 01-02-PLAN.md — NextAuth v5 authentication, protected routes
+- [ ] 01-03-PLAN.md — Employee CRUD, organization structure (departments/designations)
+- [ ] 01-04-PLAN.md — Document storage with retention, Keka HR import
 
 ### Phase 2: Time & Attendance
 **Goal**: Employees can track attendance and managers can approve leave requests with data locked before payroll
@@ -162,7 +163,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/4 | Ready to execute | - |
 | 2. Time & Attendance | 0/TBD | Not started | - |
 | 3. Payroll & Compliance | 0/TBD | Not started | - |
 | 4. Employee Self-Service | 0/TBD | Not started | - |
