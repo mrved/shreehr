@@ -59,6 +59,7 @@ model User {
   updated_salary_structures SalaryStructure[]      @relation("SalaryStructureUpdatedBy")
   created_payroll_runs      PayrollRun[]           @relation("PayrollRunCreatedBy")
   approved_profile_updates  ProfileUpdateRequest[] @relation("ProfileUpdateApprovedBy")
+  created_onboarding_records OnboardingRecord[]    @relation("OnboardingRecordCreatedBy")
 
   @@map("users")
 }
@@ -94,7 +95,8 @@ model Department {
   updater    User?    @relation("DepartmentUpdatedBy", fields: [updated_by], references: [id])
 
   // Relations
-  employees Employee[]
+  employees        Employee[]
+  onboarding_records OnboardingRecord[]
 
   @@map("departments")
 }
@@ -115,7 +117,8 @@ model Designation {
   updater    User?    @relation("DesignationUpdatedBy", fields: [updated_by], references: [id])
 
   // Relations
-  employees Employee[]
+  employees          Employee[]
+  onboarding_records OnboardingRecord[]
 
   @@map("designations")
 }
@@ -201,6 +204,7 @@ model Employee {
   payroll_records         PayrollRecord[]
   profile_update_requests ProfileUpdateRequest[]
   investment_declarations InvestmentDeclaration[]
+  onboarding_record       OnboardingRecord?
 
   @@map("employees")
 }
@@ -1109,4 +1113,67 @@ model InvestmentProofDocument {
 
   @@index([declaration_id, section])
   @@map("investment_proof_documents")
+}
+
+// ============================================================================
+// ONBOARDING WORKFLOWS
+// ============================================================================
+
+model OnboardingRecord {
+  id          String   @id @default(cuid())
+  employee_id String?  @unique
+  employee    Employee? @relation(fields: [employee_id], references: [id])
+
+  // Candidate details
+  candidate_email String
+  candidate_name  String
+  candidate_phone String
+
+  // Position details
+  position       String
+  department_id  String
+  department     Department  @relation(fields: [department_id], references: [id])
+  designation_id String
+  designation    Designation @relation(fields: [designation_id], references: [id])
+
+  // Offer details (in paise)
+  offered_salary_paise Int
+  offer_date           DateTime @db.Date
+  joining_date         DateTime @db.Date
+
+  // Status and workflow
+  status OnboardingStatus @default(PENDING)
+
+  // Checklist (JSON array validated with Zod)
+  checklist Json // Array of ChecklistItem objects
+
+  // Workflow timestamps
+  offer_sent_at     DateTime?
+  offer_accepted_at DateTime?
+  completed_at      DateTime?
+
+  // Offer acceptance token
+  offer_token String @unique
+
+  // Cancellation
+  cancellation_reason String?
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  creator    User?    @relation("OnboardingRecordCreatedBy", fields: [created_by], references: [id])
+  updated_at DateTime @updatedAt
+  updated_by String?
+
+  @@index([status, joining_date])
+  @@index([candidate_email])
+  @@map("onboarding_records")
+}
+
+enum OnboardingStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }
