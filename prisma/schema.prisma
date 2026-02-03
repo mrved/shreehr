@@ -1,0 +1,419 @@
+// ShreeHR Database Schema
+// Prisma schema for HR management with Indian statutory compliance
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// CORE USER AND AUTHENTICATION
+// ============================================================================
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  name              String
+  password_hash     String
+  role              UserRole  @default(EMPLOYEE)
+  employee_id       String?   @unique
+  employee          Employee? @relation(fields: [employee_id], references: [id])
+  is_active         Boolean   @default(true)
+  last_login_at     DateTime?
+
+  // Audit fields
+  created_at        DateTime  @default(now())
+  created_by        String?
+  updated_at        DateTime  @updatedAt
+  updated_by        String?
+
+  // Relations
+  created_employees  Employee[]       @relation("EmployeeCreatedBy")
+  updated_employees  Employee[]       @relation("EmployeeUpdatedBy")
+  created_departments Department[]    @relation("DepartmentCreatedBy")
+  updated_departments Department[]    @relation("DepartmentUpdatedBy")
+  created_designations Designation[]  @relation("DesignationCreatedBy")
+  updated_designations Designation[]  @relation("DesignationUpdatedBy")
+  created_documents  Document[]       @relation("DocumentCreatedBy")
+  updated_documents  Document[]       @relation("DocumentUpdatedBy")
+  created_salary_records SalaryRecord[] @relation("SalaryRecordCreatedBy")
+  updated_salary_records SalaryRecord[] @relation("SalaryRecordUpdatedBy")
+  created_leave_balances LeaveBalance[] @relation("LeaveBalanceCreatedBy")
+  updated_leave_balances LeaveBalance[] @relation("LeaveBalanceUpdatedBy")
+  created_import_batches ImportBatch[]  @relation("ImportBatchCreatedBy")
+
+  @@map("users")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  HR_MANAGER
+  PAYROLL_MANAGER
+  EMPLOYEE
+}
+
+// ============================================================================
+// ORGANIZATIONAL STRUCTURE
+// ============================================================================
+
+model Department {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  description  String?
+  parent_id    String?
+  parent       Department?  @relation("DepartmentHierarchy", fields: [parent_id], references: [id])
+  children     Department[] @relation("DepartmentHierarchy")
+  is_active    Boolean  @default(true)
+
+  // Audit fields
+  created_at   DateTime @default(now())
+  created_by   String?
+  creator      User?    @relation("DepartmentCreatedBy", fields: [created_by], references: [id])
+  updated_at   DateTime @updatedAt
+  updated_by   String?
+  updater      User?    @relation("DepartmentUpdatedBy", fields: [updated_by], references: [id])
+
+  // Relations
+  employees    Employee[]
+
+  @@map("departments")
+}
+
+model Designation {
+  id           String   @id @default(cuid())
+  title        String   @unique
+  description  String?
+  level        Int      @default(1)
+  is_active    Boolean  @default(true)
+
+  // Audit fields
+  created_at   DateTime @default(now())
+  created_by   String?
+  creator      User?    @relation("DesignationCreatedBy", fields: [created_by], references: [id])
+  updated_at   DateTime @updatedAt
+  updated_by   String?
+  updater      User?    @relation("DesignationUpdatedBy", fields: [updated_by], references: [id])
+
+  // Relations
+  employees    Employee[]
+
+  @@map("designations")
+}
+
+// ============================================================================
+// EMPLOYEE DATA (with PII encryption)
+// ============================================================================
+
+model Employee {
+  id                    String      @id @default(cuid())
+  employee_code         String      @unique
+
+  // Personal Information
+  first_name            String
+  middle_name           String?
+  last_name             String
+  date_of_birth         DateTime
+  gender                Gender
+  marital_status        MaritalStatus @default(SINGLE)
+  blood_group           String?
+
+  // Contact Information
+  personal_email        String?
+  personal_phone        String
+  emergency_contact     String?
+  emergency_phone       String?
+
+  // Address
+  address_line1         String
+  address_line2         String?
+  city                  String
+  state                 String
+  postal_code           String
+  country               String      @default("India")
+
+  // PII - Encrypted fields (stored as encrypted strings)
+  pan_encrypted         String?     // PAN card number
+  aadhaar_encrypted     String?     // Aadhaar number
+  bank_account_encrypted String?    // Bank account number
+
+  // Bank Details (non-PII)
+  bank_name             String?
+  bank_branch           String?
+  bank_ifsc             String?
+
+  // Employment Details
+  department_id         String
+  department            Department  @relation(fields: [department_id], references: [id])
+  designation_id        String
+  designation           Designation @relation(fields: [designation_id], references: [id])
+  reporting_manager_id  String?
+  reporting_manager     Employee?   @relation("EmployeeReportsTo", fields: [reporting_manager_id], references: [id])
+  subordinates          Employee[]  @relation("EmployeeReportsTo")
+
+  // Employment Status
+  date_of_joining       DateTime
+  date_of_leaving       DateTime?
+  employment_type       EmploymentType @default(FULL_TIME)
+  employment_status     EmploymentStatus @default(ACTIVE)
+
+  // Statutory Compliance
+  uan                   String?     // Universal Account Number (PF)
+  esic_number           String?     // ESIC number
+  previous_employer_name String?
+  previous_employer_uan  String?
+
+  // Audit fields
+  created_at            DateTime    @default(now())
+  created_by            String?
+  creator               User?       @relation("EmployeeCreatedBy", fields: [created_by], references: [id])
+  updated_at            DateTime    @updatedAt
+  updated_by            String?
+  updater               User?       @relation("EmployeeUpdatedBy", fields: [updated_by], references: [id])
+
+  // Relations
+  user                  User?
+  documents             Document[]
+  salary_records        SalaryRecord[]
+  leave_balances        LeaveBalance[]
+
+  @@map("employees")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERN
+}
+
+enum EmploymentStatus {
+  ACTIVE
+  ON_LEAVE
+  TERMINATED
+  RESIGNED
+  RETIRED
+}
+
+// ============================================================================
+// DOCUMENT MANAGEMENT
+// ============================================================================
+
+model Document {
+  id              String       @id @default(cuid())
+  employee_id     String
+  employee        Employee     @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  document_type   DocumentType
+  document_name   String
+  file_path       String       // S3/local storage path
+  file_size       Int          // bytes
+  mime_type       String
+
+  uploaded_at     DateTime     @default(now())
+  verified_at     DateTime?
+  verified_by     String?
+
+  // Audit fields
+  created_at      DateTime     @default(now())
+  created_by      String?
+  creator         User?        @relation("DocumentCreatedBy", fields: [created_by], references: [id])
+  updated_at      DateTime     @updatedAt
+  updated_by      String?
+  updater         User?        @relation("DocumentUpdatedBy", fields: [updated_by], references: [id])
+
+  @@map("documents")
+}
+
+enum DocumentType {
+  AADHAAR
+  PAN
+  PASSPORT
+  DRIVING_LICENSE
+  BANK_STATEMENT
+  EDUCATION_CERTIFICATE
+  EXPERIENCE_LETTER
+  OFFER_LETTER
+  RESIGNATION_LETTER
+  RELIEVING_LETTER
+  OTHER
+}
+
+// ============================================================================
+// SALARY AND PAYROLL
+// ============================================================================
+
+model SalaryRecord {
+  id                    String   @id @default(cuid())
+  employee_id           String
+  employee              Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  // Salary Period
+  month                 Int      // 1-12
+  year                  Int
+  financial_year        String   // "2024-25"
+
+  // Salary Structure
+  basic_salary          Decimal  @db.Decimal(10, 2)
+  hra                   Decimal  @db.Decimal(10, 2)
+  special_allowance     Decimal  @db.Decimal(10, 2)
+  other_allowances      Decimal  @db.Decimal(10, 2) @default(0)
+
+  // Deductions
+  pf_employee           Decimal  @db.Decimal(10, 2) @default(0)
+  pf_employer           Decimal  @db.Decimal(10, 2) @default(0)
+  esic_employee         Decimal  @db.Decimal(10, 2) @default(0)
+  esic_employer         Decimal  @db.Decimal(10, 2) @default(0)
+  professional_tax      Decimal  @db.Decimal(10, 2) @default(0)
+  tds                   Decimal  @db.Decimal(10, 2) @default(0)
+  other_deductions      Decimal  @db.Decimal(10, 2) @default(0)
+
+  // Totals
+  gross_salary          Decimal  @db.Decimal(10, 2)
+  total_deductions      Decimal  @db.Decimal(10, 2)
+  net_salary            Decimal  @db.Decimal(10, 2)
+
+  // Payment Details
+  payment_date          DateTime?
+  payment_mode          PaymentMode @default(BANK_TRANSFER)
+  payment_reference     String?
+
+  // Status
+  status                SalaryStatus @default(DRAFT)
+  approved_by           String?
+  approved_at           DateTime?
+
+  // Import tracking
+  import_batch_id       String?
+  import_batch          ImportBatch? @relation(fields: [import_batch_id], references: [id])
+
+  // Audit fields
+  created_at            DateTime @default(now())
+  created_by            String?
+  creator               User?    @relation("SalaryRecordCreatedBy", fields: [created_by], references: [id])
+  updated_at            DateTime @updatedAt
+  updated_by            String?
+  updater               User?    @relation("SalaryRecordUpdatedBy", fields: [updated_by], references: [id])
+
+  @@unique([employee_id, month, year])
+  @@index([month, year])
+  @@index([financial_year])
+  @@map("salary_records")
+}
+
+enum PaymentMode {
+  BANK_TRANSFER
+  CHEQUE
+  CASH
+  UPI
+}
+
+enum SalaryStatus {
+  DRAFT
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+// ============================================================================
+// LEAVE MANAGEMENT
+// ============================================================================
+
+model LeaveBalance {
+  id              String   @id @default(cuid())
+  employee_id     String
+  employee        Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  year            Int
+  leave_type      LeaveType
+
+  opening_balance Decimal  @db.Decimal(5, 2)
+  earned          Decimal  @db.Decimal(5, 2) @default(0)
+  taken           Decimal  @db.Decimal(5, 2) @default(0)
+  closing_balance Decimal  @db.Decimal(5, 2)
+
+  // Audit fields
+  created_at      DateTime @default(now())
+  created_by      String?
+  creator         User?    @relation("LeaveBalanceCreatedBy", fields: [created_by], references: [id])
+  updated_at      DateTime @updatedAt
+  updated_by      String?
+  updater         User?    @relation("LeaveBalanceUpdatedBy", fields: [updated_by], references: [id])
+
+  @@unique([employee_id, year, leave_type])
+  @@map("leave_balances")
+}
+
+enum LeaveType {
+  CASUAL_LEAVE
+  EARNED_LEAVE
+  SICK_LEAVE
+  PRIVILEGE_LEAVE
+  MATERNITY_LEAVE
+  PATERNITY_LEAVE
+  COMPENSATORY_OFF
+  LOSS_OF_PAY
+}
+
+// ============================================================================
+// DATA IMPORT TRACKING
+// ============================================================================
+
+model ImportBatch {
+  id                String   @id @default(cuid())
+
+  import_type       ImportType
+  file_name         String
+  file_path         String?
+
+  total_records     Int
+  success_count     Int      @default(0)
+  failure_count     Int      @default(0)
+
+  status            ImportStatus @default(PENDING)
+  error_log         String?  @db.Text
+
+  started_at        DateTime @default(now())
+  completed_at      DateTime?
+
+  // Audit fields
+  created_at        DateTime @default(now())
+  created_by        String?
+  creator           User?    @relation("ImportBatchCreatedBy", fields: [created_by], references: [id])
+
+  // Relations
+  salary_records    SalaryRecord[]
+
+  @@map("import_batches")
+}
+
+enum ImportType {
+  EMPLOYEE
+  SALARY
+  LEAVE_BALANCE
+  KEKA_MIGRATION
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  PARTIALLY_COMPLETED
+}
