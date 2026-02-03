@@ -13,16 +13,19 @@ export {
   EPS_MAX_MONTHLY_PAISE,
 };
 
+export interface EmployerPFBreakdown {
+  epf: number;           // 3.67%
+  eps: number;           // 8.33% capped at Rs.1,250
+  edli: number;          // 0.50%
+  adminCharges: number;  // 0.51%
+  total: number;
+}
+
 export interface PFCalculationResult {
   pfBase: number;          // min(basic, ceiling) in paise
   employeePF: number;      // Employee's 12% contribution
   employerTotal: number;   // Total employer contribution
-  breakdown: {
-    epf: number;           // 3.67% to EPF
-    eps: number;           // 8.33% to EPS (capped at Rs.1,250)
-    edli: number;          // 0.50% to EDLI
-    adminCharges: number;  // 0.51% admin charges
-  };
+  breakdown: EmployerPFBreakdown;
 }
 
 /**
@@ -37,7 +40,7 @@ export function calculatePF(basicSalaryPaise: number): PFCalculationResult {
       pfBase: 0,
       employeePF: 0,
       employerTotal: 0,
-      breakdown: { epf: 0, eps: 0, edli: 0, adminCharges: 0 },
+      breakdown: { epf: 0, eps: 0, edli: 0, adminCharges: 0, total: 0 },
     };
   }
 
@@ -56,14 +59,6 @@ export function calculatePF(basicSalaryPaise: number): PFCalculationResult {
     employerTotal: breakdown.total,
     breakdown,
   };
-}
-
-export interface EmployerPFBreakdown {
-  epf: number;           // 3.67%
-  eps: number;           // 8.33% capped at Rs.1,250
-  edli: number;          // 0.50%
-  adminCharges: number;  // 0.51%
-  total: number;
 }
 
 /**
