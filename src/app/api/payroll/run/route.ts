@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { addPayrollJob } from "@/lib/queues/payroll.queue";
+import { logError } from "@/lib/error-logger";
 
 // POST /api/payroll/run - Initiate new payroll run
 export async function POST(request: NextRequest) {
@@ -84,6 +85,18 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: any) {
     console.error("Payroll run error:", error);
+    
+    // Log payroll errors - these are CRITICAL
+    await logError({
+      type: 'PAYROLL',
+      severity: 'CRITICAL',
+      message: error.message || 'Failed to initiate payroll run',
+      stack: error.stack,
+      route: '/api/payroll/run',
+      method: 'POST',
+      userId: session?.user?.id,
+    });
+    
     return NextResponse.json(
       { error: "Failed to initiate payroll run", details: error.message },
       { status: 500 },

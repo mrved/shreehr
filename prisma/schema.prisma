@@ -1485,6 +1485,32 @@ enum EmbeddingStatus {
 }
 
 // ============================================================================
+// ERROR TRACKING
+// ============================================================================
+
+model ErrorLog {
+  id          String   @id @default(cuid())
+  fingerprint String   @db.VarChar(64)
+  error_type  String   @db.VarChar(50)  // API, CLIENT, AI_CHAT, AUTH, PAYROLL
+  severity    String   @db.VarChar(20)  // CRITICAL, HIGH, MEDIUM, LOW
+  message     String   @db.Text
+  stack       String?  @db.Text
+  route       String?  @db.VarChar(255)
+  method      String?  @db.VarChar(10)  // GET, POST, etc
+  user_id     String?  @db.VarChar(50)
+  employee_id String?
+  metadata    Json?
+  notified    Boolean  @default(false)
+  created_at  DateTime @default(now())
+
+  @@index([fingerprint])
+  @@index([created_at])
+  @@index([error_type, severity])
+  @@index([notified, severity])
+  @@map("error_logs")
+}
+
+// ============================================================================
 // AUDIT LOGGING
 // ============================================================================
 

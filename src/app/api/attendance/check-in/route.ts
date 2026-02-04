@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { checkInSchema } from "@/lib/validations/attendance";
+import { logError } from "@/lib/error-logger";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -66,6 +67,18 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
+
+    // Log attendance errors - these affect employee daily routine
+    await logError({
+      type: 'ATTENDANCE',
+      severity: 'HIGH',
+      message: error instanceof Error ? error.message : 'Failed to check in',
+      stack: error instanceof Error ? error.stack : undefined,
+      route: '/api/attendance/check-in',
+      method: 'POST',
+      userId: session?.user?.id,
+      employeeId: session?.user?.employeeId,
+    });
 
     return NextResponse.json({ error: "Failed to check in" }, { status: 500 });
   }

@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { calculateAttendanceStatus, checkOutSchema } from "@/lib/validations/attendance";
+import { logError } from "@/lib/error-logger";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -75,6 +76,18 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
+
+    // Log attendance errors
+    await logError({
+      type: 'ATTENDANCE',
+      severity: 'HIGH',
+      message: error instanceof Error ? error.message : 'Failed to check out',
+      stack: error instanceof Error ? error.stack : undefined,
+      route: '/api/attendance/check-out',
+      method: 'POST',
+      userId: session?.user?.id,
+      employeeId: session?.user?.employeeId,
+    });
 
     return NextResponse.json({ error: "Failed to check out" }, { status: 500 });
   }

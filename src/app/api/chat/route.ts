@@ -11,6 +11,7 @@ import {
   saveMessage,
 } from '@/lib/ai/conversation';
 import { logToolExecution } from '@/lib/audit';
+import { logError } from '@/lib/error-logger';
 
 export const maxDuration = 60; // 60 second timeout for streaming
 
@@ -142,6 +143,23 @@ export async function POST(req: Request) {
   } catch (error) {
     const providerInfo = getProviderInfo();
     console.error(`[Chat] Error with provider ${providerInfo.provider}:`, error);
+    
+    // Log error for monitoring and notification
+    const session = await auth().catch(() => null);
+    await logError({
+      type: 'AI_CHAT',
+      severity: 'CRITICAL', // AI chat failures are critical
+      message: error instanceof Error ? error.message : 'Chat failed',
+      stack: error instanceof Error ? error.stack : undefined,
+      route: '/api/chat',
+      method: 'POST',
+      userId: session?.user?.id,
+      metadata: {
+        provider: providerInfo.provider,
+        model: providerInfo.model,
+        hasApiKey: providerInfo.hasApiKey,
+      },
+    });
     
     // Return user-friendly error with debug info
     const errorMessage = error instanceof Error ? error.message : 'Chat failed';
