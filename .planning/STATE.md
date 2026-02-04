@@ -58,6 +58,10 @@ Recent decisions affecting current work:
 - Semantic chunking over fixed-size chunks (better RAG retrieval for HR policies)
 - Sequential embedding generation (avoid overwhelming local Ollama, concurrency: 1)
 - Background job processing for embeddings (don't block policy creation/updates)
+- RBAC enforcement in function body, not AI prompts (AI cannot be trusted for security)
+- Context injection pattern using factory function (secure session context)
+- Convert paise to rupees for LLM readability (avoid token waste on large numbers)
+- Limit attendance detail to last 5 days (prevent token explosion)
 
 **From Phase 1 execution:**
 - Use Prisma 7 with datasource config in prisma.config.ts (new architecture)
@@ -497,6 +501,10 @@ Recent decisions affecting current work:
 - src/lib/qdrant/client.ts — Qdrant client singleton with ensureCollection function
 - prisma/schema.prisma — Added Conversation, Message, PolicyDocument models, EmbeddingStatus enum
 - docker-compose.yml — Added Qdrant service with persistent volume
+
+**Created (Plan 06-02):**
+- src/lib/ai/tools/employee-data.ts — RBAC-enforced data retrieval functions (leave balance, attendance, salary, loans, team summary)
+- src/lib/ai/tools/index.ts — AI SDK tool definitions with context injection factory and session helper
 
 **Created (Plan 06-03):**
 - src/lib/qdrant/embeddings.ts — Document chunking (semantic boundaries) and embedding generation (Ollama nomic-embed-text)
