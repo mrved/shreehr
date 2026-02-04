@@ -48,10 +48,21 @@ export async function POST(request: NextRequest) {
       if (!deptName) continue;
       let dept = await prisma.department.findFirst({ where: { name: deptName } });
       if (!dept) {
+        // Generate unique code
+        let baseCode = deptName.substring(0, 10).toUpperCase().replace(/\s/g, "");
+        let code = baseCode;
+        let counter = 1;
+        
+        while (await prisma.department.findUnique({ where: { code } })) {
+          const suffix = counter.toString();
+          code = baseCode.substring(0, 10 - suffix.length) + suffix;
+          counter++;
+        }
+
         dept = await prisma.department.create({
           data: {
             name: deptName,
-            code: deptName.substring(0, 10).toUpperCase().replace(/\s/g, ""),
+            code,
             created_by: session.user.id,
             updated_by: session.user.id,
           },
@@ -92,11 +103,10 @@ export async function POST(request: NextRequest) {
           last_name: emp.lastName,
           date_of_birth: emp.dateOfBirth,
           gender: emp.gender,
-          personal_email: emp.personalEmail || null,
-          work_email: emp.workEmail || "",
+          personal_email: emp.personalEmail || emp.workEmail || null, // Use work email as fallback
           personal_phone: emp.phone,
           date_of_joining: emp.dateOfJoining,
-          state: emp.state || null,
+          state: emp.state || "Unknown",
           department_id: emp.department ? deptMap.get(emp.department) : null,
           designation_id: emp.designation ? desigMap.get(emp.designation) : null,
           pan_encrypted: encryptOptional(emp.panNumber),
