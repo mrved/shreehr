@@ -7,6 +7,10 @@ import { randomBytes } from "node:crypto";
 import { access, mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
+// Re-export and import constants
+export { ALLOWED_MIME_TYPES, MAX_FILE_SIZE } from "./storage-constants";
+import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE } from "./storage-constants";
+
 // Base directory for file storage
 const UPLOAD_DIR = process.env.UPLOAD_DIR || "./uploads";
 
@@ -97,9 +101,6 @@ export async function deleteFile(storagePath: string): Promise<boolean> {
 export function getFilePath(employeeId: string, fileName: string): string {
   return join(getEmployeeDir(employeeId), fileName);
 }
-
-// Re-export constants for backward compatibility
-export { ALLOWED_MIME_TYPES, MAX_FILE_SIZE } from "./storage-constants";
 
 /**
  * Validate file upload

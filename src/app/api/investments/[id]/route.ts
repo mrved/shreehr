@@ -8,15 +8,16 @@ import {
   investmentVerifySchema,
 } from "@/lib/validations/investment";
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
+    const { id } = await params;
     const declaration = await prisma.investmentDeclaration.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         employee: {
           select: {
@@ -51,21 +52,22 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
+    const { id } = await params;
     const body = await request.json();
 
     // Check for action-based requests (submit, verify, reject)
     if (body.action) {
       if (body.action === "submit") {
-        return handleSubmit(params.id, session);
+        return handleSubmit(id, session);
       } else if (body.action === "verify" || body.action === "reject") {
-        return handleVerify(params.id, session, body);
+        return handleVerify(id, session, body);
       } else {
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
       }
@@ -76,7 +78,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     // Get existing declaration
     const existing = await prisma.investmentDeclaration.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existing) {
@@ -106,7 +108,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     // Update declaration
     const updated = await prisma.investmentDeclaration.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...validated,
         updated_by: session.user.id,
@@ -141,16 +143,17 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
+    const { id } = await params;
     // Get existing declaration
     const existing = await prisma.investmentDeclaration.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existing) {
@@ -179,7 +182,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     await prisma.investmentDeclaration.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Declaration deleted successfully" });

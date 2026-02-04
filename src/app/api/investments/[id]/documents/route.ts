@@ -3,14 +3,14 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { calculateRetentionDate, saveFile, validateFile } from "@/lib/storage";
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const declarationId = params.id;
+    const { id: declarationId } = await params;
     const searchParams = request.nextUrl.searchParams;
     const section = searchParams.get("section");
 
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth();
   if (!session?.user || !session.user.employeeId) {
@@ -74,7 +74,7 @@ export async function POST(
   }
 
   try {
-    const declarationId = params.id;
+    const { id: declarationId } = await params;
 
     // Verify declaration ownership
     const declaration = await prisma.investmentDeclaration.findUnique({
