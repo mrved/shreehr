@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 6 of 6 (AI Assistant)
-Plan: 1 of TBD in current phase
+Plan: 3 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 06-01-PLAN.md
+Last activity: 2026-02-04 — Completed 06-03-PLAN.md
 
-Progress: [█████████████░] ~86%
+Progress: [█████████████░] ~88%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 33
-- Average duration: 5.5 min
-- Total execution time: ~181 min
+- Total plans completed: 35
+- Average duration: 5.4 min
+- Total execution time: ~188 min
 
 **By Phase:**
 
@@ -33,11 +33,11 @@ Progress: [█████████████░] ~86%
 | 03-payroll-compliance | 9 | 38min | 4.2min |
 | 04-employee-self-service | 8 | 52min | 6.5min |
 | 05-supporting-workflows | 6 | 38min | 6.3min |
-| 06-ai-assistant | 1 | 3.5min | 3.5min |
+| 06-ai-assistant | 3 | 10min | 3.3min |
 
 **Recent Trend:**
-- Last 5 plans: 05-04 (3min), 05-05 (13min), 05-06 (1min), 06-01 (3.5min), Phase 6 started
-- Trend: Excellent velocity, Phase 6 AI infrastructure in 3.5 minutes
+- Last 5 plans: 05-05 (13min), 05-06 (1min), 06-01 (3.5min), 06-02 (4.5min), 06-03 (2min)
+- Trend: Exceptional velocity on Phase 6 AI infrastructure (3.3min average)
 
 *Updated after each plan completion*
 
@@ -55,6 +55,9 @@ Recent decisions affecting current work:
 - Ollama over OpenAI/Anthropic APIs (zero API costs, full model control, data privacy)
 - Qdrant over pgvector (dedicated vector DB, optimized indexing, easier scaling)
 - nomic-embed-text (768 dims) over OpenAI embeddings (open source, free, good quality)
+- Semantic chunking over fixed-size chunks (better RAG retrieval for HR policies)
+- Sequential embedding generation (avoid overwhelming local Ollama, concurrency: 1)
+- Background job processing for embeddings (don't block policy creation/updates)
 
 **From Phase 1 execution:**
 - Use Prisma 7 with datasource config in prisma.config.ts (new architecture)
@@ -495,6 +498,13 @@ Recent decisions affecting current work:
 - prisma/schema.prisma — Added Conversation, Message, PolicyDocument models, EmbeddingStatus enum
 - docker-compose.yml — Added Qdrant service with persistent volume
 
+**Created (Plan 06-03):**
+- src/lib/qdrant/embeddings.ts — Document chunking (semantic boundaries) and embedding generation (Ollama nomic-embed-text)
+- src/lib/qdrant/search.ts — Semantic search with RBAC filtering by visible_to_roles
+- src/lib/ai/tools/policy-search.ts — AI tool for policy search with clear LLM description
+- src/lib/queues/embedding.queue.ts — BullMQ queue for background embedding jobs
+- src/lib/queues/workers/embedding.worker.ts — Worker for processing embeddings with status tracking
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -583,6 +593,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 06-01-PLAN.md (AI Assistant Infrastructure)
-Stopped at: Completed Phase 6 Plan 1, ready for next plan
+Last session: 2026-02-04 — Completed 06-03-PLAN.md (RAG Infrastructure for Policy Search)
+Stopped at: Completed Phase 6 Plan 3, ready for next plan
 Resume file: None
