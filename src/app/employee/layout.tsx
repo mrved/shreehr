@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { FloatingChatButton } from "@/components/chat";
 
 export default async function EmployeeLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -55,6 +56,9 @@ export default async function EmployeeLayout({ children }: { children: React.Rea
           <MobileNavItem href="/employee/profile" icon={User} label="Profile" />
         </div>
       </nav>
+
+      {/* Floating Ask HR Chat Button */}
+      <FloatingChatButton href="/employee/chat" />
     </div>
   );
 }

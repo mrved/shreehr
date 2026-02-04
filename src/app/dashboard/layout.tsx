@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { FloatingChatButton } from "@/components/chat";
 import { auth } from "@/lib/auth";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -12,6 +13,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <DashboardShell user={session.user}>
       {children}
+      <FloatingChatButton href="/dashboard/chat" />
     </DashboardShell>
   );
 }
