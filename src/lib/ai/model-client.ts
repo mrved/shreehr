@@ -14,7 +14,14 @@ let anthropicModule: typeof import('@ai-sdk/anthropic') | null = null;
 export async function getChatModel() {
   const provider = process.env.AI_PROVIDER?.toLowerCase() || 'ollama';
   
-  if (provider === 'anthropic' && process.env.ANTHROPIC_API_KEY) {
+  if (provider === 'anthropic') {
+    // Fail fast if Anthropic is configured but API key is missing
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error(
+        'AI_PROVIDER is set to "anthropic" but ANTHROPIC_API_KEY is not configured. ' +
+        'Please set the ANTHROPIC_API_KEY environment variable.'
+      );
+    }
     if (!anthropicModule) {
       anthropicModule = await import('@ai-sdk/anthropic');
     }
@@ -22,7 +29,15 @@ export async function getChatModel() {
     return anthropicModule.anthropic('claude-sonnet-4-20250514');
   }
   
-  // Default to Ollama
+  // Ollama fallback - warn in production since it won't work on serverless
+  if (process.env.NODE_ENV === 'production') {
+    console.warn(
+      '[AI] WARNING: Using Ollama in production. ' +
+      'This will likely fail on serverless platforms like Vercel. ' +
+      'Set AI_PROVIDER=anthropic and ANTHROPIC_API_KEY for production use.'
+    );
+  }
+  
   const ollama = createOllama({
     baseURL: process.env.OLLAMA_BASE_URL || 'http://localhost:11434/api',
   });
@@ -51,15 +66,21 @@ export async function getEmbeddingModel() {
 /**
  * Get provider info for debugging
  */
-export function getProviderInfo(): { provider: string; model: string } {
+export function getProviderInfo(): { provider: string; model: string; hasApiKey: boolean } {
   const provider = process.env.AI_PROVIDER?.toLowerCase() || 'ollama';
+  const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
   
-  if (provider === 'anthropic' && process.env.ANTHROPIC_API_KEY) {
-    return { provider: 'anthropic', model: 'claude-sonnet-4-20250514' };
+  if (provider === 'anthropic') {
+    return { 
+      provider: 'anthropic', 
+      model: 'claude-sonnet-4-20250514',
+      hasApiKey 
+    };
   }
   
   return { 
     provider: 'ollama', 
-    model: process.env.OLLAMA_MODEL || 'llama3.2:3b' 
+    model: process.env.OLLAMA_MODEL || 'llama3.2:3b',
+    hasApiKey: false
   };
 }

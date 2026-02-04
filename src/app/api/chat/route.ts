@@ -90,9 +90,10 @@ export async function POST(req: Request) {
       : HR_ASSISTANT_SYSTEM_PROMPT;
 
     // Get AI model based on provider configuration
-    const model = await getChatModel();
     const providerInfo = getProviderInfo();
-    console.log(`[Chat] Using AI provider: ${providerInfo.provider}, model: ${providerInfo.model}`);
+    console.log(`[Chat] Using AI provider: ${providerInfo.provider}, model: ${providerInfo.model}, hasApiKey: ${providerInfo.hasApiKey}`);
+    
+    const model = await getChatModel();
 
     // User ID for audit logging
     const userId = session.user.id;
@@ -139,9 +140,22 @@ export async function POST(req: Request) {
       headers,
     });
   } catch (error) {
-    console.error('Chat API error:', error);
+    const providerInfo = getProviderInfo();
+    console.error(`[Chat] Error with provider ${providerInfo.provider}:`, error);
+    
+    // Return user-friendly error with debug info
+    const errorMessage = error instanceof Error ? error.message : 'Chat failed';
+    const isDev = process.env.NODE_ENV !== 'production';
+    
     return Response.json(
-      { error: error instanceof Error ? error.message : 'Chat failed' },
+      { 
+        error: errorMessage,
+        ...(isDev && { 
+          provider: providerInfo.provider,
+          model: providerInfo.model,
+          hasApiKey: providerInfo.hasApiKey
+        })
+      },
       { status: 500 }
     );
   }
