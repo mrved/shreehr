@@ -1,6 +1,20 @@
 "use client";
 
-import { Building2, FileText, Home, Settings, Upload, Users } from "lucide-react";
+import { 
+  Building2, 
+  Calendar, 
+  CheckSquare, 
+  Clock, 
+  CreditCard, 
+  FileText, 
+  Home, 
+  Receipt, 
+  Settings, 
+  Upload, 
+  UserPlus, 
+  Users,
+  Wallet
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -14,23 +28,80 @@ const navigation = [
     name: "Dashboard",
     href: "/dashboard",
     icon: Home,
-    roles: ["ADMIN", "HR_MANAGER", "PAYROLL_MANAGER", "EMPLOYEE"],
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER", "PAYROLL_MANAGER", "EMPLOYEE"],
   },
-  { name: "Employees", href: "/dashboard/employees", icon: Users, roles: ["ADMIN", "HR_MANAGER"] },
+  { 
+    name: "Employees", 
+    href: "/dashboard/employees", 
+    icon: Users, 
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"] 
+  },
   {
     name: "Departments",
     href: "/dashboard/departments",
     icon: Building2,
-    roles: ["ADMIN", "HR_MANAGER"],
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"],
+  },
+  {
+    name: "Leave",
+    href: "/dashboard/leave",
+    icon: Calendar,
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER", "PAYROLL_MANAGER"],
+  },
+  {
+    name: "Attendance",
+    href: "/dashboard/attendance",
+    icon: Clock,
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER", "PAYROLL_MANAGER"],
+  },
+  {
+    name: "Payroll",
+    href: "/dashboard/payroll",
+    icon: CreditCard,
+    roles: ["ADMIN", "SUPER_ADMIN", "PAYROLL_MANAGER"],
+  },
+  {
+    name: "Loans",
+    href: "/dashboard/loans",
+    icon: Wallet,
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER", "PAYROLL_MANAGER"],
+  },
+  {
+    name: "Expenses",
+    href: "/dashboard/expenses",
+    icon: Receipt,
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER", "PAYROLL_MANAGER"],
+  },
+  {
+    name: "Approvals",
+    href: "/dashboard/approvals",
+    icon: CheckSquare,
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER", "PAYROLL_MANAGER"],
+  },
+  {
+    name: "Onboarding",
+    href: "/dashboard/onboarding",
+    icon: UserPlus,
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"],
   },
   {
     name: "Documents",
     href: "/dashboard/documents",
     icon: FileText,
-    roles: ["ADMIN", "HR_MANAGER", "EMPLOYEE"],
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"],
   },
-  { name: "Import Data", href: "/dashboard/import", icon: Upload, roles: ["ADMIN"] },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN"] },
+  { 
+    name: "Import Data", 
+    href: "/dashboard/import", 
+    icon: Upload, 
+    roles: ["ADMIN", "SUPER_ADMIN"] 
+  },
+  { 
+    name: "Settings", 
+    href: "/dashboard/settings", 
+    icon: Settings, 
+    roles: ["ADMIN", "SUPER_ADMIN"] 
+  },
 ];
 
 export function Sidebar({ role }: SidebarProps) {

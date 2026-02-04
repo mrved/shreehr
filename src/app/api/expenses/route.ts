@@ -36,8 +36,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Employee ID not found" }, { status: 400 });
       }
       where.employee_id = employeeId;
-    } else if (role === "MANAGER") {
-      // Managers see subordinates' pending claims
+    } else if (role === "PAYROLL_MANAGER") {
+      // Payroll managers see subordinates' pending claims (they act as first-level approvers)
       if (!employeeId) {
         return NextResponse.json({ error: "Employee ID not found" }, { status: 400 });
       }

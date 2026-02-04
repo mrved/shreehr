@@ -40,10 +40,22 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = departmentSchema.parse(body);
 
+    // Generate unique code from name
+    let baseCode = validated.name.substring(0, 10).toUpperCase().replace(/\s/g, "");
+    let code = baseCode;
+    let counter = 1;
+    
+    // Check for existing code and add number suffix if needed
+    while (await prisma.department.findUnique({ where: { code } })) {
+      const suffix = counter.toString();
+      code = baseCode.substring(0, 10 - suffix.length) + suffix;
+      counter++;
+    }
+
     const department = await prisma.department.create({
       data: {
         name: validated.name,
-        code: validated.name.substring(0, 10).toUpperCase().replace(/\s/g, ""),
+        code,
         description: validated.description,
         is_active: validated.isActive ?? true,
         created_by: session.user.id,

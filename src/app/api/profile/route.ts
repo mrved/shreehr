@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { decrypt, maskPAN, maskAadhaar } from "@/lib/encryption";
 
 // GET /api/profile - Return current employee profile
 export async function GET() {
@@ -79,17 +80,35 @@ export async function GET() {
       return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
-    // Mask PII (show only last 4 characters)
-    const maskedProfile = {
-      ...employee,
-      pan: employee.pan_encrypted ? `******${employee.pan_encrypted.slice(-4)}` : null,
-      aadhaar: employee.aadhaar_encrypted
-        ? `********${employee.aadhaar_encrypted.slice(-4)}`
-        : null,
-    };
+    // Decrypt and mask PII for display
+    let maskedPan: string | null = null;
+    let maskedAadhaar: string | null = null;
 
-    // Remove encrypted fields from response
-    const { pan_encrypted, aadhaar_encrypted, ...profileData } = maskedProfile;
+    try {
+      if (employee.pan_encrypted) {
+        const decryptedPan = decrypt(employee.pan_encrypted);
+        maskedPan = maskPAN(decryptedPan);
+      }
+    } catch {
+      maskedPan = "******ERROR";
+    }
+
+    try {
+      if (employee.aadhaar_encrypted) {
+        const decryptedAadhaar = decrypt(employee.aadhaar_encrypted);
+        maskedAadhaar = maskAadhaar(decryptedAadhaar);
+      }
+    } catch {
+      maskedAadhaar = "XXXX XXXX ERROR";
+    }
+
+    // Remove encrypted fields and add masked versions
+    const { pan_encrypted, aadhaar_encrypted, ...baseProfile } = employee;
+    const profileData = {
+      ...baseProfile,
+      pan: maskedPan,
+      aadhaar: maskedAadhaar,
+    };
 
     return NextResponse.json(profileData);
   } catch (error) {

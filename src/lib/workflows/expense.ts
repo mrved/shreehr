@@ -20,20 +20,20 @@ export interface ApprovalLevel {
 export const APPROVAL_LEVELS: ApprovalLevel[] = [
   {
     level: 1,
-    role: "MANAGER",
+    role: "PAYROLL_MANAGER", // Changed from MANAGER (not a valid role)
     minAmount: 0,
-    maxAmount: 50000 * 100, // Rs.500
+    maxAmount: 50000, // Rs.500 (50000 paise)
   },
   {
     level: 2,
     role: "HR_MANAGER",
-    minAmount: 50000 * 100 + 1, // Rs.500.01
-    maxAmount: 250000 * 100, // Rs.2,500
+    minAmount: 50001, // Rs.500.01 (50001 paise)
+    maxAmount: 250000, // Rs.2,500 (250000 paise)
   },
   {
     level: 3,
     role: "ADMIN",
-    minAmount: 250000 * 100 + 1, // Rs.2,500.01
+    minAmount: 250001, // Rs.2,500.01 (250001 paise)
     maxAmount: null, // No upper limit
   },
 ];
