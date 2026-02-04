@@ -159,7 +159,7 @@ export function Sidebar({ role, isOpen, onClose }: SidebarProps) {
                       href={item.href}
                       onClick={onClose}
                       className={cn(
-                        "group flex gap-x-3 rounded-md p-2 text-sm font-medium",
+                        "group flex gap-x-3 rounded-md p-3 text-sm font-medium min-h-[44px] items-center touch-manipulation",
                         isActive
                           ? "bg-gray-100 text-gray-900"
                           : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",

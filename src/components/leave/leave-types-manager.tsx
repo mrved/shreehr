@@ -265,28 +265,60 @@ export function LeaveTypesManager() {
         </Dialog>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Code</TableHead>
-              <TableHead>Annual Quota</TableHead>
-              <TableHead>Carry Forward</TableHead>
-              <TableHead>Paid</TableHead>
-              <TableHead>Approval</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {leaveTypes.map((lt) => (
-              <TableRow key={lt.id} className={!lt.is_active ? "opacity-50" : ""}>
-                <TableCell className="font-medium">{lt.name}</TableCell>
-                <TableCell>{lt.code}</TableCell>
-                <TableCell>{lt.annual_quota}</TableCell>
-                <TableCell>{lt.max_carry_forward}</TableCell>
-                <TableCell>{lt.is_paid ? "Yes" : "No"}</TableCell>
-                <TableCell>{lt.requires_approval ? "Yes" : "No"}</TableCell>
-                <TableCell>
+        {/* Desktop Table View */}
+        <div className="hidden md:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Code</TableHead>
+                <TableHead>Annual Quota</TableHead>
+                <TableHead>Carry Forward</TableHead>
+                <TableHead>Paid</TableHead>
+                <TableHead>Approval</TableHead>
+                <TableHead></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {leaveTypes.map((lt) => (
+                <TableRow key={lt.id} className={!lt.is_active ? "opacity-50" : ""}>
+                  <TableCell className="font-medium">{lt.name}</TableCell>
+                  <TableCell>{lt.code}</TableCell>
+                  <TableCell>{lt.annual_quota}</TableCell>
+                  <TableCell>{lt.max_carry_forward}</TableCell>
+                  <TableCell>{lt.is_paid ? "Yes" : "No"}</TableCell>
+                  <TableCell>{lt.requires_approval ? "Yes" : "No"}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => openEdit(lt)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => handleDelete(lt.id)}>
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4">
+          {leaveTypes.length === 0 ? (
+            <p className="text-center text-muted-foreground py-4">No leave types found</p>
+          ) : (
+            leaveTypes.map((lt) => (
+              <div
+                key={lt.id}
+                className={`border rounded-lg p-4 bg-white ${!lt.is_active ? "opacity-50" : ""}`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="font-medium">{lt.name}</h3>
+                    <p className="text-sm text-muted-foreground">{lt.code}</p>
+                  </div>
                   <div className="flex gap-1">
                     <Button size="sm" variant="ghost" onClick={() => openEdit(lt)}>
                       <Pencil className="h-4 w-4" />
@@ -295,11 +327,29 @@ export function LeaveTypesManager() {
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Annual Quota:</span>
+                    <p className="font-medium">{lt.annual_quota}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Carry Forward:</span>
+                    <p className="font-medium">{lt.max_carry_forward}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Paid:</span>
+                    <p className="font-medium">{lt.is_paid ? "Yes" : "No"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Approval:</span>
+                    <p className="font-medium">{lt.requires_approval ? "Yes" : "No"}</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </CardContent>
     </Card>
   );

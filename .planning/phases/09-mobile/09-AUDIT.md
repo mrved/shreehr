@@ -64,7 +64,25 @@ Performed comprehensive mobile UI audit across all components.
 **Severity:** Low
 **File:** `src/components/layout/sidebar.tsx`
 **Problem:** Nav items have p-2 padding, making tap targets smaller
-**Fix:** Increased padding to p-3 for better tap targets
+**Fix:** Increased padding to p-3, added min-h-[44px] for better tap targets
+
+### Issue 6: Select Component Touch Targets
+**Severity:** Medium
+**File:** `src/components/ui/select.tsx`
+**Problem:** SelectTrigger and SelectItem have small heights
+**Fix:** SelectTrigger: h-11 on mobile, h-9 on desktop; SelectItem: min-h-[44px] on mobile
+
+### Issue 7: Switch Component Too Small
+**Severity:** Medium
+**File:** `src/components/ui/switch.tsx`
+**Problem:** Switch h-5 w-9 (20x36px) is too small for mobile
+**Fix:** Increased to h-7 w-12 (28x48px) on mobile, original size on desktop
+
+### Issue 8: Missing touch-manipulation
+**Severity:** Low
+**Files:** Multiple UI components
+**Problem:** 300ms tap delay on iOS
+**Fix:** Added touch-manipulation to button, input, select, textarea, switch
 
 ---
 
