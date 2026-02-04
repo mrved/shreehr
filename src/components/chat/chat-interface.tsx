@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport } from 'ai';
+import { TextStreamChatTransport } from 'ai';
 import { MessageList } from './message-list';
 import { MessageInput } from './message-input';
 import { ConversationSidebar } from './conversation-sidebar';
@@ -20,7 +20,7 @@ export function ChatInterface({ showSidebar = true }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { messages, sendMessage, status, setMessages } = useChat({
-    transport: new DefaultChatTransport({
+    transport: new TextStreamChatTransport({
       api: '/api/chat',
       headers: async () => {
         return {
