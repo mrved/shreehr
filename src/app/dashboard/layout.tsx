@@ -15,7 +15,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <Sidebar role={session.user.role} />
       <div className="lg:pl-64">
         <Header user={session.user} />
-        <main className="p-6">{children}</main>
+        <main className="p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

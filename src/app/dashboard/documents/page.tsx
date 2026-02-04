@@ -111,7 +111,7 @@ export default function DocumentsPage() {
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center gap-4">
             <Select value={selectedEmployee || "__all__"} onValueChange={(v) => setSelectedEmployee(v === "__all__" ? "" : v)}>
-              <SelectTrigger className="w-64">
+              <SelectTrigger className="w-full sm:w-64">
                 <SelectValue placeholder="Filter by employee" />
               </SelectTrigger>
               <SelectContent>

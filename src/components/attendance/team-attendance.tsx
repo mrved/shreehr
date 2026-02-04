@@ -142,41 +142,87 @@ export function TeamAttendance() {
             <Loader2 className="h-6 w-6 animate-spin" />
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Check In</TableHead>
-                <TableHead>Check Out</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTeam.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">
-                        {member.first_name} {member.last_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{member.employee_code}</p>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Employee</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Check In</TableHead>
+                    <TableHead>Check Out</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredTeam.map((member) => (
+                    <TableRow key={member.id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">
+                            {member.first_name} {member.last_name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{member.employee_code}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>{statusBadge(member.todayStatus || "NOT_RECORDED")}</TableCell>
+                      <TableCell>{formatTime(member.checkIn)}</TableCell>
+                      <TableCell>{formatTime(member.checkOut)}</TableCell>
+                      <TableCell>
+                        {member.missingPunch && (
+                          <span title="Missing check-out">
+                            <AlertCircle className="h-4 w-4 text-yellow-500" />
+                          </span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+              {filteredTeam.length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">No team members found</p>
+              ) : (
+                filteredTeam.map((member) => (
+                  <div
+                    key={member.id}
+                    className="border rounded-lg p-4 bg-white"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium">
+                          {member.first_name} {member.last_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{member.employee_code}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {member.missingPunch && (
+                          <span title="Missing check-out">
+                            <AlertCircle className="h-4 w-4 text-yellow-500" />
+                          </span>
+                        )}
+                        {statusBadge(member.todayStatus || "NOT_RECORDED")}
+                      </div>
                     </div>
-                  </TableCell>
-                  <TableCell>{statusBadge(member.todayStatus || "NOT_RECORDED")}</TableCell>
-                  <TableCell>{formatTime(member.checkIn)}</TableCell>
-                  <TableCell>{formatTime(member.checkOut)}</TableCell>
-                  <TableCell>
-                    {member.missingPunch && (
-                      <span title="Missing check-out">
-                        <AlertCircle className="h-4 w-4 text-yellow-500" />
-                      </span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Check In</span>
+                        <p className="font-medium">{formatTime(member.checkIn)}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Check Out</span>
+                        <p className="font-medium">{formatTime(member.checkOut)}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

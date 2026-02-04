@@ -130,7 +130,7 @@ export function AttendanceCalendar({ employeeId }: { employeeId?: string }) {
             <div className="grid grid-cols-7 gap-1">
               {days.map((day, index) => {
                 if (day === null) {
-                  return <div key={`empty-${index}`} className="h-10" />;
+                  return <div key={`empty-${index}`} className="h-12 sm:h-10" />;
                 }
 
                 const record = getAttendanceForDay(day);
@@ -141,7 +141,7 @@ export function AttendanceCalendar({ employeeId }: { employeeId?: string }) {
                   <div
                     key={day}
                     className={cn(
-                      "h-10 flex items-center justify-center rounded text-sm relative",
+                      "h-12 sm:h-10 flex items-center justify-center rounded text-sm relative",
                       status && statusColors[status],
                       status && "text-white",
                       !status && "hover:bg-muted",
