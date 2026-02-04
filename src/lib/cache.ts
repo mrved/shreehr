@@ -27,7 +27,16 @@ export const getCachedLeaveTypes = unstable_cache(
     orderBy: { name: 'asc' }
   }),
   ['leave-types-active'],
-  { revalidate: 3600, tags: ['leave-types'] }
+  { revalidate: 900, tags: ['leave-types'] }
+);
+
+// All leave types (including inactive) - for admin management
+export const getCachedAllLeaveTypes = unstable_cache(
+  () => prisma.leaveType.findMany({
+    orderBy: { name: 'asc' }
+  }),
+  ['leave-types-all'],
+  { revalidate: 900, tags: ['leave-types'] }
 );
 
 // Reference data with counts - for admin list pages (15 min TTL - counts change more often)
@@ -96,4 +105,12 @@ export function invalidateEmployees() {
 export function invalidateDocuments() {
   revalidateTag('documents', INVALIDATE_NOW);
   revalidateTag('dashboard', INVALIDATE_NOW);
+}
+
+export function invalidatePTSlabs() {
+  revalidateTag('pt-slabs', INVALIDATE_NOW);
+}
+
+export function invalidateExpensePolicies() {
+  revalidateTag('expense-policies', INVALIDATE_NOW);
 }

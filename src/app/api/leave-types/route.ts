@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
+import { getCachedLeaveTypes, getCachedAllLeaveTypes, invalidateLeaveTypes } from "@/lib/cache";
 import { prisma } from "@/lib/db";
-import { invalidateLeaveTypes } from "@/lib/cache";
 import { leaveTypeCreateSchema } from "@/lib/validations/leave";
 
 export async function GET(request: NextRequest) {
@@ -15,12 +15,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const activeOnly = searchParams.get("activeOnly") === "true";
 
-    const where = activeOnly ? { is_active: true } : {};
-
-    const leaveTypes = await prisma.leaveType.findMany({
-      where,
-      orderBy: { name: "asc" },
-    });
+    // Use cached queries (15 min TTL)
+    const leaveTypes = activeOnly
+      ? await getCachedLeaveTypes()
+      : await getCachedAllLeaveTypes();
 
     return NextResponse.json(leaveTypes);
   } catch (error) {
