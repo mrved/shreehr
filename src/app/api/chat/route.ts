@@ -148,8 +148,11 @@ export async function POST(req: Request) {
       },
     });
 
-    // Return streaming response with conversation ID in header
-    const response = result.toTextStreamResponse();
+    // Return data stream response (required for useChat hook)
+    // toDataStreamResponse() provides the structured protocol that @ai-sdk/react expects
+    const response = result.toDataStreamResponse({
+      sendReasoning: false, // Don't send thinking/reasoning tokens to client
+    });
 
     // Add conversation ID to response headers
     const headers = new Headers(response.headers);
