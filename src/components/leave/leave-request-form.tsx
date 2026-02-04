@@ -110,18 +110,22 @@ export function LeaveRequestForm() {
           <div className="space-y-2">
             <Label htmlFor="leaveType">Leave Type</Label>
             <Select
-              value={formData.leaveTypeId}
+              value={formData.leaveTypeId || undefined}
               onValueChange={(value) => setFormData({ ...formData, leaveTypeId: value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select leave type" />
               </SelectTrigger>
               <SelectContent>
-                {leaveTypes.map((lt) => (
-                  <SelectItem key={lt.id} value={lt.id}>
-                    {lt.name} ({lt.code}){!lt.is_paid && " - Unpaid"}
-                  </SelectItem>
-                ))}
+                {leaveTypes.length === 0 ? (
+                  <SelectItem value="__none__" disabled>No leave types available</SelectItem>
+                ) : (
+                  leaveTypes.map((lt) => (
+                    <SelectItem key={lt.id} value={lt.id}>
+                      {lt.name} ({lt.code}){!lt.is_paid && " - Unpaid"}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
