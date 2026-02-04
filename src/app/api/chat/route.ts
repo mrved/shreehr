@@ -39,6 +39,25 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Last message must be from user' }, { status: 400 });
     }
 
+    // Extract text content from message (AI SDK v6 uses parts array format)
+    let userMessageContent: string;
+    if (lastMessage.parts && Array.isArray(lastMessage.parts)) {
+      // AI SDK v6 format: { parts: [{ type: 'text', text: '...' }] }
+      userMessageContent = lastMessage.parts
+        .filter((part: { type: string }) => part.type === 'text')
+        .map((part: { type: string; text: string }) => part.text)
+        .join('\n');
+    } else if (typeof lastMessage.content === 'string') {
+      // Legacy format: { content: '...' }
+      userMessageContent = lastMessage.content;
+    } else {
+      return Response.json({ error: 'Invalid message format' }, { status: 400 });
+    }
+
+    if (!userMessageContent.trim()) {
+      return Response.json({ error: 'Message content cannot be empty' }, { status: 400 });
+    }
+
     // Get or create conversation
     const { id: convId, isNew } = await getOrCreateConversation(
       session.user.id,
@@ -46,7 +65,7 @@ export async function POST(req: Request) {
     );
 
     // Save user message
-    await saveMessage(convId, 'user', lastMessage.content as string);
+    await saveMessage(convId, 'user', userMessageContent);
 
     // Build context for tools
     const toolContext = await getToolContext();

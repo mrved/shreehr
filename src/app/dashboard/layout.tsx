@@ -11,9 +11,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <DashboardShell user={session.user}>
-      {children}
+    <>
+      <DashboardShell user={session.user}>
+        {children}
+      </DashboardShell>
+      {/* Floating Ask HR Chat Button - placed outside DashboardShell for proper fixed positioning */}
       <FloatingChatButton href="/dashboard/chat" />
-    </DashboardShell>
+    </>
   );
 }
