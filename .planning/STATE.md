@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 6 of 6 (AI Assistant)
-Plan: 4 of TBD in current phase
+Plan: 5 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 06-04-PLAN.md
+Last activity: 2026-02-04 — Completed 06-05-PLAN.md
 
-Progress: [█████████████░] ~91%
+Progress: [█████████████░] ~93%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 36
-- Average duration: 5.5 min
-- Total execution time: ~199 min
+- Total plans completed: 37
+- Average duration: 5.6 min
+- Total execution time: ~208 min
 
 **By Phase:**
 
@@ -33,11 +33,11 @@ Progress: [█████████████░] ~91%
 | 03-payroll-compliance | 9 | 38min | 4.2min |
 | 04-employee-self-service | 8 | 52min | 6.5min |
 | 05-supporting-workflows | 6 | 38min | 6.3min |
-| 06-ai-assistant | 4 | 21min | 5.25min |
+| 06-ai-assistant | 5 | 30min | 6min |
 
 **Recent Trend:**
-- Last 5 plans: 05-06 (1min), 06-01 (3.5min), 06-02 (4.5min), 06-03 (2min), 06-04 (11min)
-- Trend: Phase 6 velocity remains strong (5.25min average) despite complex AI integrations
+- Last 5 plans: 06-01 (3.5min), 06-02 (4.5min), 06-03 (2min), 06-04 (11min), 06-05 (9.5min)
+- Trend: Phase 6 maintaining good velocity (6min average) with UI-heavy tasks
 
 *Updated after each plan completion*
 
@@ -293,6 +293,45 @@ Recent decisions affecting current work:
 - Loan sync queries: WHERE status=SCHEDULED AND loan.status=ACTIVE
 - All loan updates wrapped in transactions for atomicity
 
+**From Phase 6 execution:**
+
+**Plan 06-01 (AI Infrastructure Setup):**
+- Ollama for local model inference (llama3.2:3b chat, nomic-embed-text embeddings) instead of OpenAI API
+- Qdrant for vector search (768-dim embeddings from nomic-embed-text)
+- Conversation and Message models for chat history persistence
+- PolicyDocument model with embedding_status tracking (PENDING, PROCESSING, COMPLETED, FAILED)
+- Docker Compose for Qdrant service with persistent volume
+
+**Plan 06-02 (Employee Data Tools):**
+- Tool context from session (employeeId, role) instead of passing user object
+- RBAC enforcement in tool functions (getToolContext helper)
+- Tools return structured data for LLM consumption
+- Manager tools (getTeamSummary) filtered by reporting_manager_id relationship
+- Salary masking for non-admin/non-manager roles
+
+**Plan 06-03 (RAG Implementation):**
+- Markdown-based semantic chunking (## headings as boundaries, max 1000 chars)
+- Background embedding with BullMQ (async, doesn't block policy creation)
+- RBAC at search level (visible_to_roles payload filter in Qdrant)
+- Policy search returns chunks with metadata (policyId, category, chunkIndex)
+- Embedding worker updates policy status (PROCESSING → COMPLETED/FAILED)
+
+**Plan 06-04 (Chat API):**
+- streamText from AI SDK for streaming responses
+- Tool calling with maxSteps=5 to prevent infinite loops
+- Conversation ID in X-Conversation-Id header for new conversations
+- System prompt personalization with employee first name
+- onFinish callback saves assistant response to database
+- Conversation history combined with current messages for context
+
+**Plan 06-05 (Chat UI and Policy Management):**
+- AI SDK v6 split React hooks into @ai-sdk/react package
+- DefaultChatTransport for HTTP streaming instead of direct useChat API option
+- UIMessage parts-based structure instead of flat content strings
+- Plain textarea for policy Markdown (no rich editor, keeps bundle small)
+- Policy status indicators (COMPLETED green, PROCESSING yellow spinner, FAILED red)
+- Mobile-responsive chat with sidebar toggle
+
 ### Phase 1 Artifacts
 
 **Created:**
@@ -519,6 +558,26 @@ Recent decisions affecting current work:
 - src/lib/queues/embedding.queue.ts — BullMQ queue for background embedding jobs
 - src/lib/queues/workers/embedding.worker.ts — Worker for processing embeddings with status tracking
 
+**Created (Plan 06-04):**
+- src/lib/ai/prompts.ts — HR Assistant system prompt with grounding and tool usage guidance
+- src/lib/ai/conversation.ts — Conversation management (get/create, save message, history retrieval)
+- src/app/api/chat/route.ts — Chat API with streaming responses and tool calling
+- src/app/api/conversations/route.ts — List conversations for current user
+- src/app/api/conversations/[id]/route.ts — Get conversation history and delete
+- src/app/api/policies/route.ts — Policy CRUD (GET list, POST create)
+- src/app/api/policies/[id]/route.ts — Policy detail, update, delete
+
+**Created (Plan 06-05):**
+- src/components/chat/chat-interface.tsx — Main chat component with useChat and DefaultChatTransport
+- src/components/chat/message-list.tsx — Message display with user/assistant styling and tool invocations
+- src/components/chat/message-input.tsx — Auto-resize textarea with keyboard shortcuts
+- src/components/chat/conversation-sidebar.tsx — Conversation history list with delete
+- src/app/(employee)/chat/page.tsx — Employee chat page
+- src/app/(dashboard)/policies/page.tsx — Policy list for admins
+- src/app/(dashboard)/policies/new/page.tsx — Policy create form
+- src/app/(dashboard)/policies/[id]/edit/page.tsx — Policy edit page
+- src/app/(dashboard)/policies/[id]/edit/policy-edit-form.tsx — Policy edit form component
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -607,6 +666,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 06-03-PLAN.md (RAG Infrastructure for Policy Search)
-Stopped at: Completed Phase 6 Plan 3, ready for next plan
+Last session: 2026-02-04 — Completed 06-05-PLAN.md (Chat UI and Policy Management)
+Stopped at: Completed Phase 6 Plan 5, ready for next plan
 Resume file: None
