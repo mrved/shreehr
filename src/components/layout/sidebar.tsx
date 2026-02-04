@@ -8,6 +8,7 @@ import {
   CreditCard, 
   FileText, 
   Home, 
+  MessageSquare,
   Receipt, 
   Settings, 
   Upload, 
@@ -88,6 +89,12 @@ const navigation = [
     name: "Documents",
     href: "/dashboard/documents",
     icon: FileText,
+    roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"],
+  },
+  {
+    name: "AI Chat",
+    href: "/dashboard/chat",
+    icon: MessageSquare,
     roles: ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"],
   },
   { 
