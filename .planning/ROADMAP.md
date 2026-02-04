@@ -168,11 +168,15 @@ Plans:
   6. System maintains conversation history for context-aware follow-up questions
   7. Chat deflects 30-60% of routine HR queries without admin intervention
 
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md — AI infrastructure setup (packages, Qdrant, Prisma models)
+- [ ] 06-02-PLAN.md — Employee data retrieval tools with RBAC
+- [ ] 06-03-PLAN.md — RAG infrastructure (embeddings, semantic search, BullMQ worker)
+- [ ] 06-04-PLAN.md — Chat API with streaming and policy management
+- [ ] 06-05-PLAN.md — Chat UI and policy management pages
+- [ ] 06-06-PLAN.md — End-to-end verification (checkpoint)
 
 ## Progress
 
@@ -186,4 +190,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Payroll & Compliance | 9/9 | Complete | 2026-02-04 |
 | 4. Employee Self-Service | 8/8 | Complete | 2026-02-04 |
 | 5. Supporting Workflows | 6/6 | Complete | 2026-02-04 |
-| 6. AI Assistant | 0/TBD | Not started | - |
+| 6. AI Assistant | 0/6 | Planning complete | - |
