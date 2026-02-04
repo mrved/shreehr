@@ -123,7 +123,7 @@ export function ExpenseList({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Link href={`/expenses/${expense.id}`}>
+                    <Link href={`/dashboard/expenses/${expense.id}`}>
                       <Button variant="ghost" size="sm">
                         <Eye className="h-4 w-4 mr-1" />
                         View
@@ -169,7 +169,7 @@ export function ExpenseList({
                       ₹{(expense.amount_paise / 100).toLocaleString("en-IN")}
                     </span>
                   </div>
-                  <Link href={`/expenses/${expense.id}`} className="block">
+                  <Link href={`/dashboard/expenses/${expense.id}`} className="block">
                     <Button variant="outline" className="w-full">
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
