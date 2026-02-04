@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 6 of 6 (AI Assistant)
-Plan: 3 of TBD in current phase
+Plan: 4 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-04 — Completed 06-03-PLAN.md
+Last activity: 2026-02-04 — Completed 06-04-PLAN.md
 
-Progress: [█████████████░] ~88%
+Progress: [█████████████░] ~91%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 35
-- Average duration: 5.4 min
-- Total execution time: ~188 min
+- Total plans completed: 36
+- Average duration: 5.5 min
+- Total execution time: ~199 min
 
 **By Phase:**
 
@@ -33,11 +33,11 @@ Progress: [█████████████░] ~88%
 | 03-payroll-compliance | 9 | 38min | 4.2min |
 | 04-employee-self-service | 8 | 52min | 6.5min |
 | 05-supporting-workflows | 6 | 38min | 6.3min |
-| 06-ai-assistant | 3 | 10min | 3.3min |
+| 06-ai-assistant | 4 | 21min | 5.25min |
 
 **Recent Trend:**
-- Last 5 plans: 05-05 (13min), 05-06 (1min), 06-01 (3.5min), 06-02 (4.5min), 06-03 (2min)
-- Trend: Exceptional velocity on Phase 6 AI infrastructure (3.3min average)
+- Last 5 plans: 05-06 (1min), 06-01 (3.5min), 06-02 (4.5min), 06-03 (2min), 06-04 (11min)
+- Trend: Phase 6 velocity remains strong (5.25min average) despite complex AI integrations
 
 *Updated after each plan completion*
 
@@ -62,6 +62,12 @@ Recent decisions affecting current work:
 - Context injection pattern using factory function (secure session context)
 - Convert paise to rupees for LLM readability (avoid token waste on large numbers)
 - Limit attendance detail to last 5 days (prevent token explosion)
+- Direct Ollama API calls for embeddings (AI SDK v6 embedMany incompatible with v1 models)
+- @ts-expect-error for tool execute params (AI SDK v6/ollama-ai-provider v1 typing mismatch)
+- maxSteps=5 to prevent infinite tool call loops while allowing multi-step reasoning
+- toTextStreamResponse for streaming (toDataStreamResponse removed in AI SDK v6)
+- Return conversation ID in response header (X-Conversation-Id) for client state management
+- Auto-title conversations from first user message (first 50 chars)
 
 **From Phase 1 execution:**
 - Use Prisma 7 with datasource config in prisma.config.ts (new architecture)
