@@ -4,7 +4,7 @@ import { Download, File, Loader2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE } from "@/lib/storage";
+import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE } from "@/lib/storage-constants";
 
 interface DocumentUploadProps {
   declarationId: string;

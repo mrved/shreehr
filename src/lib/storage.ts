@@ -98,22 +98,8 @@ export function getFilePath(employeeId: string, fileName: string): string {
   return join(getEmployeeDir(employeeId), fileName);
 }
 
-/**
- * Get allowed MIME types for document uploads
- */
-export const ALLOWED_MIME_TYPES = [
-  "application/pdf",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-];
-
-/**
- * Maximum file size (10MB)
- */
-export const MAX_FILE_SIZE = 10 * 1024 * 1024;
+// Re-export constants for backward compatibility
+export { ALLOWED_MIME_TYPES, MAX_FILE_SIZE } from "./storage-constants";
 
 /**
  * Validate file upload
