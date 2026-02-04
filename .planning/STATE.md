@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 6 of 6 (AI Assistant)
-Plan: 0 of TBD in current phase
-Status: Planning needed
-Last activity: 2026-02-04 — Completed Phase 5 (Supporting Workflows)
+Plan: 1 of TBD in current phase
+Status: In progress
+Last activity: 2026-02-04 — Completed 06-01-PLAN.md
 
-Progress: [████████████░░] ~83%
+Progress: [█████████████░] ~86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 32
-- Average duration: 5.6 min
-- Total execution time: ~178 min
+- Total plans completed: 33
+- Average duration: 5.5 min
+- Total execution time: ~181 min
 
 **By Phase:**
 
@@ -33,10 +33,11 @@ Progress: [████████████░░] ~83%
 | 03-payroll-compliance | 9 | 38min | 4.2min |
 | 04-employee-self-service | 8 | 52min | 6.5min |
 | 05-supporting-workflows | 6 | 38min | 6.3min |
+| 06-ai-assistant | 1 | 3.5min | 3.5min |
 
 **Recent Trend:**
-- Last 5 plans: 05-03 (9min), 05-04 (3min), 05-05 (13min), 05-06 (1min), Phase 5 complete
-- Trend: Good velocity, Phase 5 complete with 15 requirements delivered
+- Last 5 plans: 05-04 (3min), 05-05 (13min), 05-06 (1min), 06-01 (3.5min), Phase 6 started
+- Trend: Excellent velocity, Phase 6 AI infrastructure in 3.5 minutes
 
 *Updated after each plan completion*
 
@@ -51,6 +52,9 @@ Recent decisions affecting current work:
 - Web-only, no native apps (20 users don't justify native app complexity)
 - AI chat as differentiator (reduce admin burden, better than Keka's UX)
 - Full Keka migration (need historical data for Form 16 and continuity)
+- Ollama over OpenAI/Anthropic APIs (zero API costs, full model control, data privacy)
+- Qdrant over pgvector (dedicated vector DB, optimized indexing, easier scaling)
+- nomic-embed-text (768 dims) over OpenAI embeddings (open source, free, good quality)
 
 **From Phase 1 execution:**
 - Use Prisma 7 with datasource config in prisma.config.ts (new architecture)
@@ -483,6 +487,14 @@ Recent decisions affecting current work:
 - src/app/api/loans/[id]/route.ts — Loan detail, status transitions (disburse/close/cancel), delete
 - src/app/api/loans/[id]/schedule/route.ts — Full amortization schedule with status tracking
 
+### Phase 6 Artifacts
+
+**Created (Plan 06-01):**
+- src/lib/ai/ollama-client.ts — Ollama provider configuration with chatModel and embeddingModel
+- src/lib/qdrant/client.ts — Qdrant client singleton with ensureCollection function
+- prisma/schema.prisma — Added Conversation, Message, PolicyDocument models, EmbeddingStatus enum
+- docker-compose.yml — Added Qdrant service with persistent volume
+
 ### Pending Todos
 
 **User setup required before login works:**
@@ -533,10 +545,12 @@ Recent decisions affecting current work:
 - Deadline alert flags track that alerts should be sent, but actual notification sending (email/SMS) not implemented
 - Form 16 generator has TypeScript errors (pre-existing from 03-07) - needs fixing before production use
 
-**Phase 6 Planning:**
-- Will require deep research on RAG implementation patterns (Vercel AI SDK + Ollama + Qdrant)
-- Embedding model selection and chunking strategies for HR policy documents
-- Permission-aware data access in RAG queries (RBAC enforcement)
+**Phase 6 Concerns:**
+- Peer dependency warning: ollama-ai-provider expects zod@^3.x but project uses zod@4.3.6 (should not block functionality)
+- TypeScript errors in src/lib/ai/tools/index.ts and src/lib/qdrant/embeddings.ts (files from future work, not blocking)
+- No automatic collection initialization (must call ensureCollection() before first RAG query)
+- Ollama requires ~2GB disk space for llama3.2:3b model
+- Local inference speed depends on hardware (CPU: ~2-5 tokens/sec, GPU: ~20-50 tokens/sec)
 
 **User setup required for email notifications (Plan 04-01):**
 1. Sign up for Resend account at https://resend.com
@@ -552,8 +566,23 @@ Recent decisions affecting current work:
 2. Ensure email worker running for offer letter notifications
 3. Implement frontend page `/onboarding/accept?token=...` for candidate acceptance flow
 
+**User setup required for AI assistant (Plan 06-01):**
+1. Install Ollama:
+   - Linux/Mac: `curl -fsSL https://ollama.com/install.sh | sh`
+   - Windows: Download from https://ollama.com
+2. Pull required models:
+   - `ollama pull llama3.2:3b` (chat model, ~2GB)
+   - `ollama pull nomic-embed-text` (embedding model, ~274MB)
+3. Start Qdrant: `docker compose up -d qdrant`
+4. Add to .env file:
+   - OLLAMA_BASE_URL=http://localhost:11434/api
+   - QDRANT_URL=http://localhost:6333
+   - EMBEDDING_MODEL=nomic-embed-text
+5. Verify Ollama: `ollama list` should show both models
+6. Verify Qdrant: `curl http://localhost:6333/collections` should return empty array
+
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 05-04-PLAN.md (Payroll Integration for Expenses and Loans)
-Stopped at: Completed Phase 5 Plan 4, ready for next plan
+Last session: 2026-02-04 — Completed 06-01-PLAN.md (AI Assistant Infrastructure)
+Stopped at: Completed Phase 6 Plan 1, ready for next plan
 Resume file: None
