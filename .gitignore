@@ -44,3 +44,5 @@ prisma/migrations
 vitest.config.ts.timestamp*
 
 /src/generated/prisma
+
+.vercel
