@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -84,7 +85,8 @@ export function EmployeeList() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
+      {/* Desktop Table View */}
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -136,6 +138,57 @@ export function EmployeeList() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {isLoading ? (
+          <Card>
+            <CardContent className="pt-6 text-center text-gray-500">Loading...</CardContent>
+          </Card>
+        ) : employees.length === 0 ? (
+          <Card>
+            <CardContent className="pt-6 text-center text-gray-500">
+              No employees found
+            </CardContent>
+          </Card>
+        ) : (
+          employees.map((emp) => (
+            <Card key={emp.id}>
+              <CardContent className="pt-6">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <Link
+                        href={`/dashboard/employees/${emp.id}`}
+                        className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+                      >
+                        {emp.first_name} {emp.last_name}
+                      </Link>
+                      <p className="text-sm text-gray-500">{emp.employee_code}</p>
+                    </div>
+                    <Badge variant="outline" className={statusColors[emp.employment_status] || ""}>
+                      {emp.employment_status}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-gray-500">Dept:</span>
+                      <p>{emp.department?.name || "-"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Role:</span>
+                      <p>{emp.designation?.title || "-"}</p>
+                    </div>
+                  </div>
+                  {emp.personal_email && (
+                    <p className="text-sm text-gray-600 truncate">{emp.personal_email}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
       {totalPages > 1 && (
