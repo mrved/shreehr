@@ -1,70 +1,70 @@
-import { prisma } from '@/lib/db';
-import { addDays, differenceInDays, startOfDay } from 'date-fns';
+import { addDays, differenceInDays, startOfDay } from "date-fns";
+import { prisma } from "@/lib/db";
 
 export type DeadlineType =
-  | 'PF_PAYMENT'
-  | 'PF_RETURN'
-  | 'ESI_PAYMENT'
-  | 'ESI_RETURN'
-  | 'TDS_DEPOSIT'
-  | 'TDS_RETURN_24Q'
-  | 'PT_PAYMENT'
-  | 'FORM_16';
+  | "PF_PAYMENT"
+  | "PF_RETURN"
+  | "ESI_PAYMENT"
+  | "ESI_RETURN"
+  | "TDS_DEPOSIT"
+  | "TDS_RETURN_24Q"
+  | "PT_PAYMENT"
+  | "FORM_16";
 
-export type AlertSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
+export type AlertSeverity = "INFO" | "WARNING" | "CRITICAL";
 
 export interface DeadlineInfo {
   type: DeadlineType;
   description: string;
   dueDay: number;
-  frequency: 'MONTHLY' | 'QUARTERLY' | 'ANNUAL';
+  frequency: "MONTHLY" | "QUARTERLY" | "ANNUAL";
   dueMonth?: number; // For annual deadlines
 }
 
 // Standard statutory deadlines
 export const STATUTORY_DEADLINES: DeadlineInfo[] = [
   {
-    type: 'PF_PAYMENT',
-    description: 'PF contribution payment to EPFO',
+    type: "PF_PAYMENT",
+    description: "PF contribution payment to EPFO",
     dueDay: 15,
-    frequency: 'MONTHLY',
+    frequency: "MONTHLY",
   },
   {
-    type: 'PF_RETURN',
-    description: 'ECR file upload to EPFO portal',
+    type: "PF_RETURN",
+    description: "ECR file upload to EPFO portal",
     dueDay: 15,
-    frequency: 'MONTHLY',
+    frequency: "MONTHLY",
   },
   {
-    type: 'ESI_PAYMENT',
-    description: 'ESI contribution payment to ESIC',
+    type: "ESI_PAYMENT",
+    description: "ESI contribution payment to ESIC",
     dueDay: 15,
-    frequency: 'MONTHLY',
+    frequency: "MONTHLY",
   },
   {
-    type: 'TDS_DEPOSIT',
-    description: 'TDS deposit to government',
+    type: "TDS_DEPOSIT",
+    description: "TDS deposit to government",
     dueDay: 7,
-    frequency: 'MONTHLY',
+    frequency: "MONTHLY",
   },
   {
-    type: 'TDS_RETURN_24Q',
-    description: 'Form 24Q quarterly TDS return',
+    type: "TDS_RETURN_24Q",
+    description: "Form 24Q quarterly TDS return",
     dueDay: 31,
-    frequency: 'QUARTERLY',
+    frequency: "QUARTERLY",
   },
   {
-    type: 'PT_PAYMENT',
-    description: 'Professional Tax payment to state',
+    type: "PT_PAYMENT",
+    description: "Professional Tax payment to state",
     dueDay: 20,
-    frequency: 'MONTHLY',
+    frequency: "MONTHLY",
   },
   {
-    type: 'FORM_16',
-    description: 'Form 16 issuance to employees',
+    type: "FORM_16",
+    description: "Form 16 issuance to employees",
     dueDay: 15,
     dueMonth: 6, // June 15
-    frequency: 'ANNUAL',
+    frequency: "ANNUAL",
   },
 ];
 
@@ -83,19 +83,15 @@ export interface DeadlineAlert {
 /**
  * Calculate due date for a deadline
  */
-export function calculateDueDate(
-  deadline: DeadlineInfo,
-  forMonth: number,
-  forYear: number
-): Date {
-  if (deadline.frequency === 'MONTHLY') {
+export function calculateDueDate(deadline: DeadlineInfo, forMonth: number, forYear: number): Date {
+  if (deadline.frequency === "MONTHLY") {
     // Due on Xth of following month
     const dueMonth = forMonth === 12 ? 1 : forMonth + 1;
     const dueYear = forMonth === 12 ? forYear + 1 : forYear;
     return new Date(dueYear, dueMonth - 1, deadline.dueDay);
   }
 
-  if (deadline.frequency === 'QUARTERLY') {
+  if (deadline.frequency === "QUARTERLY") {
     // Form 24Q due dates
     // Q1 (Apr-Jun) -> Jul 31
     // Q2 (Jul-Sep) -> Oct 31
@@ -127,7 +123,7 @@ export function calculateDueDate(
     return new Date(dueYear, dueMonth - 1, deadline.dueDay);
   }
 
-  if (deadline.frequency === 'ANNUAL' && deadline.dueMonth) {
+  if (deadline.frequency === "ANNUAL" && deadline.dueMonth) {
     // Form 16 due June 15
     return new Date(forYear, deadline.dueMonth - 1, deadline.dueDay);
   }
@@ -138,31 +134,29 @@ export function calculateDueDate(
 /**
  * Get upcoming statutory deadlines with alert status
  */
-export async function getUpcomingDeadlines(
-  lookAheadDays: number = 30
-): Promise<DeadlineAlert[]> {
+export async function getUpcomingDeadlines(lookAheadDays: number = 30): Promise<DeadlineAlert[]> {
   const today = startOfDay(new Date());
   const futureDate = addDays(today, lookAheadDays);
 
   // Get pending and overdue deadlines
   const deadlines = await prisma.statutoryDeadline.findMany({
     where: {
-      status: { in: ['PENDING', 'OVERDUE'] },
+      status: { in: ["PENDING", "OVERDUE"] },
       due_date: { lte: futureDate },
     },
-    orderBy: { due_date: 'asc' },
+    orderBy: { due_date: "asc" },
   });
 
-  return deadlines.map(d => {
+  return deadlines.map((d) => {
     const daysRemaining = differenceInDays(d.due_date, today);
-    let severity: AlertSeverity = 'INFO';
+    let severity: AlertSeverity = "INFO";
 
     if (daysRemaining < 0) {
-      severity = 'CRITICAL'; // Overdue
+      severity = "CRITICAL"; // Overdue
     } else if (daysRemaining <= 1) {
-      severity = 'CRITICAL';
+      severity = "CRITICAL";
     } else if (daysRemaining <= 3) {
-      severity = 'WARNING';
+      severity = "WARNING";
     }
 
     return {
@@ -183,15 +177,12 @@ export async function getUpcomingDeadlines(
  * Generate deadline records for a month
  * Call this at the start of each month or when payroll is run
  */
-export async function generateDeadlinesForMonth(
-  month: number,
-  year: number
-): Promise<number> {
+export async function generateDeadlinesForMonth(month: number, year: number): Promise<number> {
   let created = 0;
 
   for (const deadline of STATUTORY_DEADLINES) {
     // Skip non-monthly deadlines for regular generation
-    if (deadline.frequency !== 'MONTHLY') continue;
+    if (deadline.frequency !== "MONTHLY") continue;
 
     const dueDate = calculateDueDate(deadline, month, year);
 
@@ -210,7 +201,7 @@ export async function generateDeadlinesForMonth(
         month,
         year,
         due_date: dueDate,
-        status: 'PENDING',
+        status: "PENDING",
       },
       update: {
         due_date: dueDate,
@@ -239,7 +230,7 @@ export async function checkDeadlineAlerts(): Promise<{
   // Get all pending deadlines
   const deadlines = await prisma.statutoryDeadline.findMany({
     where: {
-      status: 'PENDING',
+      status: "PENDING",
     },
   });
 
@@ -247,11 +238,11 @@ export async function checkDeadlineAlerts(): Promise<{
     const daysRemaining = differenceInDays(deadline.due_date, today);
 
     // Mark overdue
-    if (daysRemaining < 0 && deadline.status === 'PENDING') {
+    if (daysRemaining < 0 && deadline.status === "PENDING") {
       await prisma.statutoryDeadline.update({
         where: { id: deadline.id },
         data: {
-          status: 'OVERDUE',
+          status: "OVERDUE",
           overdue_alert_sent: true,
         },
       });
@@ -300,12 +291,12 @@ export async function markDeadlineFiled(
   details: {
     filingReference?: string;
     amountFiledPaise?: number;
-  }
+  },
 ): Promise<void> {
   await prisma.statutoryDeadline.update({
     where: { id: deadlineId },
     data: {
-      status: 'FILED',
+      status: "FILED",
       filed_at: new Date(),
       filed_by: filedBy,
       filing_reference: details.filingReference,

@@ -86,34 +86,34 @@ export const ESI_EMPLOYER_RATE = 0.0325;
  * State codes for Professional Tax
  */
 export const PT_STATES = {
-  KARNATAKA: 'KA',
-  MAHARASHTRA: 'MH',
-  TAMIL_NADU: 'TN',
-  TELANGANA: 'TS',
-  WEST_BENGAL: 'WB',
-  ANDHRA_PRADESH: 'AP',
-  ASSAM: 'AS',
-  CHHATTISGARH: 'CG',
-  GUJARAT: 'GJ',
-  MADHYA_PRADESH: 'MP',
-  MEGHALAYA: 'ML',
-  ODISHA: 'OR',
-  TRIPURA: 'TR',
+  KARNATAKA: "KA",
+  MAHARASHTRA: "MH",
+  TAMIL_NADU: "TN",
+  TELANGANA: "TS",
+  WEST_BENGAL: "WB",
+  ANDHRA_PRADESH: "AP",
+  ASSAM: "AS",
+  CHHATTISGARH: "CG",
+  GUJARAT: "GJ",
+  MADHYA_PRADESH: "MP",
+  MEGHALAYA: "ML",
+  ODISHA: "OR",
+  TRIPURA: "TR",
 } as const;
 
 /**
  * States with no Professional Tax
  */
 export const PT_EXEMPT_STATES = [
-  'DL', // Delhi
-  'HR', // Haryana
-  'HP', // Himachal Pradesh
-  'JH', // Jharkhand
-  'KL', // Kerala
-  'PB', // Punjab
-  'RJ', // Rajasthan
-  'UP', // Uttar Pradesh
-  'UT', // Uttarakhand
+  "DL", // Delhi
+  "HR", // Haryana
+  "HP", // Himachal Pradesh
+  "JH", // Jharkhand
+  "KL", // Kerala
+  "PB", // Punjab
+  "RJ", // Rajasthan
+  "UP", // Uttar Pradesh
+  "UT", // Uttarakhand
 ];
 
 /**
@@ -153,7 +153,7 @@ export const HRA_NON_METRO_RATE = 0.4; // 40% of basic for non-metro cities
 /**
  * Metro cities for HRA calculation
  */
-export const METRO_CITIES = ['Mumbai', 'Delhi', 'Kolkata', 'Chennai'];
+export const METRO_CITIES = ["Mumbai", "Delhi", "Kolkata", "Chennai"];
 
 /**
  * LTA (Leave Travel Allowance) exemption limit
@@ -257,9 +257,9 @@ export function rupeeToPaise(rupees: number): number {
  */
 export function formatCurrency(paise: number): string {
   const rupees = rupeeToRupee(paise);
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(rupees);

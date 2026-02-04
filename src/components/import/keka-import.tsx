@@ -1,23 +1,17 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Upload,
-  Users,
-  DollarSign,
+  AlertCircle,
   Calendar,
   CheckCircle,
+  DollarSign,
+  Upload,
+  Users,
   XCircle,
-  AlertCircle,
 } from "lucide-react";
+import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ImportResult {
   batchId: string;
@@ -35,13 +29,7 @@ interface ImportCardProps {
   expectedColumns: string[];
 }
 
-function ImportCard({
-  title,
-  description,
-  icon,
-  endpoint,
-  expectedColumns,
-}: ImportCardProps) {
+function ImportCard({ title, description, icon, endpoint, expectedColumns }: ImportCardProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
@@ -117,11 +105,7 @@ function ImportCard({
           />
         </div>
 
-        <Button
-          onClick={handleImport}
-          disabled={!file || isImporting}
-          className="w-full"
-        >
+        <Button onClick={handleImport} disabled={!file || isImporting} className="w-full">
           <Upload className="mr-2 h-4 w-4" />
           {isImporting ? "Importing..." : "Import CSV"}
         </Button>

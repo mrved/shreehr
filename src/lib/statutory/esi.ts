@@ -2,13 +2,13 @@ import {
   ESI_EMPLOYEE_RATE,
   ESI_EMPLOYER_RATE,
   ESI_WAGE_CEILING_PAISE,
-} from '@/lib/payroll/constants';
+} from "@/lib/payroll/constants";
 
 export interface ESICalculationResult {
   applicable: boolean;
-  employeeESI: number;   // 0.75% of gross
-  employerESI: number;   // 3.25% of gross
-  grossUsed: number;     // Gross salary used for calculation
+  employeeESI: number; // 0.75% of gross
+  employerESI: number; // 3.25% of gross
+  grossUsed: number; // Gross salary used for calculation
   reason?: string;
 }
 
@@ -33,7 +33,7 @@ export function calculateESI(grossSalaryPaise: number): ESICalculationResult {
       employeeESI: 0,
       employerESI: 0,
       grossUsed: grossSalaryPaise,
-      reason: `Gross salary Rs.${(grossSalaryPaise / 100).toLocaleString('en-IN')} exceeds ESI ceiling of Rs.21,000`,
+      reason: `Gross salary Rs.${(grossSalaryPaise / 100).toLocaleString("en-IN")} exceeds ESI ceiling of Rs.21,000`,
     };
   }
 
@@ -57,7 +57,10 @@ export function calculateESI(grossSalaryPaise: number): ESICalculationResult {
  * - April - September (contribution period 1)
  * - October - March (contribution period 2)
  */
-export function getESIContributionPeriod(month: number, year: number): {
+export function getESIContributionPeriod(
+  month: number,
+  year: number,
+): {
   periodStartMonth: number;
   periodStartYear: number;
   periodEndMonth: number;

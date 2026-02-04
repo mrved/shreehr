@@ -1,15 +1,28 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 
 interface LeaveType {
   id: string;
@@ -32,9 +45,9 @@ export function LeaveTypesManager() {
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
-    name: '',
-    code: '',
-    description: '',
+    name: "",
+    code: "",
+    description: "",
     annualQuota: 0,
     maxCarryForward: 0,
     isPaid: true,
@@ -48,11 +61,11 @@ export function LeaveTypesManager() {
 
   async function fetchLeaveTypes() {
     try {
-      const res = await fetch('/api/leave-types');
+      const res = await fetch("/api/leave-types");
       const data = await res.json();
       setLeaveTypes(data);
     } catch (error) {
-      console.error('Failed to fetch leave types:', error);
+      console.error("Failed to fetch leave types:", error);
     } finally {
       setLoading(false);
     }
@@ -60,9 +73,9 @@ export function LeaveTypesManager() {
 
   function resetForm() {
     setFormData({
-      name: '',
-      code: '',
-      description: '',
+      name: "",
+      code: "",
+      description: "",
       annualQuota: 0,
       maxCarryForward: 0,
       isPaid: true,
@@ -77,7 +90,7 @@ export function LeaveTypesManager() {
     setFormData({
       name: lt.name,
       code: lt.code,
-      description: lt.description || '',
+      description: lt.description || "",
       annualQuota: lt.annual_quota,
       maxCarryForward: lt.max_carry_forward,
       isPaid: lt.is_paid,
@@ -91,45 +104,43 @@ export function LeaveTypesManager() {
     e.preventDefault();
 
     try {
-      const url = editingType
-        ? `/api/leave-types/${editingType.id}`
-        : '/api/leave-types';
-      const method = editingType ? 'PATCH' : 'POST';
+      const url = editingType ? `/api/leave-types/${editingType.id}` : "/api/leave-types";
+      const method = editingType ? "PATCH" : "POST";
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       if (res.ok) {
-        toast({ title: `Leave type ${editingType ? 'updated' : 'created'}` });
+        toast({ title: `Leave type ${editingType ? "updated" : "created"}` });
         setIsDialogOpen(false);
         resetForm();
         fetchLeaveTypes();
       } else {
         const data = await res.json();
-        toast({ title: 'Failed', description: data.error, variant: 'destructive' });
+        toast({ title: "Failed", description: data.error, variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: 'Failed to save leave type', variant: 'destructive' });
+      toast({ title: "Failed to save leave type", variant: "destructive" });
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Are you sure you want to delete this leave type?')) return;
+    if (!confirm("Are you sure you want to delete this leave type?")) return;
 
     try {
-      const res = await fetch(`/api/leave-types/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/leave-types/${id}`, { method: "DELETE" });
       if (res.ok) {
-        toast({ title: 'Leave type deleted' });
+        toast({ title: "Leave type deleted" });
         fetchLeaveTypes();
       } else {
         const data = await res.json();
-        toast({ title: 'Failed to delete', description: data.error, variant: 'destructive' });
+        toast({ title: "Failed to delete", description: data.error, variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: 'Failed to delete leave type', variant: 'destructive' });
+      toast({ title: "Failed to delete leave type", variant: "destructive" });
     }
   }
 
@@ -147,7 +158,13 @@ export function LeaveTypesManager() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Leave Types</CardTitle>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
+        <Dialog
+          open={isDialogOpen}
+          onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) resetForm();
+          }}
+        >
           <DialogTrigger asChild>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
@@ -156,7 +173,7 @@ export function LeaveTypesManager() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingType ? 'Edit' : 'Add'} Leave Type</DialogTitle>
+              <DialogTitle>{editingType ? "Edit" : "Add"} Leave Type</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -172,7 +189,9 @@ export function LeaveTypesManager() {
                   <Label>Code</Label>
                   <Input
                     value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, code: e.target.value.toUpperCase() })
+                    }
                     required
                     maxLength={10}
                   />
@@ -185,7 +204,9 @@ export function LeaveTypesManager() {
                   <Input
                     type="number"
                     value={formData.annualQuota}
-                    onChange={(e) => setFormData({ ...formData, annualQuota: parseFloat(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, annualQuota: parseFloat(e.target.value) })
+                    }
                     min={0}
                     step={0.5}
                   />
@@ -195,7 +216,9 @@ export function LeaveTypesManager() {
                   <Input
                     type="number"
                     value={formData.maxCarryForward}
-                    onChange={(e) => setFormData({ ...formData, maxCarryForward: parseFloat(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, maxCarryForward: parseFloat(e.target.value) })
+                    }
                     min={0}
                     step={0.5}
                   />
@@ -207,7 +230,9 @@ export function LeaveTypesManager() {
                 <Input
                   type="number"
                   value={formData.minDaysNotice}
-                  onChange={(e) => setFormData({ ...formData, minDaysNotice: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, minDaysNotice: parseInt(e.target.value) })
+                  }
                   min={0}
                 />
               </div>
@@ -224,14 +249,16 @@ export function LeaveTypesManager() {
                 <div className="flex items-center space-x-2">
                   <Switch
                     checked={formData.requiresApproval}
-                    onCheckedChange={(checked) => setFormData({ ...formData, requiresApproval: checked })}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, requiresApproval: checked })
+                    }
                   />
                   <Label>Requires Approval</Label>
                 </div>
               </div>
 
               <Button type="submit" className="w-full">
-                {editingType ? 'Update' : 'Create'} Leave Type
+                {editingType ? "Update" : "Create"} Leave Type
               </Button>
             </form>
           </DialogContent>
@@ -251,14 +278,14 @@ export function LeaveTypesManager() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {leaveTypes.map(lt => (
-              <TableRow key={lt.id} className={!lt.is_active ? 'opacity-50' : ''}>
+            {leaveTypes.map((lt) => (
+              <TableRow key={lt.id} className={!lt.is_active ? "opacity-50" : ""}>
                 <TableCell className="font-medium">{lt.name}</TableCell>
                 <TableCell>{lt.code}</TableCell>
                 <TableCell>{lt.annual_quota}</TableCell>
                 <TableCell>{lt.max_carry_forward}</TableCell>
-                <TableCell>{lt.is_paid ? 'Yes' : 'No'}</TableCell>
-                <TableCell>{lt.requires_approval ? 'Yes' : 'No'}</TableCell>
+                <TableCell>{lt.is_paid ? "Yes" : "No"}</TableCell>
+                <TableCell>{lt.requires_approval ? "Yes" : "No"}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
                     <Button size="sm" variant="ghost" onClick={() => openEdit(lt)}>

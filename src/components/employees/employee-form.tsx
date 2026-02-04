@@ -1,23 +1,33 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
-interface Department { id: string; name: string; }
-interface Designation { id: string; title: string; }
-interface Manager { id: string; first_name: string; last_name: string; }
+interface Department {
+  id: string;
+  name: string;
+}
+interface Designation {
+  id: string;
+  title: string;
+}
+interface Manager {
+  id: string;
+  first_name: string;
+  last_name: string;
+}
 
 interface EmployeeFormProps {
   employee?: any;
@@ -27,56 +37,64 @@ interface EmployeeFormProps {
 export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [designations, setDesignations] = useState<Designation[]>([]);
   const [managers, setManagers] = useState<Manager[]>([]);
 
+  // Helper to format date (handles both Date objects and ISO strings)
+  const formatDateForInput = (date: Date | string | null | undefined): string => {
+    if (!date) return "";
+    if (date instanceof Date) return date.toISOString().split("T")[0];
+    if (typeof date === "string") return date.split("T")[0];
+    return "";
+  };
+
   const [formData, setFormData] = useState({
-    employeeCode: employee?.employee_code || '',
-    firstName: employee?.first_name || '',
-    middleName: employee?.middle_name || '',
-    lastName: employee?.last_name || '',
-    dateOfBirth: employee?.date_of_birth?.split('T')[0] || '',
-    gender: employee?.gender || 'MALE',
-    maritalStatus: employee?.marital_status || 'SINGLE',
-    bloodGroup: employee?.blood_group || '',
-    personalEmail: employee?.personal_email || '',
-    personalPhone: employee?.personal_phone || '',
-    emergencyContact: employee?.emergency_contact || '',
-    emergencyPhone: employee?.emergency_phone || '',
-    addressLine1: employee?.address_line1 || '',
-    addressLine2: employee?.address_line2 || '',
-    city: employee?.city || '',
-    state: employee?.state || '',
-    postalCode: employee?.postal_code || '',
-    country: employee?.country || 'India',
-    dateOfJoining: employee?.date_of_joining?.split('T')[0] || '',
-    dateOfLeaving: employee?.date_of_leaving?.split('T')[0] || '',
-    employmentType: employee?.employment_type || 'FULL_TIME',
-    employmentStatus: employee?.employment_status || 'ACTIVE',
-    departmentId: employee?.department_id || '',
-    designationId: employee?.designation_id || '',
-    reportingManagerId: employee?.reporting_manager_id || '',
-    panNumber: employee?._sensitive?.panNumber || '',
-    aadhaarNumber: employee?._sensitive?.aadhaarNumber || '',
-    bankAccountNumber: employee?._sensitive?.bankAccountNumber || '',
-    bankIfscCode: employee?.bank_ifsc || '',
-    bankName: employee?.bank_name || '',
-    bankBranch: employee?.bank_branch || '',
-    uan: employee?.uan || '',
-    esicNumber: employee?.esic_number || '',
-    previousEmployerName: employee?.previous_employer_name || '',
-    previousEmployerUan: employee?.previous_employer_uan || '',
+    employeeCode: employee?.employee_code || "",
+    firstName: employee?.first_name || "",
+    middleName: employee?.middle_name || "",
+    lastName: employee?.last_name || "",
+    dateOfBirth: formatDateForInput(employee?.date_of_birth),
+    gender: employee?.gender || "MALE",
+    maritalStatus: employee?.marital_status || "SINGLE",
+    bloodGroup: employee?.blood_group || "",
+    personalEmail: employee?.personal_email || "",
+    personalPhone: employee?.personal_phone || "",
+    emergencyContact: employee?.emergency_contact || "",
+    emergencyPhone: employee?.emergency_phone || "",
+    addressLine1: employee?.address_line1 || "",
+    addressLine2: employee?.address_line2 || "",
+    city: employee?.city || "",
+    state: employee?.state || "",
+    postalCode: employee?.postal_code || "",
+    country: employee?.country || "India",
+    dateOfJoining: formatDateForInput(employee?.date_of_joining),
+    dateOfLeaving: formatDateForInput(employee?.date_of_leaving),
+    employmentType: employee?.employment_type || "FULL_TIME",
+    employmentStatus: employee?.employment_status || "ACTIVE",
+    departmentId: employee?.department_id || "",
+    designationId: employee?.designation_id || "",
+    reportingManagerId: employee?.reporting_manager_id || "",
+    panNumber: employee?._sensitive?.panNumber || "",
+    aadhaarNumber: employee?._sensitive?.aadhaarNumber || "",
+    bankAccountNumber: employee?._sensitive?.bankAccountNumber || "",
+    bankIfscCode: employee?.bank_ifsc || "",
+    bankName: employee?.bank_name || "",
+    bankBranch: employee?.bank_branch || "",
+    uan: employee?.uan || "",
+    esicNumber: employee?.esic_number || "",
+    previousEmployerName: employee?.previous_employer_name || "",
+    previousEmployerUan: employee?.previous_employer_uan || "",
   });
 
   useEffect(() => {
     async function fetchOptions() {
       const [deptRes, desigRes, empRes] = await Promise.all([
-        fetch('/api/departments'),
-        fetch('/api/designations'),
-        fetch('/api/employees?limit=100'),
+        fetch("/api/departments"),
+        fetch("/api/designations"),
+        fetch("/api/employees?limit=100"),
       ]);
 
       const depts = await deptRes.json();
@@ -96,16 +114,16 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
-      const url = isEdit ? `/api/employees/${employee.id}` : '/api/employees';
-      const method = isEdit ? 'PUT' : 'POST';
+      const url = isEdit ? `/api/employees/${employee.id}` : "/api/employees";
+      const method = isEdit ? "PUT" : "POST";
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
           departmentId: formData.departmentId || null,
@@ -116,13 +134,13 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to save employee');
+        throw new Error(data.error || "Failed to save employee");
       }
 
-      router.push('/dashboard/employees');
+      router.push("/dashboard/employees");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +149,9 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md dark:bg-red-900/20 dark:text-red-400">{error}</div>
+        <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md dark:bg-red-900/20 dark:text-red-400">
+          {error}
+        </div>
       )}
 
       <Card>
@@ -144,7 +164,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="employeeCode"
               value={formData.employeeCode}
-              onChange={(e) => handleChange('employeeCode', e.target.value)}
+              onChange={(e) => handleChange("employeeCode", e.target.value)}
               required
               disabled={isEdit}
               placeholder="EMP001"
@@ -155,7 +175,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="firstName"
               value={formData.firstName}
-              onChange={(e) => handleChange('firstName', e.target.value)}
+              onChange={(e) => handleChange("firstName", e.target.value)}
               required
             />
           </div>
@@ -164,7 +184,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="middleName"
               value={formData.middleName}
-              onChange={(e) => handleChange('middleName', e.target.value)}
+              onChange={(e) => handleChange("middleName", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -172,7 +192,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="lastName"
               value={formData.lastName}
-              onChange={(e) => handleChange('lastName', e.target.value)}
+              onChange={(e) => handleChange("lastName", e.target.value)}
               required
             />
           </div>
@@ -182,13 +202,13 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
               id="dateOfBirth"
               type="date"
               value={formData.dateOfBirth}
-              onChange={(e) => handleChange('dateOfBirth', e.target.value)}
+              onChange={(e) => handleChange("dateOfBirth", e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="gender">Gender *</Label>
-            <Select value={formData.gender} onValueChange={(v) => handleChange('gender', v)}>
+            <Select value={formData.gender} onValueChange={(v) => handleChange("gender", v)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -201,7 +221,10 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="maritalStatus">Marital Status</Label>
-            <Select value={formData.maritalStatus} onValueChange={(v) => handleChange('maritalStatus', v)}>
+            <Select
+              value={formData.maritalStatus}
+              onValueChange={(v) => handleChange("maritalStatus", v)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -218,7 +241,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="bloodGroup"
               value={formData.bloodGroup}
-              onChange={(e) => handleChange('bloodGroup', e.target.value)}
+              onChange={(e) => handleChange("bloodGroup", e.target.value)}
               placeholder="A+"
             />
           </div>
@@ -227,7 +250,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="personalPhone"
               value={formData.personalPhone}
-              onChange={(e) => handleChange('personalPhone', e.target.value)}
+              onChange={(e) => handleChange("personalPhone", e.target.value)}
               required
             />
           </div>
@@ -237,7 +260,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
               id="personalEmail"
               type="email"
               value={formData.personalEmail}
-              onChange={(e) => handleChange('personalEmail', e.target.value)}
+              onChange={(e) => handleChange("personalEmail", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -245,7 +268,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="emergencyContact"
               value={formData.emergencyContact}
-              onChange={(e) => handleChange('emergencyContact', e.target.value)}
+              onChange={(e) => handleChange("emergencyContact", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -253,7 +276,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="emergencyPhone"
               value={formData.emergencyPhone}
-              onChange={(e) => handleChange('emergencyPhone', e.target.value)}
+              onChange={(e) => handleChange("emergencyPhone", e.target.value)}
             />
           </div>
         </CardContent>
@@ -269,7 +292,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="addressLine1"
               value={formData.addressLine1}
-              onChange={(e) => handleChange('addressLine1', e.target.value)}
+              onChange={(e) => handleChange("addressLine1", e.target.value)}
               required
             />
           </div>
@@ -278,7 +301,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="addressLine2"
               value={formData.addressLine2}
-              onChange={(e) => handleChange('addressLine2', e.target.value)}
+              onChange={(e) => handleChange("addressLine2", e.target.value)}
             />
           </div>
           <div className="grid gap-4 md:grid-cols-3">
@@ -287,7 +310,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
               <Input
                 id="city"
                 value={formData.city}
-                onChange={(e) => handleChange('city', e.target.value)}
+                onChange={(e) => handleChange("city", e.target.value)}
                 required
               />
             </div>
@@ -296,7 +319,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
               <Input
                 id="state"
                 value={formData.state}
-                onChange={(e) => handleChange('state', e.target.value)}
+                onChange={(e) => handleChange("state", e.target.value)}
                 required
               />
             </div>
@@ -305,7 +328,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
               <Input
                 id="postalCode"
                 value={formData.postalCode}
-                onChange={(e) => handleChange('postalCode', e.target.value)}
+                onChange={(e) => handleChange("postalCode", e.target.value)}
                 required
               />
             </div>
@@ -324,13 +347,16 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
               id="dateOfJoining"
               type="date"
               value={formData.dateOfJoining}
-              onChange={(e) => handleChange('dateOfJoining', e.target.value)}
+              onChange={(e) => handleChange("dateOfJoining", e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="employmentType">Employment Type</Label>
-            <Select value={formData.employmentType} onValueChange={(v) => handleChange('employmentType', v)}>
+            <Select
+              value={formData.employmentType}
+              onValueChange={(v) => handleChange("employmentType", v)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -344,7 +370,10 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="employmentStatus">Status</Label>
-            <Select value={formData.employmentStatus} onValueChange={(v) => handleChange('employmentStatus', v)}>
+            <Select
+              value={formData.employmentStatus}
+              onValueChange={(v) => handleChange("employmentStatus", v)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -359,40 +388,55 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="departmentId">Department *</Label>
-            <Select value={formData.departmentId} onValueChange={(v) => handleChange('departmentId', v)}>
+            <Select
+              value={formData.departmentId}
+              onValueChange={(v) => handleChange("departmentId", v)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select department" />
               </SelectTrigger>
               <SelectContent>
                 {departments.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="designationId">Designation *</Label>
-            <Select value={formData.designationId} onValueChange={(v) => handleChange('designationId', v)}>
+            <Select
+              value={formData.designationId}
+              onValueChange={(v) => handleChange("designationId", v)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select designation" />
               </SelectTrigger>
               <SelectContent>
                 {designations.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>{d.title}</SelectItem>
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.title}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="reportingManagerId">Reporting Manager</Label>
-            <Select value={formData.reportingManagerId} onValueChange={(v) => handleChange('reportingManagerId', v)}>
+            <Select
+              value={formData.reportingManagerId || "__none__"}
+              onValueChange={(v) => handleChange("reportingManagerId", v === "__none__" ? "" : v)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select manager" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="__none__">None</SelectItem>
                 {managers.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>{m.first_name} {m.last_name}</SelectItem>
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.first_name} {m.last_name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -410,7 +454,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="panNumber"
               value={formData.panNumber}
-              onChange={(e) => handleChange('panNumber', e.target.value.toUpperCase())}
+              onChange={(e) => handleChange("panNumber", e.target.value.toUpperCase())}
               placeholder="ABCDE1234F"
               maxLength={10}
             />
@@ -420,7 +464,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="aadhaarNumber"
               value={formData.aadhaarNumber}
-              onChange={(e) => handleChange('aadhaarNumber', e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => handleChange("aadhaarNumber", e.target.value.replace(/\D/g, ""))}
               placeholder="123456789012"
               maxLength={12}
             />
@@ -430,7 +474,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="bankAccountNumber"
               value={formData.bankAccountNumber}
-              onChange={(e) => handleChange('bankAccountNumber', e.target.value)}
+              onChange={(e) => handleChange("bankAccountNumber", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -438,7 +482,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="bankIfscCode"
               value={formData.bankIfscCode}
-              onChange={(e) => handleChange('bankIfscCode', e.target.value.toUpperCase())}
+              onChange={(e) => handleChange("bankIfscCode", e.target.value.toUpperCase())}
               placeholder="SBIN0001234"
               maxLength={11}
             />
@@ -448,7 +492,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="bankName"
               value={formData.bankName}
-              onChange={(e) => handleChange('bankName', e.target.value)}
+              onChange={(e) => handleChange("bankName", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -456,7 +500,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="bankBranch"
               value={formData.bankBranch}
-              onChange={(e) => handleChange('bankBranch', e.target.value)}
+              onChange={(e) => handleChange("bankBranch", e.target.value)}
             />
           </div>
         </CardContent>
@@ -472,7 +516,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="uan"
               value={formData.uan}
-              onChange={(e) => handleChange('uan', e.target.value)}
+              onChange={(e) => handleChange("uan", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -480,7 +524,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="esicNumber"
               value={formData.esicNumber}
-              onChange={(e) => handleChange('esicNumber', e.target.value)}
+              onChange={(e) => handleChange("esicNumber", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -488,7 +532,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="previousEmployerName"
               value={formData.previousEmployerName}
-              onChange={(e) => handleChange('previousEmployerName', e.target.value)}
+              onChange={(e) => handleChange("previousEmployerName", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -496,7 +540,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
             <Input
               id="previousEmployerUan"
               value={formData.previousEmployerUan}
-              onChange={(e) => handleChange('previousEmployerUan', e.target.value)}
+              onChange={(e) => handleChange("previousEmployerUan", e.target.value)}
             />
           </div>
         </CardContent>
@@ -504,7 +548,7 @@ export function EmployeeForm({ employee, isEdit }: EmployeeFormProps) {
 
       <div className="flex gap-4">
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? 'Saving...' : isEdit ? 'Update Employee' : 'Create Employee'}
+          {isLoading ? "Saving..." : isEdit ? "Update Employee" : "Create Employee"}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancel

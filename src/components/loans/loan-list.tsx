@@ -1,5 +1,8 @@
 "use client";
 
+import { Eye } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,9 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
 
 interface Loan {
   id: string;
@@ -144,7 +144,9 @@ export function LoanList({ loans, isEmployee = false }: LoanListProps) {
                     </div>
                     <div>
                       <span className="text-gray-500">EMI:</span>
-                      <p className="font-medium">₹{(loan.emi_paise / 100).toLocaleString("en-IN")}</p>
+                      <p className="font-medium">
+                        ₹{(loan.emi_paise / 100).toLocaleString("en-IN")}
+                      </p>
                     </div>
                     <div>
                       <span className="text-gray-500">Remaining:</span>

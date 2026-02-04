@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useRef, useCallback, useEffect } from 'react';
-import { Upload, File, X, Loader2, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE } from '@/lib/storage';
+import { Download, File, Loader2, Upload, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE } from "@/lib/storage";
 
 interface DocumentUploadProps {
   declarationId: string;
@@ -21,11 +21,7 @@ interface UploadedDocument {
   created_at: string;
 }
 
-export function DocumentUpload({
-  declarationId,
-  section,
-  onUploadComplete,
-}: DocumentUploadProps) {
+export function DocumentUpload({ declarationId, section, onUploadComplete }: DocumentUploadProps) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -36,13 +32,15 @@ export function DocumentUpload({
   // Fetch existing documents
   const fetchDocuments = useCallback(async () => {
     try {
-      const response = await fetch(`/api/investments/${declarationId}/documents?section=${section}`);
+      const response = await fetch(
+        `/api/investments/${declarationId}/documents?section=${section}`,
+      );
       if (response.ok) {
         const data = await response.json();
         setDocuments(data.documents || []);
       }
     } catch (error) {
-      console.error('Failed to fetch documents:', error);
+      console.error("Failed to fetch documents:", error);
     } finally {
       setLoading(false);
     }
@@ -56,9 +54,9 @@ export function DocumentUpload({
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false);
     }
   };
@@ -86,18 +84,18 @@ export function DocumentUpload({
     for (const file of fileArray) {
       if (!ALLOWED_MIME_TYPES.includes(file.type)) {
         toast({
-          title: 'Invalid file type',
+          title: "Invalid file type",
           description: `${file.name}: Only PDF, JPG, PNG, and DOC files are allowed.`,
-          variant: 'destructive',
+          variant: "destructive",
         });
         continue;
       }
 
       if (file.size > MAX_FILE_SIZE) {
         toast({
-          title: 'File too large',
+          title: "File too large",
           description: `${file.name}: Maximum file size is 10MB.`,
-          variant: 'destructive',
+          variant: "destructive",
         });
         continue;
       }
@@ -111,21 +109,21 @@ export function DocumentUpload({
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('section', section);
+      formData.append("file", file);
+      formData.append("section", section);
 
       const response = await fetch(`/api/investments/${declarationId}/documents`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Upload failed');
+        throw new Error(error.error || "Upload failed");
       }
 
       toast({
-        title: 'Upload successful',
+        title: "Upload successful",
         description: `${file.name} has been uploaded.`,
       });
 
@@ -134,9 +132,9 @@ export function DocumentUpload({
       onUploadComplete?.();
     } catch (error) {
       toast({
-        title: 'Upload failed',
-        description: error instanceof Error ? error.message : 'Failed to upload file',
-        variant: 'destructive',
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Failed to upload file",
+        variant: "destructive",
       });
     } finally {
       setUploading(false);
@@ -152,16 +150,16 @@ export function DocumentUpload({
       const response = await fetch(
         `/api/investments/${declarationId}/documents?documentId=${documentId}`,
         {
-          method: 'DELETE',
-        }
+          method: "DELETE",
+        },
       );
 
       if (!response.ok) {
-        throw new Error('Delete failed');
+        throw new Error("Delete failed");
       }
 
       toast({
-        title: 'Document deleted',
+        title: "Document deleted",
         description: `${fileName} has been deleted.`,
       });
 
@@ -170,9 +168,9 @@ export function DocumentUpload({
       onUploadComplete?.();
     } catch (error) {
       toast({
-        title: 'Delete failed',
-        description: error instanceof Error ? error.message : 'Failed to delete document',
-        variant: 'destructive',
+        title: "Delete failed",
+        description: error instanceof Error ? error.message : "Failed to delete document",
+        variant: "destructive",
       });
     }
   };
@@ -185,16 +183,16 @@ export function DocumentUpload({
 
   const getSectionLabel = () => {
     switch (section) {
-      case '80C':
-        return '80C Proofs (PF, ELSS, LIC, Tuition, NPS)';
-      case '80D':
-        return '80D Proofs (Health Insurance, Checkup Bills)';
-      case 'HRA':
-        return 'HRA Proofs (Rent Receipts, Agreement, Landlord PAN)';
-      case 'OTHER':
-        return 'Other Proofs (Education Loan, Donations)';
+      case "80C":
+        return "80C Proofs (PF, ELSS, LIC, Tuition, NPS)";
+      case "80D":
+        return "80D Proofs (Health Insurance, Checkup Bills)";
+      case "HRA":
+        return "HRA Proofs (Rent Receipts, Agreement, Landlord PAN)";
+      case "OTHER":
+        return "Other Proofs (Education Loan, Donations)";
       default:
-        return 'Investment Proofs';
+        return "Investment Proofs";
     }
   };
 
@@ -217,8 +215,8 @@ export function DocumentUpload({
       <div
         className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
           dragActive
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 bg-gray-50 hover:border-gray-400'
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-300 bg-gray-50 hover:border-gray-400"
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -227,7 +225,7 @@ export function DocumentUpload({
       >
         <Upload className="mx-auto h-8 w-8 text-gray-400" />
         <p className="mt-2 text-sm text-gray-600">
-          Drag and drop files here, or{' '}
+          Drag and drop files here, or{" "}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -237,9 +235,7 @@ export function DocumentUpload({
             browse
           </button>
         </p>
-        <p className="mt-1 text-xs text-gray-500">
-          PDF, JPG, PNG, DOC (max 10MB)
-        </p>
+        <p className="mt-1 text-xs text-gray-500">PDF, JPG, PNG, DOC (max 10MB)</p>
         <input
           ref={fileInputRef}
           type="file"
@@ -271,11 +267,10 @@ export function DocumentUpload({
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <File className="h-5 w-5 text-gray-400 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {doc.original_name}
-                  </p>
+                  <p className="text-sm font-medium text-gray-900 truncate">{doc.original_name}</p>
                   <p className="text-xs text-gray-500">
-                    {formatFileSize(doc.size_bytes)} • {new Date(doc.created_at).toLocaleDateString('en-IN')}
+                    {formatFileSize(doc.size_bytes)} •{" "}
+                    {new Date(doc.created_at).toLocaleDateString("en-IN")}
                   </p>
                 </div>
               </div>

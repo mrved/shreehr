@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ScheduleRow {
   month: number;
@@ -72,9 +72,7 @@ export function LoanSchedule({
   if (loading) {
     return (
       <Card>
-        <CardContent className="pt-6 text-center text-gray-500">
-          Loading schedule...
-        </CardContent>
+        <CardContent className="pt-6 text-center text-gray-500">Loading schedule...</CardContent>
       </Card>
     );
   }

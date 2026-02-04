@@ -1,16 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { designationSchema } from '@/lib/validations/organization';
-import { ZodError } from 'zod';
+import { type NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { designationSchema } from "@/lib/validations/organization";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -26,23 +23,25 @@ export async function GET(
     });
 
     if (!designation) {
-      return NextResponse.json({ error: 'Designation not found' }, { status: 404 });
+      return NextResponse.json({ error: "Designation not found" }, { status: 404 });
     }
 
     return NextResponse.json(designation);
   } catch (error) {
-    console.error('Designation fetch error:', error);
-    return NextResponse.json({ error: 'Failed to fetch designation' }, { status: 500 });
+    console.error("Designation fetch error:", error);
+    return NextResponse.json({ error: "Failed to fetch designation" }, { status: 500 });
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session?.user || (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN' && session.user.role !== 'HR_MANAGER')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (
+    !session?.user ||
+    (session.user.role !== "ADMIN" &&
+      session.user.role !== "SUPER_ADMIN" &&
+      session.user.role !== "HR_MANAGER")
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -67,30 +66,35 @@ export async function PUT(
 
     return NextResponse.json(designation);
   } catch (error) {
-    console.error('Designation update error:', error);
+    console.error("Designation update error:", error);
 
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.issues },
-        { status: 400 }
+        { error: "Validation failed", details: error.issues },
+        { status: 400 },
       );
     }
 
-    if (error instanceof Error && error.message.includes('Record to update not found')) {
-      return NextResponse.json({ error: 'Designation not found' }, { status: 404 });
+    if (error instanceof Error && error.message.includes("Record to update not found")) {
+      return NextResponse.json({ error: "Designation not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ error: 'Failed to update designation' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update designation" }, { status: 500 });
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth();
-  if (!session?.user || (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN' && session.user.role !== 'HR_MANAGER')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (
+    !session?.user ||
+    (session.user.role !== "ADMIN" &&
+      session.user.role !== "SUPER_ADMIN" &&
+      session.user.role !== "HR_MANAGER")
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -103,20 +107,22 @@ export async function DELETE(
 
     if (employeeCount > 0) {
       return NextResponse.json(
-        { error: `Cannot delete designation with ${employeeCount} employees. Please reassign employees first.` },
-        { status: 400 }
+        {
+          error: `Cannot delete designation with ${employeeCount} employees. Please reassign employees first.`,
+        },
+        { status: 400 },
       );
     }
 
     await prisma.designation.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Designation delete error:', error);
+    console.error("Designation delete error:", error);
 
-    if (error instanceof Error && error.message.includes('Record to delete does not exist')) {
-      return NextResponse.json({ error: 'Designation not found' }, { status: 404 });
+    if (error instanceof Error && error.message.includes("Record to delete does not exist")) {
+      return NextResponse.json({ error: "Designation not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ error: 'Failed to delete designation' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to delete designation" }, { status: 500 });
   }
 }

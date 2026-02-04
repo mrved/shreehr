@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { Upload, X } from "lucide-react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -11,8 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, X } from "lucide-react";
 import { DOCUMENT_TYPES } from "@/types";
 
 interface DocumentUploadProps {
@@ -26,11 +26,7 @@ interface DocumentUploadProps {
   onUploadComplete?: () => void;
 }
 
-export function DocumentUpload({
-  employeeId,
-  employees,
-  onUploadComplete,
-}: DocumentUploadProps) {
+export function DocumentUpload({ employeeId, employees, onUploadComplete }: DocumentUploadProps) {
   const [selectedEmployee, setSelectedEmployee] = useState(employeeId || "");
   const [documentType, setDocumentType] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -97,11 +93,7 @@ export function DocumentUpload({
         <CardTitle>Upload Document</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {error && (
-          <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">{error}</div>}
 
         {!employeeId && employees && (
           <div className="space-y-2">
@@ -160,9 +152,7 @@ export function DocumentUpload({
               </Button>
             )}
           </div>
-          <p className="text-xs text-gray-500">
-            Max 10MB. Allowed: PDF, JPG, PNG, DOC, DOCX
-          </p>
+          <p className="text-xs text-gray-500">Max 10MB. Allowed: PDF, JPG, PNG, DOC, DOCX</p>
         </div>
 
         <div className="space-y-2">

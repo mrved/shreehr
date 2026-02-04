@@ -1,5 +1,5 @@
-import { Queue } from 'bullmq';
-import { getQueueConnection } from '@/lib/queues/connection';
+import { Queue } from "bullmq";
+import { getQueueConnection } from "@/lib/queues/connection";
 
 /**
  * Email job data structure
@@ -13,7 +13,7 @@ export interface EmailJobData {
 /**
  * Email queue for async email delivery
  */
-export const emailQueue = new Queue<EmailJobData>('emails', getQueueConnection());
+export const emailQueue = new Queue<EmailJobData>("emails", getQueueConnection());
 
 /**
  * Add an email job to the queue
@@ -26,10 +26,10 @@ export const emailQueue = new Queue<EmailJobData>('emails', getQueueConnection()
 export async function addEmailJob(
   template: string,
   to: string | string[],
-  data: Record<string, any>
+  data: Record<string, any>,
 ): Promise<string> {
   const job = await emailQueue.add(
-    'send-email',
+    "send-email",
     {
       template,
       to,
@@ -38,7 +38,7 @@ export async function addEmailJob(
     {
       attempts: 3,
       backoff: {
-        type: 'exponential',
+        type: "exponential",
         delay: 2000, // 2s, 4s, 8s
       },
       removeOnComplete: {
@@ -47,7 +47,7 @@ export async function addEmailJob(
       removeOnFail: {
         age: 7 * 24 * 60 * 60, // 7 days
       },
-    }
+    },
   );
 
   return job.id!;

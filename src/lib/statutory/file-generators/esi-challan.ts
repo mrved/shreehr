@@ -5,7 +5,7 @@
  * Columns: ESIC Number, Employee Name, Gross Wages, Employee Contribution, Employer Contribution, Total Contribution, IP Days
  */
 
-import { prisma } from '@/lib/db';
+import { prisma } from "@/lib/db";
 
 export interface ESIChallanRecord {
   esicNumber: string;
@@ -23,7 +23,7 @@ export interface ESIChallanRecord {
 export function generateESIChallan(
   records: ESIChallanRecord[],
   month: number,
-  year: number
+  year: number,
 ): string {
   const lines: string[] = [];
 
@@ -34,7 +34,7 @@ export function generateESIChallan(
 
   // CSV Header
   lines.push(
-    'ESIC Number,Employee Name,Gross Wages (Rs),Employee Contribution (Rs),Employer Contribution (Rs),Total Contribution (Rs),IP Days'
+    "ESIC Number,Employee Name,Gross Wages (Rs),Employee Contribution (Rs),Employer Contribution (Rs),Total Contribution (Rs),IP Days",
   );
 
   // Employee records
@@ -47,54 +47,43 @@ export function generateESIChallan(
       toRupees(record.employerContribution),
       toRupees(record.totalContribution),
       record.ipDays.toString(),
-    ].join(',');
+    ].join(",");
 
     lines.push(row);
   }
 
   // Summary totals
   const totalGrossWages = records.reduce((sum, r) => sum + r.grossWages, 0);
-  const totalEmployeeContribution = records.reduce(
-    (sum, r) => sum + r.employeeContribution,
-    0
-  );
-  const totalEmployerContribution = records.reduce(
-    (sum, r) => sum + r.employerContribution,
-    0
-  );
-  const totalContribution = records.reduce(
-    (sum, r) => sum + r.totalContribution,
-    0
-  );
+  const totalEmployeeContribution = records.reduce((sum, r) => sum + r.employeeContribution, 0);
+  const totalEmployerContribution = records.reduce((sum, r) => sum + r.employerContribution, 0);
+  const totalContribution = records.reduce((sum, r) => sum + r.totalContribution, 0);
 
   // Add blank line
-  lines.push('');
+  lines.push("");
 
   // Summary row
   lines.push(
-    `"TOTAL (${records.length} employees)",${toRupees(totalGrossWages)},${toRupees(totalEmployeeContribution)},${toRupees(totalEmployerContribution)},${toRupees(totalContribution)},`
+    `"TOTAL (${records.length} employees)",${toRupees(totalGrossWages)},${toRupees(totalEmployeeContribution)},${toRupees(totalEmployerContribution)},${toRupees(totalContribution)},`,
   );
 
   // Month/Year footer
-  lines.push('');
-  lines.push(`Month/Year,${month.toString().padStart(2, '0')}/${year}`);
+  lines.push("");
+  lines.push(`Month/Year,${month.toString().padStart(2, "0")}/${year}`);
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
  * Generate ESI challan for a completed payroll run
  */
-export async function generateESIChallanForPayrollRun(
-  payrollRunId: string
-): Promise<string> {
+export async function generateESIChallanForPayrollRun(payrollRunId: string): Promise<string> {
   // Get payroll run with records
   const payrollRun = await prisma.payrollRun.findUnique({
     where: { id: payrollRunId },
     include: {
       records: {
         where: {
-          status: { in: ['CALCULATED', 'VERIFIED', 'PAID'] },
+          status: { in: ["CALCULATED", "VERIFIED", "PAID"] },
           esi_applicable: true, // Only include ESI-applicable employees
         },
         include: {
@@ -112,7 +101,7 @@ export async function generateESIChallanForPayrollRun(
   });
 
   if (!payrollRun) {
-    throw new Error('Payroll run not found');
+    throw new Error("Payroll run not found");
   }
 
   // Build ESI records
@@ -130,7 +119,7 @@ export async function generateESIChallanForPayrollRun(
       record.employee.middle_name,
       record.employee.last_name,
     ].filter(Boolean);
-    const employeeName = nameParts.join(' ');
+    const employeeName = nameParts.join(" ");
 
     // Calculate IP Days (working days - LOP days)
     const ipDays = record.working_days - record.lop_days;

@@ -1,11 +1,24 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface TeamMember {
   id: string;
@@ -28,7 +41,7 @@ interface AttendanceRecord {
 export function TeamAttendance() {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>('all');
+  const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => {
     fetchTeamAttendance();
@@ -37,10 +50,10 @@ export function TeamAttendance() {
   async function fetchTeamAttendance() {
     setLoading(true);
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
 
       // Get team members (direct reports)
-      const empRes = await fetch('/api/employees?limit=100');
+      const empRes = await fetch("/api/employees?limit=100");
       const empData = await empRes.json();
 
       // Get today's attendance for all
@@ -48,7 +61,7 @@ export function TeamAttendance() {
       const attData = await attRes.json();
 
       const attendanceMap = new Map<string, AttendanceRecord>(
-        (attData.attendances || []).map((a: AttendanceRecord) => [a.employee_id, a])
+        (attData.attendances || []).map((a: AttendanceRecord) => [a.employee_id, a]),
       );
 
       const teamMembers: TeamMember[] = (empData.employees || []).map((emp: any) => {
@@ -58,7 +71,7 @@ export function TeamAttendance() {
           first_name: emp.first_name,
           last_name: emp.last_name,
           employee_code: emp.employee_code,
-          todayStatus: att?.status || 'NOT_RECORDED',
+          todayStatus: att?.status || "NOT_RECORDED",
           checkIn: att?.check_in || undefined,
           checkOut: att?.check_out || undefined,
           missingPunch: !!att?.check_in && !att?.check_out,
@@ -67,38 +80,40 @@ export function TeamAttendance() {
 
       setTeam(teamMembers);
     } catch (error) {
-      console.error('Failed to fetch team attendance:', error);
+      console.error("Failed to fetch team attendance:", error);
     } finally {
       setLoading(false);
     }
   }
 
-  const filteredTeam = team.filter(m => {
-    if (filter === 'all') return true;
-    if (filter === 'present') return m.todayStatus === 'PRESENT' || m.todayStatus === 'HALF_DAY';
-    if (filter === 'absent') return m.todayStatus === 'ABSENT' || m.todayStatus === 'NOT_RECORDED';
-    if (filter === 'missing') return m.missingPunch;
+  const filteredTeam = team.filter((m) => {
+    if (filter === "all") return true;
+    if (filter === "present") return m.todayStatus === "PRESENT" || m.todayStatus === "HALF_DAY";
+    if (filter === "absent") return m.todayStatus === "ABSENT" || m.todayStatus === "NOT_RECORDED";
+    if (filter === "missing") return m.missingPunch;
     return true;
   });
 
   function formatTime(isoString?: string) {
-    if (!isoString) return '-';
-    return new Date(isoString).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    if (!isoString) return "-";
+    return new Date(isoString).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
   }
 
   const statusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      PRESENT: 'default',
-      HALF_DAY: 'secondary',
-      ABSENT: 'destructive',
-      ON_LEAVE: 'outline',
-      NOT_RECORDED: 'destructive',
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+      PRESENT: "default",
+      HALF_DAY: "secondary",
+      ABSENT: "destructive",
+      ON_LEAVE: "outline",
+      NOT_RECORDED: "destructive",
     };
-    return <Badge variant={variants[status] || 'secondary'}>{status.replace('_', ' ')}</Badge>;
+    return <Badge variant={variants[status] || "secondary"}>{status.replace("_", " ")}</Badge>;
   };
 
-  const missingCount = team.filter(m => m.missingPunch).length;
-  const absentCount = team.filter(m => m.todayStatus === 'ABSENT' || m.todayStatus === 'NOT_RECORDED').length;
+  const missingCount = team.filter((m) => m.missingPunch).length;
+  const absentCount = team.filter(
+    (m) => m.todayStatus === "ABSENT" || m.todayStatus === "NOT_RECORDED",
+  ).length;
 
   return (
     <Card>
@@ -138,15 +153,17 @@ export function TeamAttendance() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredTeam.map(member => (
+              {filteredTeam.map((member) => (
                 <TableRow key={member.id}>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{member.first_name} {member.last_name}</p>
+                      <p className="font-medium">
+                        {member.first_name} {member.last_name}
+                      </p>
                       <p className="text-xs text-muted-foreground">{member.employee_code}</p>
                     </div>
                   </TableCell>
-                  <TableCell>{statusBadge(member.todayStatus || 'NOT_RECORDED')}</TableCell>
+                  <TableCell>{statusBadge(member.todayStatus || "NOT_RECORDED")}</TableCell>
                   <TableCell>{formatTime(member.checkIn)}</TableCell>
                   <TableCell>{formatTime(member.checkOut)}</TableCell>
                   <TableCell>

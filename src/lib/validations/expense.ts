@@ -36,12 +36,8 @@ export const CreateExpensePolicySchema = z.object({
 
 export const UpdateExpensePolicySchema = CreateExpensePolicySchema.partial();
 
-export type CreateExpensePolicyInput = z.infer<
-  typeof CreateExpensePolicySchema
->;
-export type UpdateExpensePolicyInput = z.infer<
-  typeof UpdateExpensePolicySchema
->;
+export type CreateExpensePolicyInput = z.infer<typeof CreateExpensePolicySchema>;
+export type UpdateExpensePolicyInput = z.infer<typeof UpdateExpensePolicySchema>;
 
 // ============================================================================
 // EXPENSE CLAIM SCHEMAS
@@ -88,15 +84,9 @@ export const ApproveRejectExpenseSchema = z
     {
       message: "Comments are required when rejecting an expense",
       path: ["comments"],
-    }
+    },
   );
 
-export type CreateExpenseClaimInput = z.infer<
-  typeof CreateExpenseClaimSchema
->;
-export type SubmitExpenseClaimInput = z.infer<
-  typeof SubmitExpenseClaimSchema
->;
-export type ApproveRejectExpenseInput = z.infer<
-  typeof ApproveRejectExpenseSchema
->;
+export type CreateExpenseClaimInput = z.infer<typeof CreateExpenseClaimSchema>;
+export type SubmitExpenseClaimInput = z.infer<typeof SubmitExpenseClaimSchema>;
+export type ApproveRejectExpenseInput = z.infer<typeof ApproveRejectExpenseSchema>;

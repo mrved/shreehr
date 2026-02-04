@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { calculateLeaveDays } from '@/lib/validations/leave';
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { calculateLeaveDays } from "@/lib/validations/leave";
 
 interface LeaveType {
   id: string;
@@ -44,12 +44,12 @@ interface LeaveRequestFormProps {
 
 const leaveFormSchema = z
   .object({
-    leaveTypeId: z.string().min(1, 'Please select a leave type'),
-    startDate: z.string().min(1, 'Please select a start date'),
-    endDate: z.string().min(1, 'Please select an end date'),
+    leaveTypeId: z.string().min(1, "Please select a leave type"),
+    startDate: z.string().min(1, "Please select a start date"),
+    endDate: z.string().min(1, "Please select an end date"),
     isHalfDay: z.boolean(),
-    halfDayPeriod: z.enum(['FIRST_HALF', 'SECOND_HALF']).optional(),
-    reason: z.string().min(10, 'Please provide a detailed reason (at least 10 characters)'),
+    halfDayPeriod: z.enum(["FIRST_HALF", "SECOND_HALF"]).optional(),
+    reason: z.string().min(10, "Please provide a detailed reason (at least 10 characters)"),
   })
   .refine(
     (data) => {
@@ -58,9 +58,9 @@ const leaveFormSchema = z
       return end >= start;
     },
     {
-      message: 'End date must be on or after start date',
-      path: ['endDate'],
-    }
+      message: "End date must be on or after start date",
+      path: ["endDate"],
+    },
   )
   .refine(
     (data) => {
@@ -72,9 +72,9 @@ const leaveFormSchema = z
       return true;
     },
     {
-      message: 'Half-day leave must be for a single day',
-      path: ['endDate'],
-    }
+      message: "Half-day leave must be for a single day",
+      path: ["endDate"],
+    },
   );
 
 type LeaveFormData = z.infer<typeof leaveFormSchema>;
@@ -94,19 +94,19 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
   } = useForm<LeaveFormData>({
     resolver: zodResolver(leaveFormSchema),
     defaultValues: {
-      leaveTypeId: '',
-      startDate: '',
-      endDate: '',
+      leaveTypeId: "",
+      startDate: "",
+      endDate: "",
       isHalfDay: false,
-      halfDayPeriod: 'FIRST_HALF',
-      reason: '',
+      halfDayPeriod: "FIRST_HALF",
+      reason: "",
     },
   });
 
-  const watchLeaveTypeId = watch('leaveTypeId');
-  const watchStartDate = watch('startDate');
-  const watchEndDate = watch('endDate');
-  const watchIsHalfDay = watch('isHalfDay');
+  const watchLeaveTypeId = watch("leaveTypeId");
+  const watchStartDate = watch("startDate");
+  const watchEndDate = watch("endDate");
+  const watchIsHalfDay = watch("isHalfDay");
 
   const selectedLeaveType = leaveTypes.find((lt) => lt.id === watchLeaveTypeId);
   const selectedBalance = balances.find((b) => b.leaveTypeId === watchLeaveTypeId);
@@ -126,7 +126,7 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
   // Auto-set end date to start date for half-day
   useEffect(() => {
     if (watchIsHalfDay && watchStartDate) {
-      setValue('endDate', watchStartDate);
+      setValue("endDate", watchStartDate);
     }
   }, [watchIsHalfDay, watchStartDate, setValue]);
 
@@ -143,29 +143,29 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
         reason: data.reason,
       };
 
-      const res = await fetch('/api/leave-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/leave-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        toast({ title: 'Leave request submitted successfully' });
-        router.push('/employee/leave');
+        toast({ title: "Leave request submitted successfully" });
+        router.push("/employee/leave");
         router.refresh();
       } else {
         const errorData = await res.json();
         toast({
-          title: 'Failed to submit leave request',
-          description: errorData.error || 'Please try again',
-          variant: 'destructive',
+          title: "Failed to submit leave request",
+          description: errorData.error || "Please try again",
+          variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: 'Failed to submit leave request',
-        description: 'An unexpected error occurred',
-        variant: 'destructive',
+        title: "Failed to submit leave request",
+        description: "An unexpected error occurred",
+        variant: "destructive",
       });
     } finally {
       setSubmitting(false);
@@ -185,15 +185,17 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
           {/* Leave Type */}
           <div className="space-y-2">
             <Label htmlFor="leaveTypeId">Leave Type</Label>
-            <Select value={watchLeaveTypeId} onValueChange={(value) => setValue('leaveTypeId', value)}>
+            <Select
+              value={watchLeaveTypeId}
+              onValueChange={(value) => setValue("leaveTypeId", value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select leave type" />
               </SelectTrigger>
               <SelectContent>
                 {leaveTypes.map((lt) => (
                   <SelectItem key={lt.id} value={lt.id}>
-                    {lt.name} ({lt.code})
-                    {!lt.is_paid && ' - Unpaid'}
+                    {lt.name} ({lt.code}){!lt.is_paid && " - Unpaid"}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -207,7 +209,7 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startDate">Start Date</Label>
-              <Input type="date" id="startDate" {...register('startDate')} />
+              <Input type="date" id="startDate" {...register("startDate")} />
               {errors.startDate && (
                 <p className="text-sm text-red-600">{errors.startDate.message}</p>
               )}
@@ -215,15 +217,8 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
 
             <div className="space-y-2">
               <Label htmlFor="endDate">End Date</Label>
-              <Input
-                type="date"
-                id="endDate"
-                {...register('endDate')}
-                disabled={watchIsHalfDay}
-              />
-              {errors.endDate && (
-                <p className="text-sm text-red-600">{errors.endDate.message}</p>
-              )}
+              <Input type="date" id="endDate" {...register("endDate")} disabled={watchIsHalfDay} />
+              {errors.endDate && <p className="text-sm text-red-600">{errors.endDate.message}</p>}
             </div>
           </div>
 
@@ -232,7 +227,7 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
             <Switch
               id="halfDay"
               checked={watchIsHalfDay}
-              onCheckedChange={(checked) => setValue('isHalfDay', checked)}
+              onCheckedChange={(checked) => setValue("isHalfDay", checked)}
             />
             <Label htmlFor="halfDay">Half Day Leave</Label>
           </div>
@@ -242,9 +237,9 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
             <div className="space-y-2">
               <Label>Half Day Period</Label>
               <Select
-                value={watch('halfDayPeriod')}
+                value={watch("halfDayPeriod")}
                 onValueChange={(value) =>
-                  setValue('halfDayPeriod', value as 'FIRST_HALF' | 'SECOND_HALF')
+                  setValue("halfDayPeriod", value as "FIRST_HALF" | "SECOND_HALF")
                 }
               >
                 <SelectTrigger>
@@ -263,7 +258,7 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
             <Label htmlFor="reason">Reason</Label>
             <Textarea
               id="reason"
-              {...register('reason')}
+              {...register("reason")}
               placeholder="Enter reason for leave"
               rows={4}
             />
@@ -272,7 +267,11 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
 
           {/* Real-time Balance Validation */}
           {watchLeaveTypeId && calculatedDays > 0 && (
-            <Card className={hasInsufficientBalance ? 'border-red-300 bg-red-50' : 'border-green-300 bg-green-50'}>
+            <Card
+              className={
+                hasInsufficientBalance ? "border-red-300 bg-red-50" : "border-green-300 bg-green-50"
+              }
+            >
               <CardContent className="p-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -281,8 +280,10 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
                     ) : (
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
                     )}
-                    <span className={`font-medium ${hasInsufficientBalance ? 'text-red-700' : 'text-green-700'}`}>
-                      {hasInsufficientBalance ? 'Insufficient Balance' : 'Balance Available'}
+                    <span
+                      className={`font-medium ${hasInsufficientBalance ? "text-red-700" : "text-green-700"}`}
+                    >
+                      {hasInsufficientBalance ? "Insufficient Balance" : "Balance Available"}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
@@ -297,7 +298,8 @@ export function LeaveRequestForm({ leaveTypes, balances }: LeaveRequestFormProps
                   </div>
                   {selectedLeaveType && selectedLeaveType.min_days_notice > 0 && (
                     <p className="text-xs text-muted-foreground mt-2">
-                      Note: This leave type requires {selectedLeaveType.min_days_notice} days advance notice
+                      Note: This leave type requires {selectedLeaveType.min_days_notice} days
+                      advance notice
                     </p>
                   )}
                 </div>

@@ -1,24 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { encrypt, decrypt, maskPAN, maskAadhaar, maskBankAccount } from '@/lib/encryption';
-import { employeeUpdateSchema } from '@/lib/validations/employee';
-import { ZodError } from 'zod';
+import { type NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { decrypt, encrypt, maskAadhaar, maskBankAccount, maskPAN } from "@/lib/encryption";
+import { employeeUpdateSchema } from "@/lib/validations/employee";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
   // Access control: employees can only view their own data
-  if (session.user.role === 'EMPLOYEE' && session.user.employeeId !== id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (session.user.role === "EMPLOYEE" && session.user.employeeId !== id) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
@@ -28,16 +25,18 @@ export async function GET(
         department: true,
         designation: true,
         reporting_manager: { select: { id: true, first_name: true, last_name: true } },
-        subordinates: { select: { id: true, first_name: true, last_name: true, employee_code: true } },
+        subordinates: {
+          select: { id: true, first_name: true, last_name: true, employee_code: true },
+        },
       },
     });
 
     if (!employee) {
-      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
     // Build response with masked or decrypted PII based on role
-    const isAdmin = ['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER'].includes(session.user.role);
+    const isAdmin = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(session.user.role);
 
     const response: any = {
       ...employee,
@@ -45,17 +44,17 @@ export async function GET(
       pan_encrypted: employee.pan_encrypted
         ? isAdmin
           ? maskPAN(decrypt(employee.pan_encrypted))
-          : maskPAN('MASKED')
+          : maskPAN("MASKED")
         : null,
       aadhaar_encrypted: employee.aadhaar_encrypted
         ? isAdmin
           ? maskAadhaar(decrypt(employee.aadhaar_encrypted))
-          : maskAadhaar('MASKED')
+          : maskAadhaar("MASKED")
         : null,
       bank_account_encrypted: employee.bank_account_encrypted
         ? isAdmin
           ? maskBankAccount(decrypt(employee.bank_account_encrypted))
-          : maskBankAccount('MASKED')
+          : maskBankAccount("MASKED")
         : null,
     };
 
@@ -64,24 +63,28 @@ export async function GET(
       response._sensitive = {
         panNumber: employee.pan_encrypted ? decrypt(employee.pan_encrypted) : null,
         aadhaarNumber: employee.aadhaar_encrypted ? decrypt(employee.aadhaar_encrypted) : null,
-        bankAccountNumber: employee.bank_account_encrypted ? decrypt(employee.bank_account_encrypted) : null,
+        bankAccountNumber: employee.bank_account_encrypted
+          ? decrypt(employee.bank_account_encrypted)
+          : null,
       };
     }
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Employee fetch error:', error);
-    return NextResponse.json({ error: 'Failed to fetch employee' }, { status: 500 });
+    console.error("Employee fetch error:", error);
+    return NextResponse.json({ error: "Failed to fetch employee" }, { status: 500 });
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session?.user || (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN' && session.user.role !== 'HR_MANAGER')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (
+    !session?.user ||
+    (session.user.role !== "ADMIN" &&
+      session.user.role !== "SUPER_ADMIN" &&
+      session.user.role !== "HR_MANAGER")
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -105,8 +108,10 @@ export async function PUT(
     if (validated.bloodGroup !== undefined) updateData.blood_group = validated.bloodGroup;
     if (validated.personalEmail !== undefined) updateData.personal_email = validated.personalEmail;
     if (validated.personalPhone !== undefined) updateData.personal_phone = validated.personalPhone;
-    if (validated.emergencyContact !== undefined) updateData.emergency_contact = validated.emergencyContact;
-    if (validated.emergencyPhone !== undefined) updateData.emergency_phone = validated.emergencyPhone;
+    if (validated.emergencyContact !== undefined)
+      updateData.emergency_contact = validated.emergencyContact;
+    if (validated.emergencyPhone !== undefined)
+      updateData.emergency_phone = validated.emergencyPhone;
     if (validated.addressLine1 !== undefined) updateData.address_line1 = validated.addressLine1;
     if (validated.addressLine2 !== undefined) updateData.address_line2 = validated.addressLine2;
     if (validated.city !== undefined) updateData.city = validated.city;
@@ -115,28 +120,37 @@ export async function PUT(
     if (validated.country !== undefined) updateData.country = validated.country;
     if (validated.dateOfJoining !== undefined) updateData.date_of_joining = validated.dateOfJoining;
     if (validated.dateOfLeaving !== undefined) updateData.date_of_leaving = validated.dateOfLeaving;
-    if (validated.employmentType !== undefined) updateData.employment_type = validated.employmentType;
-    if (validated.employmentStatus !== undefined) updateData.employment_status = validated.employmentStatus;
+    if (validated.employmentType !== undefined)
+      updateData.employment_type = validated.employmentType;
+    if (validated.employmentStatus !== undefined)
+      updateData.employment_status = validated.employmentStatus;
     if (validated.departmentId !== undefined) updateData.department_id = validated.departmentId;
     if (validated.designationId !== undefined) updateData.designation_id = validated.designationId;
-    if (validated.reportingManagerId !== undefined) updateData.reporting_manager_id = validated.reportingManagerId;
+    if (validated.reportingManagerId !== undefined)
+      updateData.reporting_manager_id = validated.reportingManagerId;
     if (validated.bankName !== undefined) updateData.bank_name = validated.bankName;
     if (validated.bankBranch !== undefined) updateData.bank_branch = validated.bankBranch;
     if (validated.bankIfscCode !== undefined) updateData.bank_ifsc = validated.bankIfscCode;
     if (validated.uan !== undefined) updateData.uan = validated.uan;
     if (validated.esicNumber !== undefined) updateData.esic_number = validated.esicNumber;
-    if (validated.previousEmployerName !== undefined) updateData.previous_employer_name = validated.previousEmployerName;
-    if (validated.previousEmployerUan !== undefined) updateData.previous_employer_uan = validated.previousEmployerUan;
+    if (validated.previousEmployerName !== undefined)
+      updateData.previous_employer_name = validated.previousEmployerName;
+    if (validated.previousEmployerUan !== undefined)
+      updateData.previous_employer_uan = validated.previousEmployerUan;
 
     // Encrypt sensitive fields if provided
     if (validated.panNumber !== undefined) {
       updateData.pan_encrypted = validated.panNumber ? encrypt(validated.panNumber) : null;
     }
     if (validated.aadhaarNumber !== undefined) {
-      updateData.aadhaar_encrypted = validated.aadhaarNumber ? encrypt(validated.aadhaarNumber) : null;
+      updateData.aadhaar_encrypted = validated.aadhaarNumber
+        ? encrypt(validated.aadhaarNumber)
+        : null;
     }
     if (validated.bankAccountNumber !== undefined) {
-      updateData.bank_account_encrypted = validated.bankAccountNumber ? encrypt(validated.bankAccountNumber) : null;
+      updateData.bank_account_encrypted = validated.bankAccountNumber
+        ? encrypt(validated.bankAccountNumber)
+        : null;
     }
 
     const employee = await prisma.employee.update({
@@ -150,30 +164,30 @@ export async function PUT(
 
     return NextResponse.json(employee);
   } catch (error) {
-    console.error('Employee update error:', error);
+    console.error("Employee update error:", error);
 
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.issues },
-        { status: 400 }
+        { error: "Validation failed", details: error.issues },
+        { status: 400 },
       );
     }
 
-    if (error instanceof Error && error.message.includes('Record to update not found')) {
-      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+    if (error instanceof Error && error.message.includes("Record to update not found")) {
+      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ error: 'Failed to update employee' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update employee" }, { status: 500 });
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth();
-  if (!session?.user || (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -183,7 +197,7 @@ export async function DELETE(
     await prisma.employee.update({
       where: { id },
       data: {
-        employment_status: 'TERMINATED',
+        employment_status: "TERMINATED",
         date_of_leaving: new Date(),
         updated_by: session.user.id,
       },
@@ -191,12 +205,12 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Employee delete error:', error);
+    console.error("Employee delete error:", error);
 
-    if (error instanceof Error && error.message.includes('Record to update not found')) {
-      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+    if (error instanceof Error && error.message.includes("Record to update not found")) {
+      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ error: 'Failed to terminate employee' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to terminate employee" }, { status: 500 });
   }
 }

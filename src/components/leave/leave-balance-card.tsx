@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 interface LeaveBalance {
   leaveTypeId: string;
@@ -24,11 +24,11 @@ export function LeaveBalanceCard() {
   useEffect(() => {
     async function fetchBalances() {
       try {
-        const res = await fetch('/api/leave-balances');
+        const res = await fetch("/api/leave-balances");
         const data = await res.json();
         setBalances(data.balances || []);
       } catch (error) {
-        console.error('Failed to fetch leave balances:', error);
+        console.error("Failed to fetch leave balances:", error);
       } finally {
         setLoading(false);
       }
@@ -49,7 +49,7 @@ export function LeaveBalanceCard() {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {balances.map(balance => {
+      {balances.map((balance) => {
         const usedPercent = balance.opening > 0 ? (balance.used / balance.opening) * 100 : 0;
         const pendingPercent = balance.opening > 0 ? (balance.pending / balance.opening) * 100 : 0;
 

@@ -1,12 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getFile } from "@/lib/storage";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,19 +20,13 @@ export async function GET(
   }
 
   // Access control
-  if (
-    session.user.role === "EMPLOYEE" &&
-    session.user.employeeId !== document.employee_id
-  ) {
+  if (session.user.role === "EMPLOYEE" && session.user.employeeId !== document.employee_id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const fileBuffer = await getFile(document.storage_path);
   if (!fileBuffer) {
-    return NextResponse.json(
-      { error: "File not found on storage" },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "File not found on storage" }, { status: 404 });
   }
 
   return new NextResponse(fileBuffer as unknown as BodyInit, {

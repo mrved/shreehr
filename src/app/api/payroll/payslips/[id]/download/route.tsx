@@ -1,25 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { renderToStream } from '@react-pdf/renderer';
-import { PayslipDocument, type PayslipData } from '@/lib/pdf/payslip';
-import { decrypt } from '@/lib/encryption';
+import { renderToStream } from "@react-pdf/renderer";
+import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { decrypt } from "@/lib/encryption";
+import { type PayslipData, PayslipDocument } from "@/lib/pdf/payslip";
 
 // Company info - could be moved to config/database
 const COMPANY_INFO = {
-  name: 'ShreeHR Demo Company',
-  address: 'Bangalore, Karnataka 560001',
-  pfCode: 'KN/BLR/0000000',
-  esiCode: 'KA00000000',
+  name: "ShreeHR Demo Company",
+  address: "Bangalore, Karnataka 560001",
+  pfCode: "KN/BLR/0000000",
+  esiCode: "KA00000000",
 };
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -39,16 +36,18 @@ export async function GET(
   });
 
   if (!record) {
-    return NextResponse.json({ error: 'Payroll record not found' }, { status: 404 });
+    return NextResponse.json({ error: "Payroll record not found" }, { status: 404 });
   }
 
   // Check permissions
   // Employees can only download their own payslip
   // Admin/HR/Payroll can download any
-  const isAdmin = ['SUPER_ADMIN', 'ADMIN', 'HR_MANAGER', 'PAYROLL_MANAGER'].includes(session.user.role);
+  const isAdmin = ["SUPER_ADMIN", "ADMIN", "HR_MANAGER", "PAYROLL_MANAGER"].includes(
+    session.user.role,
+  );
 
   if (!isAdmin && session.user.employeeId !== record.employee_id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // Build payslip data
@@ -99,24 +98,19 @@ export async function GET(
 
   try {
     // Generate PDF
-    const stream = await renderToStream(
-      <PayslipDocument data={payslipData} />
-    );
+    const stream = await renderToStream(<PayslipDocument data={payslipData} />);
 
     // Convert stream to response
-    const filename = `payslip-${record.employee.employee_code}-${record.year}-${String(record.month).padStart(2, '0')}.pdf`;
+    const filename = `payslip-${record.employee.employee_code}-${record.year}-${String(record.month).padStart(2, "0")}.pdf`;
 
     return new Response(stream as any, {
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="${filename}"`,
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `inline; filename="${filename}"`,
       },
     });
   } catch (error: any) {
-    console.error('PDF generation error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate payslip' },
-      { status: 500 }
-    );
+    console.error("PDF generation error:", error);
+    return NextResponse.json({ error: "Failed to generate payslip" }, { status: 500 });
   }
 }

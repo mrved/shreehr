@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { FileText, Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, FileText } from "lucide-react";
 
 interface DashboardStatsProps {
   leaveBalance: {
@@ -53,7 +53,8 @@ export function DashboardStats({
           <div>
             <p className="text-sm text-gray-600 mb-1">{lastPayslip.month}</p>
             <p className="text-2xl font-bold text-gray-900">
-              ₹{(lastPayslip.netPay / 100).toLocaleString('en-IN', {
+              ₹
+              {(lastPayslip.netPay / 100).toLocaleString("en-IN", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}

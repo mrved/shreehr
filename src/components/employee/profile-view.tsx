@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from "lucide-react";
+import Link from "next/link";
 
 interface ProfileUpdateRequest {
   id: string;
@@ -68,7 +68,7 @@ interface ProfileViewProps {
 export function ProfileView({ employee, pendingRequest }: ProfileViewProps) {
   const fullName = [employee.first_name, employee.middle_name, employee.last_name]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   const fullAddress = [
     employee.address_line1,
@@ -78,7 +78,7 @@ export function ProfileView({ employee, pendingRequest }: ProfileViewProps) {
     employee.postal_code,
   ]
     .filter(Boolean)
-    .join(', ');
+    .join(", ");
 
   return (
     <div className="space-y-6">
@@ -89,8 +89,8 @@ export function ProfileView({ employee, pendingRequest }: ProfileViewProps) {
           <div className="flex-1">
             <h3 className="text-sm font-medium text-yellow-800">Update Request Pending</h3>
             <p className="mt-1 text-sm text-yellow-700">
-              Your profile update request submitted on{' '}
-              {new Date(pendingRequest.created_at).toLocaleDateString('en-IN')} is awaiting
+              Your profile update request submitted on{" "}
+              {new Date(pendingRequest.created_at).toLocaleDateString("en-IN")} is awaiting
               approval.
             </p>
           </div>
@@ -114,7 +114,7 @@ export function ProfileView({ employee, pendingRequest }: ProfileViewProps) {
           <InfoRow label="Full Name" value={fullName} />
           <InfoRow
             label="Date of Birth"
-            value={new Date(employee.date_of_birth).toLocaleDateString('en-IN')}
+            value={new Date(employee.date_of_birth).toLocaleDateString("en-IN")}
           />
           <InfoRow label="Gender" value={employee.gender} />
           <InfoRow label="Marital Status" value={employee.marital_status} />
@@ -123,26 +123,26 @@ export function ProfileView({ employee, pendingRequest }: ProfileViewProps) {
 
         {/* Contact Information */}
         <Section title="Contact Information">
-          <InfoRow label="Personal Email" value={employee.personal_email || '-'} />
-          <InfoRow label="Personal Phone" value={employee.personal_phone || '-'} />
-          <InfoRow label="Emergency Contact" value={employee.emergency_contact || '-'} />
-          <InfoRow label="Emergency Phone" value={employee.emergency_phone || '-'} />
+          <InfoRow label="Personal Email" value={employee.personal_email || "-"} />
+          <InfoRow label="Personal Phone" value={employee.personal_phone || "-"} />
+          <InfoRow label="Emergency Contact" value={employee.emergency_contact || "-"} />
+          <InfoRow label="Emergency Phone" value={employee.emergency_phone || "-"} />
         </Section>
 
         {/* Address */}
         <Section title="Address">
-          <InfoRow label="Full Address" value={fullAddress || '-'} />
+          <InfoRow label="Full Address" value={fullAddress || "-"} />
           <InfoRow label="Country" value={employee.country} />
         </Section>
 
         {/* Employment Details */}
         <Section title="Employment Details">
           <InfoRow label="Employee Code" value={employee.employee_code} />
-          <InfoRow label="Department" value={employee.department?.name || '-'} />
-          <InfoRow label="Designation" value={employee.designation?.title || '-'} />
+          <InfoRow label="Department" value={employee.department?.name || "-"} />
+          <InfoRow label="Designation" value={employee.designation?.title || "-"} />
           <InfoRow
             label="Date of Joining"
-            value={new Date(employee.date_of_joining).toLocaleDateString('en-IN')}
+            value={new Date(employee.date_of_joining).toLocaleDateString("en-IN")}
           />
           <InfoRow label="Employment Type" value={employee.employment_type} />
           <InfoRow label="Status" value={employee.employment_status} />
@@ -156,17 +156,17 @@ export function ProfileView({ employee, pendingRequest }: ProfileViewProps) {
 
         {/* Statutory Information */}
         <Section title="Statutory Information">
-          <InfoRow label="PAN" value={employee.pan || '-'} />
-          <InfoRow label="Aadhaar" value={employee.aadhaar || '-'} />
-          <InfoRow label="UAN" value={employee.uan || '-'} />
-          <InfoRow label="ESIC Number" value={employee.esic_number || '-'} />
+          <InfoRow label="PAN" value={employee.pan || "-"} />
+          <InfoRow label="Aadhaar" value={employee.aadhaar || "-"} />
+          <InfoRow label="UAN" value={employee.uan || "-"} />
+          <InfoRow label="ESIC Number" value={employee.esic_number || "-"} />
         </Section>
 
         {/* Bank Details */}
         <Section title="Bank Details">
-          <InfoRow label="Bank Name" value={employee.bank_name || '-'} />
-          <InfoRow label="Branch" value={employee.bank_branch || '-'} />
-          <InfoRow label="IFSC Code" value={employee.bank_ifsc || '-'} />
+          <InfoRow label="Bank Name" value={employee.bank_name || "-"} />
+          <InfoRow label="Branch" value={employee.bank_branch || "-"} />
+          <InfoRow label="IFSC Code" value={employee.bank_ifsc || "-"} />
         </Section>
       </div>
     </div>

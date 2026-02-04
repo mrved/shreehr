@@ -1,5 +1,8 @@
 "use client";
 
+import { Eye } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,9 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
 
 interface ExpenseClaim {
   id: string;
@@ -49,9 +49,7 @@ export function ExpenseList({
   const [activeTab, setActiveTab] = useState<"all" | "pending">("all");
 
   const displayedExpenses =
-    activeTab === "pending"
-      ? expenses.filter((e) => e.status === "PENDING_APPROVAL")
-      : expenses;
+    activeTab === "pending" ? expenses.filter((e) => e.status === "PENDING_APPROVAL") : expenses;
 
   return (
     <div className="space-y-4">

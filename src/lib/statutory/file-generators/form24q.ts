@@ -1,6 +1,6 @@
-import { prisma } from '@/lib/db';
-import { paiseToRupees } from '@/lib/payroll/types';
-import { decrypt } from '@/lib/encryption';
+import { prisma } from "@/lib/db";
+import { decrypt } from "@/lib/encryption";
+import { paiseToRupees } from "@/lib/payroll/types";
 
 /**
  * Form 24Q is the quarterly TDS return for salary payments
@@ -71,7 +71,7 @@ export interface AnnexureIIEmployee {
   healthEducationCess: number;
   totalTaxPayable: number;
   tdsDeducted: number;
-  taxRegime: 'OLD' | 'NEW';
+  taxRegime: "OLD" | "NEW";
 }
 
 export interface AnnexureII {
@@ -102,7 +102,7 @@ export async function generateForm24Q(
     address: string;
     responsiblePerson: string;
     responsibleDesignation: string;
-  }
+  },
 ): Promise<Form24QData> {
   // Validate quarter
   if (quarter < 1 || quarter > 4) {
@@ -114,12 +114,7 @@ export async function generateForm24Q(
   const quarterMonths = getQuarterMonths(quarter);
 
   // Generate Annexure I
-  const annexureI = await generateAnnexureI(
-    quarter,
-    financialYear,
-    quarterMonths,
-    deductorDetails
-  );
+  const annexureI = await generateAnnexureI(quarter, financialYear, quarterMonths, deductorDetails);
 
   // Generate Annexure II only for Q4
   let annexureII: AnnexureII | undefined;
@@ -179,7 +174,7 @@ export async function generateAnnexureI(
     address: string;
     responsiblePerson: string;
     responsibleDesignation: string;
-  }
+  },
 ): Promise<AnnexureI> {
   // Get payroll records for the quarter
   const records = await prisma.payrollRecord.findMany({
@@ -189,7 +184,7 @@ export async function generateAnnexureI(
         year: financialYear + qm.year,
       })),
       tds_paise: { gt: 0 },
-      status: { in: ['CALCULATED', 'VERIFIED', 'PAID'] },
+      status: { in: ["CALCULATED", "VERIFIED", "PAID"] },
     },
     include: {
       employee: {
@@ -211,15 +206,13 @@ export async function generateAnnexureI(
       existing.tdsDeposited += record.tds_paise; // Assume deposited
     } else {
       // Decrypt PAN
-      const pan = record.employee.pan_encrypted
-        ? decrypt(record.employee.pan_encrypted)
-        : '';
+      const pan = record.employee.pan_encrypted ? decrypt(record.employee.pan_encrypted) : "";
 
       employeeMap.set(record.employee_id, {
         employeeId: record.employee_id,
         pan,
         name: `${record.employee.first_name} ${record.employee.last_name}`,
-        designation: record.employee.designation?.title || 'N/A',
+        designation: record.employee.designation?.title || "N/A",
         dateOfPayment: formatDateDMY(new Date(record.year, record.month - 1)),
         amountPaid: record.gross_salary_paise,
         tdsDeducted: record.tds_paise,
@@ -257,7 +250,7 @@ export async function generateAnnexureII(
   deductorDetails: {
     tan: string;
     name: string;
-  }
+  },
 ): Promise<AnnexureII> {
   // Get all payroll records for the financial year
   const startYear = financialYear;
@@ -271,7 +264,7 @@ export async function generateAnnexureII(
         // Jan-Mar of end year
         { year: endYear, month: { lte: 3 } },
       ],
-      status: { in: ['CALCULATED', 'VERIFIED', 'PAID'] },
+      status: { in: ["CALCULATED", "VERIFIED", "PAID"] },
     },
     include: {
       employee: {
@@ -281,19 +274,19 @@ export async function generateAnnexureII(
         },
       },
     },
-    orderBy: [{ employee_id: 'asc' }, { month: 'asc' }],
+    orderBy: [{ employee_id: "asc" }, { month: "asc" }],
   });
 
   // Aggregate annual data per employee
   const employeeAnnuals = new Map<
     string,
     {
-      employee: (typeof records)[0]['employee'];
+      employee: (typeof records)[0]["employee"];
       grossSalary: number;
       hra: number;
       tdsDeducted: number;
       professionalTax: number;
-      taxRegime: 'OLD' | 'NEW';
+      taxRegime: "OLD" | "NEW";
     }
   >();
 
@@ -311,7 +304,7 @@ export async function generateAnnexureII(
         hra: record.hra_paise,
         tdsDeducted: record.tds_paise,
         professionalTax: record.pt_paise,
-        taxRegime: (record.tax_regime as 'OLD' | 'NEW') || 'NEW',
+        taxRegime: (record.tax_regime as "OLD" | "NEW") || "NEW",
       });
     }
   }
@@ -323,26 +316,20 @@ export async function generateAnnexureII(
     const emp = data.employee;
 
     // Calculate standard deduction (Rs.75,000 for new regime, Rs.50,000 for old)
-    const standardDeduction = data.taxRegime === 'NEW' ? 7500000 : 5000000;
+    const standardDeduction = data.taxRegime === "NEW" ? 7500000 : 5000000;
 
     // For now, assume no HRA exemption (would need actual rent data)
     const allowancesExempt = 0;
 
     const netSalary = data.grossSalary - allowancesExempt;
-    const taxableIncome = Math.max(
-      0,
-      netSalary - standardDeduction - data.professionalTax
-    );
+    const taxableIncome = Math.max(0, netSalary - standardDeduction - data.professionalTax);
 
     // Calculate tax (simplified, actual would use full slab logic)
-    const taxOnTotalIncome = calculateTaxForAnnexure(
-      taxableIncome,
-      data.taxRegime
-    );
+    const taxOnTotalIncome = calculateTaxForAnnexure(taxableIncome, data.taxRegime);
 
     // Rebate 87A: Up to Rs. 25,000 for income <= 7L (new regime only)
     const rebate87A =
-      taxableIncome <= 70000000 && data.taxRegime === 'NEW'
+      taxableIncome <= 70000000 && data.taxRegime === "NEW"
         ? Math.min(taxOnTotalIncome, 2500000)
         : 0;
 
@@ -350,7 +337,7 @@ export async function generateAnnexureII(
     const cess = Math.round(taxAfterRebate * 0.04);
 
     // Decrypt PAN
-    const pan = emp.pan_encrypted ? decrypt(emp.pan_encrypted) : '';
+    const pan = emp.pan_encrypted ? decrypt(emp.pan_encrypted) : "";
 
     employees.push({
       pan,
@@ -361,7 +348,7 @@ export async function generateAnnexureII(
       city: emp.city,
       state: emp.state,
       pincode: emp.postal_code,
-      email: emp.personal_email || '',
+      email: emp.personal_email || "",
 
       grossSalary: data.grossSalary,
       allowancesExempt,
@@ -389,38 +376,29 @@ export async function generateAnnexureII(
 }
 
 function formatDateDMY(date: Date): string {
-  const d = date.getDate().toString().padStart(2, '0');
-  const m = (date.getMonth() + 1).toString().padStart(2, '0');
+  const d = date.getDate().toString().padStart(2, "0");
+  const m = (date.getMonth() + 1).toString().padStart(2, "0");
   const y = date.getFullYear();
   return `${d}/${m}/${y}`;
 }
 
-function calculateTaxForAnnexure(
-  taxableIncomePaise: number,
-  regime: 'OLD' | 'NEW'
-): number {
+function calculateTaxForAnnexure(taxableIncomePaise: number, regime: "OLD" | "NEW"): number {
   const income = paiseToRupees(taxableIncomePaise);
 
-  if (regime === 'NEW') {
+  if (regime === "NEW") {
     // New regime slabs (Budget 2024)
     if (income <= 300000) return 0;
-    if (income <= 700000)
-      return Math.round((income - 300000) * 0.05) * 100;
-    if (income <= 1000000)
-      return Math.round(20000 + (income - 700000) * 0.1) * 100;
-    if (income <= 1200000)
-      return Math.round(50000 + (income - 1000000) * 0.15) * 100;
-    if (income <= 1500000)
-      return Math.round(80000 + (income - 1200000) * 0.2) * 100;
+    if (income <= 700000) return Math.round((income - 300000) * 0.05) * 100;
+    if (income <= 1000000) return Math.round(20000 + (income - 700000) * 0.1) * 100;
+    if (income <= 1200000) return Math.round(50000 + (income - 1000000) * 0.15) * 100;
+    if (income <= 1500000) return Math.round(80000 + (income - 1200000) * 0.2) * 100;
     return Math.round(140000 + (income - 1500000) * 0.3) * 100;
   }
 
   // Old regime
   if (income <= 250000) return 0;
-  if (income <= 500000)
-    return Math.round((income - 250000) * 0.05) * 100;
-  if (income <= 1000000)
-    return Math.round(12500 + (income - 500000) * 0.2) * 100;
+  if (income <= 500000) return Math.round((income - 250000) * 0.05) * 100;
+  if (income <= 1000000) return Math.round(12500 + (income - 500000) * 0.2) * 100;
   return Math.round(112500 + (income - 1000000) * 0.3) * 100;
 }
 

@@ -1,30 +1,27 @@
 import {
-  PF_WAGE_CEILING_PAISE,
-  PF_EMPLOYEE_RATE,
-  EPF_EMPLOYER_RATE,
-  EPS_RATE,
   EDLI_RATE,
+  EPF_EMPLOYER_RATE,
   EPS_MAX_MONTHLY_PAISE,
+  EPS_RATE,
   PF_ADMIN_RATE,
-} from '@/lib/payroll/constants';
-
-export {
+  PF_EMPLOYEE_RATE,
   PF_WAGE_CEILING_PAISE,
-  EPS_MAX_MONTHLY_PAISE,
-};
+} from "@/lib/payroll/constants";
+
+export { PF_WAGE_CEILING_PAISE, EPS_MAX_MONTHLY_PAISE };
 
 export interface EmployerPFBreakdown {
-  epf: number;           // 3.67%
-  eps: number;           // 8.33% capped at Rs.1,250
-  edli: number;          // 0.50%
-  adminCharges: number;  // 0.51%
+  epf: number; // 3.67%
+  eps: number; // 8.33% capped at Rs.1,250
+  edli: number; // 0.50%
+  adminCharges: number; // 0.51%
   total: number;
 }
 
 export interface PFCalculationResult {
-  pfBase: number;          // min(basic, ceiling) in paise
-  employeePF: number;      // Employee's 12% contribution
-  employerTotal: number;   // Total employer contribution
+  pfBase: number; // min(basic, ceiling) in paise
+  employeePF: number; // Employee's 12% contribution
+  employerTotal: number; // Total employer contribution
   breakdown: EmployerPFBreakdown;
 }
 

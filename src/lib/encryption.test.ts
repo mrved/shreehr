@@ -2,18 +2,18 @@
  * Tests for PII Encryption Utilities
  */
 
-import { describe, expect, it, beforeAll } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
-  encrypt,
   decrypt,
-  encryptOptional,
   decryptOptional,
-  isValidPAN,
+  encrypt,
+  encryptOptional,
   isValidAadhaar,
   isValidBankAccount,
-  maskPAN,
+  isValidPAN,
   maskAadhaar,
   maskBankAccount,
+  maskPAN,
 } from "./encryption";
 
 // Set up test encryption key

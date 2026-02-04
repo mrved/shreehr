@@ -43,7 +43,7 @@ export function calculateEMI(params: LoanParams): number {
   const monthlyRate = annualInterestRate / 100 / 12;
 
   // Calculate (1 + R)^N
-  const factor = Math.pow(1 + monthlyRate, tenureMonths);
+  const factor = (1 + monthlyRate) ** tenureMonths;
 
   // Apply EMI formula
   const emi = (principalPaise * monthlyRate * factor) / (factor - 1);

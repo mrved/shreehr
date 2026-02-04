@@ -1,8 +1,8 @@
-import { Worker, Job } from 'bullmq';
-import { getQueueConnection } from '@/lib/queues/connection';
-import { sendEmail } from './resend';
-import { getTemplate } from './templates';
-import { EmailJobData } from './queue';
+import { type Job, Worker } from "bullmq";
+import { getQueueConnection } from "@/lib/queues/connection";
+import type { EmailJobData } from "./queue";
+import { sendEmail } from "./resend";
+import { getTemplate } from "./templates";
 
 /**
  * Email worker result
@@ -23,7 +23,7 @@ interface EmailWorkerResult {
  */
 export function createEmailWorker(): Worker<EmailJobData, EmailWorkerResult> {
   const worker = new Worker<EmailJobData, EmailWorkerResult>(
-    'emails',
+    "emails",
     async (job: Job<EmailJobData, EmailWorkerResult>) => {
       console.log(`Processing email job: ${job.id}, template: ${job.data.template}`);
 
@@ -42,7 +42,7 @@ export function createEmailWorker(): Worker<EmailJobData, EmailWorkerResult> {
         });
 
         console.log(
-          `Email sent successfully: ${job.id}, messageId: ${result.messageId}, to: ${Array.isArray(to) ? to.join(', ') : to}`
+          `Email sent successfully: ${job.id}, messageId: ${result.messageId}, to: ${Array.isArray(to) ? to.join(", ") : to}`,
         );
 
         return {
@@ -52,7 +52,7 @@ export function createEmailWorker(): Worker<EmailJobData, EmailWorkerResult> {
       } catch (error: any) {
         console.error(
           `Email job ${job.id} failed (attempt ${job.attemptsMade + 1}/${job.opts.attempts}):`,
-          error.message
+          error.message,
         );
 
         return {
@@ -64,14 +64,14 @@ export function createEmailWorker(): Worker<EmailJobData, EmailWorkerResult> {
     {
       ...getQueueConnection(),
       concurrency: 5,
-    }
+    },
   );
 
-  worker.on('completed', (job, result) => {
+  worker.on("completed", (job, result) => {
     console.log(`Email job ${job.id} completed:`, result);
   });
 
-  worker.on('failed', (job, error) => {
+  worker.on("failed", (job, error) => {
     console.error(`Email job ${job?.id} failed after all retries:`, error.message);
   });
 

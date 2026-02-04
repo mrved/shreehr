@@ -1,11 +1,11 @@
-import { Queue, Job } from 'bullmq';
-import { getQueueConnection } from './connection';
+import { type Job, Queue } from "bullmq";
+import { getQueueConnection } from "./connection";
 
 export interface PayrollJobData {
   payrollRunId: string;
   month: number;
   year: number;
-  stage: 'validation' | 'calculation' | 'statutory' | 'finalization';
+  stage: "validation" | "calculation" | "statutory" | "finalization";
   employeeIds?: string[]; // For partial processing
 }
 
@@ -14,7 +14,7 @@ export interface PayrollJobResult {
   processedCount: number;
   errorCount: number;
   errors?: Array<{ employeeId: string; message: string }>;
-  nextStage?: PayrollJobData['stage'];
+  nextStage?: PayrollJobData["stage"];
 }
 
 // Queue instance
@@ -25,12 +25,12 @@ let payrollQueueInstance: Queue<PayrollJobData, PayrollJobResult> | null = null;
  */
 export function getPayrollQueue(): Queue<PayrollJobData, PayrollJobResult> {
   if (!payrollQueueInstance) {
-    payrollQueueInstance = new Queue<PayrollJobData, PayrollJobResult>('payroll', {
+    payrollQueueInstance = new Queue<PayrollJobData, PayrollJobResult>("payroll", {
       ...getQueueConnection(),
       defaultJobOptions: {
         attempts: 3,
         backoff: {
-          type: 'exponential',
+          type: "exponential",
           delay: 2000, // Start with 2 seconds
         },
         removeOnComplete: {
@@ -55,7 +55,7 @@ export async function addPayrollJob(
   options?: {
     priority?: number;
     delay?: number;
-  }
+  },
 ): Promise<Job<PayrollJobData, PayrollJobResult>> {
   const queue = getPayrollQueue();
 
@@ -73,7 +73,7 @@ export async function addPayrollJob(
  */
 export async function getPayrollJobStatus(
   payrollRunId: string,
-  stage: string
+  stage: string,
 ): Promise<{
   state: string;
   progress: number;
@@ -87,7 +87,7 @@ export async function getPayrollJobStatus(
   if (!job) return null;
 
   const state = await job.getState();
-  const progress = job.progress as number || 0;
+  const progress = (job.progress as number) || 0;
 
   return {
     state,
@@ -102,7 +102,7 @@ export async function getPayrollJobStatus(
  */
 export async function cancelPayrollJobs(payrollRunId: string): Promise<void> {
   const queue = getPayrollQueue();
-  const stages = ['validation', 'calculation', 'statutory', 'finalization'];
+  const stages = ["validation", "calculation", "statutory", "finalization"];
 
   for (const stage of stages) {
     const jobId = `payroll-${payrollRunId}-${stage}`;
@@ -110,7 +110,7 @@ export async function cancelPayrollJobs(payrollRunId: string): Promise<void> {
 
     if (job) {
       const state = await job.getState();
-      if (state === 'waiting' || state === 'delayed') {
+      if (state === "waiting" || state === "delayed") {
         await job.remove();
       }
     }

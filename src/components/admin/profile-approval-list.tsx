@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle } from "lucide-react";
+import { useState } from "react";
 
 interface Employee {
   id: string;
@@ -35,7 +35,7 @@ export function ProfileApprovalList({ requests, onRequestProcessed }: ProfileApp
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectRequestId, setRejectRequestId] = useState<string | null>(null);
-  const [rejectionReason, setRejectionReason] = useState('');
+  const [rejectionReason, setRejectionReason] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleApprove = async (requestId: string) => {
@@ -44,18 +44,18 @@ export function ProfileApprovalList({ requests, onRequestProcessed }: ProfileApp
 
     try {
       const response = await fetch(`/api/profile/update-requests/${requestId}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: 'approve',
+          action: "approve",
         }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to approve request');
+        throw new Error(error.error || "Failed to approve request");
       }
 
       onRequestProcessed();
@@ -68,14 +68,14 @@ export function ProfileApprovalList({ requests, onRequestProcessed }: ProfileApp
 
   const openRejectModal = (requestId: string) => {
     setRejectRequestId(requestId);
-    setRejectionReason('');
+    setRejectionReason("");
     setShowRejectModal(true);
     setError(null);
   };
 
   const handleReject = async () => {
     if (!rejectRequestId || !rejectionReason.trim()) {
-      setError('Please provide a rejection reason');
+      setError("Please provide a rejection reason");
       return;
     }
 
@@ -84,24 +84,24 @@ export function ProfileApprovalList({ requests, onRequestProcessed }: ProfileApp
 
     try {
       const response = await fetch(`/api/profile/update-requests/${rejectRequestId}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: 'reject',
+          action: "reject",
           rejection_reason: rejectionReason,
         }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to reject request');
+        throw new Error(error.error || "Failed to reject request");
       }
 
       setShowRejectModal(false);
       setRejectRequestId(null);
-      setRejectionReason('');
+      setRejectionReason("");
       onRequestProcessed();
     } catch (err: any) {
       setError(err.message);
@@ -163,12 +163,10 @@ export function ProfileApprovalList({ requests, onRequestProcessed }: ProfileApp
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-sm text-gray-500 max-w-xs">
-                    {request.reason || '-'}
-                  </div>
+                  <div className="text-sm text-gray-500 max-w-xs">{request.reason || "-"}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(request.created_at).toLocaleDateString('en-IN')}
+                  {new Date(request.created_at).toLocaleDateString("en-IN")}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
@@ -204,7 +202,7 @@ export function ProfileApprovalList({ requests, onRequestProcessed }: ProfileApp
               </div>
               <div className="text-sm text-gray-500">{request.employee.employee_code}</div>
               <div className="mt-1 text-xs text-gray-500">
-                {new Date(request.created_at).toLocaleDateString('en-IN')}
+                {new Date(request.created_at).toLocaleDateString("en-IN")}
               </div>
             </div>
 
@@ -248,7 +246,10 @@ export function ProfileApprovalList({ requests, onRequestProcessed }: ProfileApp
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Reject Request</h3>
             <div className="mb-4">
-              <label htmlFor="rejectionReason" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="rejectionReason"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Reason for Rejection <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -272,7 +273,7 @@ export function ProfileApprovalList({ requests, onRequestProcessed }: ProfileApp
                 onClick={() => {
                   setShowRejectModal(false);
                   setRejectRequestId(null);
-                  setRejectionReason('');
+                  setRejectionReason("");
                   setError(null);
                 }}
                 disabled={processingId !== null}
@@ -290,15 +291,15 @@ export function ProfileApprovalList({ requests, onRequestProcessed }: ProfileApp
 
 function ChangesDisplay({ changes }: { changes: Record<string, { old: any; new: any }> }) {
   const fieldLabels: Record<string, string> = {
-    address_line1: 'Address Line 1',
-    address_line2: 'Address Line 2',
-    city: 'City',
-    state: 'State',
-    postal_code: 'Postal Code',
-    emergency_contact: 'Emergency Contact',
-    emergency_phone: 'Emergency Phone',
-    personal_phone: 'Personal Phone',
-    personal_email: 'Personal Email',
+    address_line1: "Address Line 1",
+    address_line2: "Address Line 2",
+    city: "City",
+    state: "State",
+    postal_code: "Postal Code",
+    emergency_contact: "Emergency Contact",
+    emergency_phone: "Emergency Phone",
+    personal_phone: "Personal Phone",
+    personal_email: "Personal Email",
   };
 
   return (
@@ -308,10 +309,10 @@ function ChangesDisplay({ changes }: { changes: Record<string, { old: any; new: 
           <div className="font-medium text-gray-700">{fieldLabels[field] || field}:</div>
           <div className="ml-2">
             <div className="text-red-600">
-              <span className="font-medium">Old:</span> {old || '(empty)'}
+              <span className="font-medium">Old:</span> {old || "(empty)"}
             </div>
             <div className="text-green-600">
-              <span className="font-medium">New:</span> {newValue || '(empty)'}
+              <span className="font-medium">New:</span> {newValue || "(empty)"}
             </div>
           </div>
         </div>

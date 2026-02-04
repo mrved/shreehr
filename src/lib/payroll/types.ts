@@ -15,7 +15,7 @@ export interface SalaryStructureInput extends SalaryComponents {
   employee_id: string;
   effective_from: Date;
   effective_to?: Date;
-  tax_regime?: 'OLD' | 'NEW';
+  tax_regime?: "OLD" | "NEW";
 }
 
 export interface ValidationResult {
@@ -51,9 +51,9 @@ export function rupeesToPaise(rupees: number): number {
  * @returns Formatted currency string (e.g., "₹12,34,567")
  */
 export function formatCurrency(paise: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(paiseToRupees(paise));

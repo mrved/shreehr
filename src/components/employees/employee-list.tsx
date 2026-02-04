@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -12,8 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+} from "@/components/ui/table";
 
 interface Employee {
   id: string;
@@ -28,7 +28,7 @@ interface Employee {
 
 export function EmployeeList() {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +41,7 @@ export function EmployeeList() {
     setIsLoading(true);
     const params = new URLSearchParams({
       page: page.toString(),
-      limit: '20',
+      limit: "20",
       ...(search && { search }),
     });
 
@@ -54,11 +54,11 @@ export function EmployeeList() {
   }
 
   const statusColors: Record<string, string> = {
-    ACTIVE: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    ON_LEAVE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    TERMINATED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    RESIGNED: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
-    RETIRED: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+    ACTIVE: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+    ON_LEAVE: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    TERMINATED: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+    RESIGNED: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+    RETIRED: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
   };
 
   return (
@@ -120,12 +120,14 @@ export function EmployeeList() {
                       {emp.employee_code}
                     </Link>
                   </TableCell>
-                  <TableCell>{emp.first_name} {emp.last_name}</TableCell>
-                  <TableCell>{emp.personal_email || '-'}</TableCell>
-                  <TableCell>{emp.department?.name || '-'}</TableCell>
-                  <TableCell>{emp.designation?.title || '-'}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={statusColors[emp.employment_status] || ''}>
+                    {emp.first_name} {emp.last_name}
+                  </TableCell>
+                  <TableCell>{emp.personal_email || "-"}</TableCell>
+                  <TableCell>{emp.department?.name || "-"}</TableCell>
+                  <TableCell>{emp.designation?.title || "-"}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={statusColors[emp.employment_status] || ""}>
                       {emp.employment_status}
                     </Badge>
                   </TableCell>

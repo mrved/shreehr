@@ -1,12 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, X, Check } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Check, Loader2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 
 interface LeaveRequest {
   id: string;
@@ -38,26 +45,30 @@ export function LeaveRequestsList({ showApproval = false }: LeaveRequestsListPro
 
   async function fetchRequests() {
     try {
-      const params = new URLSearchParams({ limit: '50' });
+      const params = new URLSearchParams({ limit: "50" });
       if (showApproval) {
-        params.set('status', 'PENDING');
+        params.set("status", "PENDING");
       }
 
       const res = await fetch(`/api/leave-requests?${params}`);
       const data = await res.json();
       setRequests(data.requests || []);
     } catch (error) {
-      console.error('Failed to fetch leave requests:', error);
+      console.error("Failed to fetch leave requests:", error);
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleAction(id: string, action: 'approve' | 'reject' | 'cancel', reason?: string) {
+  async function handleAction(
+    id: string,
+    action: "approve" | "reject" | "cancel",
+    reason?: string,
+  ) {
     try {
       const res = await fetch(`/api/leave-requests/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, reason }),
       });
 
@@ -66,29 +77,29 @@ export function LeaveRequestsList({ showApproval = false }: LeaveRequestsListPro
         fetchRequests();
       } else {
         const data = await res.json();
-        toast({ title: `Failed to ${action}`, description: data.error, variant: 'destructive' });
+        toast({ title: `Failed to ${action}`, description: data.error, variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: `Failed to ${action} leave request`, variant: 'destructive' });
+      toast({ title: `Failed to ${action} leave request`, variant: "destructive" });
     }
   }
 
   function formatDate(isoString: string) {
-    return new Date(isoString).toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
+    return new Date(isoString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   }
 
   const statusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      PENDING: 'secondary',
-      APPROVED: 'default',
-      REJECTED: 'destructive',
-      CANCELLED: 'outline',
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+      PENDING: "secondary",
+      APPROVED: "default",
+      REJECTED: "destructive",
+      CANCELLED: "outline",
     };
-    return <Badge variant={variants[status] || 'secondary'}>{status}</Badge>;
+    return <Badge variant={variants[status] || "secondary"}>{status}</Badge>;
   };
 
   if (loading) {
@@ -104,7 +115,7 @@ export function LeaveRequestsList({ showApproval = false }: LeaveRequestsListPro
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{showApproval ? 'Pending Approvals' : 'My Leave Requests'}</CardTitle>
+        <CardTitle>{showApproval ? "Pending Approvals" : "My Leave Requests"}</CardTitle>
       </CardHeader>
       <CardContent>
         {requests.length === 0 ? (
@@ -123,13 +134,17 @@ export function LeaveRequestsList({ showApproval = false }: LeaveRequestsListPro
               </TableRow>
             </TableHeader>
             <TableBody>
-              {requests.map(req => (
+              {requests.map((req) => (
                 <TableRow key={req.id}>
                   {showApproval && (
                     <TableCell>
                       <div>
-                        <p className="font-medium">{req.employee.first_name} {req.employee.last_name}</p>
-                        <p className="text-xs text-muted-foreground">{req.employee.employee_code}</p>
+                        <p className="font-medium">
+                          {req.employee.first_name} {req.employee.last_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {req.employee.employee_code}
+                        </p>
                       </div>
                     </TableCell>
                   )}
@@ -141,19 +156,20 @@ export function LeaveRequestsList({ showApproval = false }: LeaveRequestsListPro
                     {req.start_date !== req.end_date && ` - ${formatDate(req.end_date)}`}
                   </TableCell>
                   <TableCell>
-                    {req.days_count}{req.is_half_day && ' (half)'}
+                    {req.days_count}
+                    {req.is_half_day && " (half)"}
                   </TableCell>
                   <TableCell className="max-w-[200px] truncate" title={req.reason}>
                     {req.reason}
                   </TableCell>
                   <TableCell>{statusBadge(req.status)}</TableCell>
                   <TableCell>
-                    {showApproval && req.status === 'PENDING' && (
+                    {showApproval && req.status === "PENDING" && (
                       <div className="flex gap-1">
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleAction(req.id, 'approve')}
+                          onClick={() => handleAction(req.id, "approve")}
                         >
                           <Check className="h-4 w-4 text-green-500" />
                         </Button>
@@ -161,19 +177,19 @@ export function LeaveRequestsList({ showApproval = false }: LeaveRequestsListPro
                           size="sm"
                           variant="ghost"
                           onClick={() => {
-                            const reason = prompt('Rejection reason:');
-                            if (reason) handleAction(req.id, 'reject', reason);
+                            const reason = prompt("Rejection reason:");
+                            if (reason) handleAction(req.id, "reject", reason);
                           }}
                         >
                           <X className="h-4 w-4 text-red-500" />
                         </Button>
                       </div>
                     )}
-                    {!showApproval && req.status === 'PENDING' && (
+                    {!showApproval && req.status === "PENDING" && (
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => handleAction(req.id, 'cancel')}
+                        onClick={() => handleAction(req.id, "cancel")}
                       >
                         Cancel
                       </Button>

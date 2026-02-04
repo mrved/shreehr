@@ -1,31 +1,25 @@
-import React from 'react';
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-} from '@react-pdf/renderer';
-import { prisma } from '@/lib/db';
-import { paiseToRupees } from '@/lib/payroll/types';
-import { decrypt } from '@/lib/encryption';
+import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import React from "react";
+import { prisma } from "@/lib/db";
+import { decrypt } from "@/lib/encryption";
+import { paiseToRupees } from "@/lib/payroll/types";
 
 const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontSize: 9,
-    fontFamily: 'Helvetica',
+    fontFamily: "Helvetica",
   },
   header: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 15,
     borderBottomWidth: 2,
-    borderBottomColor: '#000',
+    borderBottomColor: "#000",
     paddingBottom: 10,
   },
   title: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   subtitle: {
@@ -36,36 +30,36 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingBottom: 5,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: "#ccc",
   },
   sectionTitle: {
     fontSize: 10,
-    fontWeight: 'bold',
-    backgroundColor: '#f0f0f0',
+    fontWeight: "bold",
+    backgroundColor: "#f0f0f0",
     padding: 5,
     marginBottom: 5,
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 2,
   },
   col1: {
-    width: '60%',
+    width: "60%",
   },
   col2: {
-    width: '40%',
-    textAlign: 'right',
+    width: "40%",
+    textAlign: "right",
   },
   boldText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   footer: {
     marginTop: 20,
     fontSize: 8,
-    color: '#666',
+    color: "#666",
   },
   quarterRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 2,
     fontSize: 8,
   },
@@ -109,7 +103,7 @@ export interface Form16Data {
     reliefSection89: number;
     netTaxPayable: number;
     totalTDSDeducted: number;
-    taxRegime: 'OLD' | 'NEW';
+    taxRegime: "OLD" | "NEW";
   };
 
   // Quarter-wise TDS details (amounts in paise)
@@ -137,9 +131,7 @@ export function Form16Document({ data }: { data: Form16Data }) {
           <Text style={styles.subtitle}>
             Certificate under Section 203 of the Income-tax Act, 1961
           </Text>
-          <Text style={styles.subtitle}>
-            for Tax Deducted at Source on Salary
-          </Text>
+          <Text style={styles.subtitle}>for Tax Deducted at Source on Salary</Text>
         </View>
 
         {/* Part A - Deductor Details */}
@@ -187,7 +179,9 @@ export function Form16Document({ data }: { data: Form16Data }) {
           </View>
           <View style={styles.row}>
             <Text style={styles.col1}>Period:</Text>
-            <Text style={styles.col2}>{partA.periodFrom} to {partA.periodTo}</Text>
+            <Text style={styles.col2}>
+              {partA.periodFrom} to {partA.periodTo}
+            </Text>
           </View>
         </View>
 
@@ -214,16 +208,18 @@ export function Form16Document({ data }: { data: Form16Data }) {
             <Text style={styles.col2}></Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.col1}>   (a) Standard Deduction u/s 16(ia)</Text>
+            <Text style={styles.col1}> (a) Standard Deduction u/s 16(ia)</Text>
             <Text style={styles.col2}>{formatCurrency(partB.standardDeduction)}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.col1}>   (b) Professional Tax u/s 16(iii)</Text>
+            <Text style={styles.col1}> (b) Professional Tax u/s 16(iii)</Text>
             <Text style={styles.col2}>{formatCurrency(partB.professionalTax)}</Text>
           </View>
           <View style={styles.row}>
             <Text style={[styles.col1, styles.boldText]}>5. Income Chargeable under Salary</Text>
-            <Text style={[styles.col2, styles.boldText]}>{formatCurrency(partB.incomeChargeableSalary)}</Text>
+            <Text style={[styles.col2, styles.boldText]}>
+              {formatCurrency(partB.incomeChargeableSalary)}
+            </Text>
           </View>
 
           <View style={{ marginTop: 10 }} />
@@ -232,7 +228,7 @@ export function Form16Document({ data }: { data: Form16Data }) {
             <Text style={styles.col1}>6. Gross Total Income</Text>
             <Text style={styles.col2}>{formatCurrency(partB.grossTotalIncome)}</Text>
           </View>
-          {partB.taxRegime === 'OLD' && (
+          {partB.taxRegime === "OLD" && (
             <View style={styles.row}>
               <Text style={styles.col1}>7. Deductions under Chapter VI-A</Text>
               <Text style={styles.col2}>{formatCurrency(partB.deductionsChapterVIA)}</Text>
@@ -267,11 +263,15 @@ export function Form16Document({ data }: { data: Form16Data }) {
           </View>
           <View style={styles.row}>
             <Text style={[styles.col1, styles.boldText]}>14. Total Tax Payable</Text>
-            <Text style={[styles.col2, styles.boldText]}>{formatCurrency(partB.totalTaxPayable)}</Text>
+            <Text style={[styles.col2, styles.boldText]}>
+              {formatCurrency(partB.totalTaxPayable)}
+            </Text>
           </View>
           <View style={styles.row}>
             <Text style={[styles.col1, styles.boldText]}>15. Total TDS Deducted</Text>
-            <Text style={[styles.col2, styles.boldText]}>{formatCurrency(partB.totalTDSDeducted)}</Text>
+            <Text style={[styles.col2, styles.boldText]}>
+              {formatCurrency(partB.totalTDSDeducted)}
+            </Text>
           </View>
         </View>
 
@@ -281,7 +281,9 @@ export function Form16Document({ data }: { data: Form16Data }) {
 
           {quarterlyTDS.map((q) => (
             <View key={q.quarter} style={styles.quarterRow}>
-              <Text style={styles.col1}>Q{q.quarter} - Amount: {formatCurrency(q.amountPaid)}</Text>
+              <Text style={styles.col1}>
+                Q{q.quarter} - Amount: {formatCurrency(q.amountPaid)}
+              </Text>
               <Text style={styles.col2}>TDS: {formatCurrency(q.tdsDeducted)}</Text>
             </View>
           ))}
@@ -291,7 +293,7 @@ export function Form16Document({ data }: { data: Form16Data }) {
         <View style={styles.footer}>
           <Text>Verified and certified that the amount of tax deducted is correct.</Text>
           <Text>This is a computer-generated Form 16 and does not require signature.</Text>
-          <Text>Generated on: {new Date().toLocaleDateString('en-IN')}</Text>
+          <Text>Generated on: {new Date().toLocaleDateString("en-IN")}</Text>
         </View>
       </Page>
     </Document>
@@ -299,9 +301,9 @@ export function Form16Document({ data }: { data: Form16Data }) {
 }
 
 function formatCurrency(paise: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(paiseToRupees(paise));
@@ -318,7 +320,7 @@ export async function generateForm16Data(
     pan: string;
     name: string;
     address: string;
-  }
+  },
 ): Promise<Form16Data> {
   const startYear = financialYear;
   const endYear = financialYear + 1;
@@ -333,7 +335,7 @@ export async function generateForm16Data(
   });
 
   if (!employee) {
-    throw new Error('Employee not found');
+    throw new Error("Employee not found");
   }
 
   // Get all payroll records for the FY
@@ -344,13 +346,13 @@ export async function generateForm16Data(
         { year: startYear, month: { gte: 4 } },
         { year: endYear, month: { lte: 3 } },
       ],
-      status: { in: ['CALCULATED', 'VERIFIED', 'PAID'] },
+      status: { in: ["CALCULATED", "VERIFIED", "PAID"] },
     },
-    orderBy: [{ year: 'asc' }, { month: 'asc' }],
+    orderBy: [{ year: "asc" }, { month: "asc" }],
   });
 
   if (records.length === 0) {
-    throw new Error('No payroll records found for this financial year');
+    throw new Error("No payroll records found for this financial year");
   }
 
   // Aggregate annual totals
@@ -358,18 +360,18 @@ export async function generateForm16Data(
   let hra = 0;
   let tdsDeducted = 0;
   let professionalTax = 0;
-  let taxRegime: 'OLD' | 'NEW' = 'NEW';
+  let taxRegime: "OLD" | "NEW" = "NEW";
 
   for (const r of records) {
     grossSalary += r.gross_salary_paise;
     hra += r.hra_paise;
     tdsDeducted += r.tds_paise;
     professionalTax += r.pt_paise;
-    taxRegime = (r.tax_regime as 'OLD' | 'NEW') || 'NEW';
+    taxRegime = (r.tax_regime as "OLD" | "NEW") || "NEW";
   }
 
   // Calculate components
-  const standardDeduction = taxRegime === 'NEW' ? 7500000 : 5000000;
+  const standardDeduction = taxRegime === "NEW" ? 7500000 : 5000000;
   const allowancesExempt = 0; // Would calculate HRA exemption if rent data available
   const netSalary = grossSalary - allowancesExempt;
   const incomeChargeableSalary = netSalary - standardDeduction - professionalTax;
@@ -380,9 +382,7 @@ export async function generateForm16Data(
   // Tax calculation
   const taxPayableOnTotalIncome = calculateAnnualTax(totalIncome, taxRegime);
   const rebate87A =
-    totalIncome <= 70000000 && taxRegime === 'NEW'
-      ? Math.min(taxPayableOnTotalIncome, 2500000)
-      : 0;
+    totalIncome <= 70000000 && taxRegime === "NEW" ? Math.min(taxPayableOnTotalIncome, 2500000) : 0;
   const taxAfterRebate = taxPayableOnTotalIncome - rebate87A;
   const surcharge = 0; // For incomes > 50L
   const healthEducationCess = Math.round(taxAfterRebate * 0.04);
@@ -392,9 +392,7 @@ export async function generateForm16Data(
   const quarterlyTDS = calculateQuarterlyTDS(records, startYear);
 
   // Decrypt PAN
-  const employeePAN = employee.pan_encrypted
-    ? decrypt(employee.pan_encrypted)
-    : 'N/A';
+  const employeePAN = employee.pan_encrypted ? decrypt(employee.pan_encrypted) : "N/A";
 
   return {
     partA: {
@@ -437,36 +435,26 @@ export async function generateForm16Data(
   };
 }
 
-function calculateAnnualTax(
-  taxableIncomePaise: number,
-  regime: 'OLD' | 'NEW'
-): number {
+function calculateAnnualTax(taxableIncomePaise: number, regime: "OLD" | "NEW"): number {
   const income = paiseToRupees(taxableIncomePaise);
 
-  if (regime === 'NEW') {
+  if (regime === "NEW") {
     if (income <= 300000) return 0;
     if (income <= 700000) return Math.round((income - 300000) * 0.05) * 100;
-    if (income <= 1000000)
-      return Math.round(20000 + (income - 700000) * 0.1) * 100;
-    if (income <= 1200000)
-      return Math.round(50000 + (income - 1000000) * 0.15) * 100;
-    if (income <= 1500000)
-      return Math.round(80000 + (income - 1200000) * 0.2) * 100;
+    if (income <= 1000000) return Math.round(20000 + (income - 700000) * 0.1) * 100;
+    if (income <= 1200000) return Math.round(50000 + (income - 1000000) * 0.15) * 100;
+    if (income <= 1500000) return Math.round(80000 + (income - 1200000) * 0.2) * 100;
     return Math.round(140000 + (income - 1500000) * 0.3) * 100;
   }
 
   // Old regime
   if (income <= 250000) return 0;
   if (income <= 500000) return Math.round((income - 250000) * 0.05) * 100;
-  if (income <= 1000000)
-    return Math.round(12500 + (income - 500000) * 0.2) * 100;
+  if (income <= 1000000) return Math.round(12500 + (income - 500000) * 0.2) * 100;
   return Math.round(112500 + (income - 1000000) * 0.3) * 100;
 }
 
-function calculateQuarterlyTDS(
-  records: any[],
-  startYear: number
-): Form16Data['quarterlyTDS'] {
+function calculateQuarterlyTDS(records: any[], startYear: number): Form16Data["quarterlyTDS"] {
   const quarters = [
     { quarter: 1, months: [4, 5, 6], year: startYear },
     { quarter: 2, months: [7, 8, 9], year: startYear },
@@ -475,9 +463,7 @@ function calculateQuarterlyTDS(
   ];
 
   return quarters.map((q) => {
-    const qRecords = records.filter(
-      (r) => q.months.includes(r.month) && r.year === q.year
-    );
+    const qRecords = records.filter((r) => q.months.includes(r.month) && r.year === q.year);
 
     return {
       quarter: q.quarter,

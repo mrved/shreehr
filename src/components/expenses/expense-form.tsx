@@ -268,9 +268,7 @@ export function ExpenseForm() {
   };
 
   const exceedsLimit =
-    selectedPolicy?.limit_paise && amount > 0
-      ? amount * 100 > selectedPolicy.limit_paise
-      : false;
+    selectedPolicy?.limit_paise && amount > 0 ? amount * 100 > selectedPolicy.limit_paise : false;
 
   return (
     <form className="space-y-6">
@@ -319,7 +317,9 @@ export function ExpenseForm() {
                   placeholder="500"
                 />
               </div>
-              {errors.amount && <p className="text-sm text-red-600 mt-1">{errors.amount.message}</p>}
+              {errors.amount && (
+                <p className="text-sm text-red-600 mt-1">{errors.amount.message}</p>
+              )}
               {exceedsLimit && (
                 <p className="text-sm text-red-600 mt-1 flex items-center gap-1">
                   <AlertCircle className="h-4 w-4" />
@@ -330,7 +330,12 @@ export function ExpenseForm() {
 
             <div>
               <Label htmlFor="expense_date">Expense Date *</Label>
-              <Input id="expense_date" type="date" {...register("expense_date")} max={new Date().toISOString().split("T")[0]} />
+              <Input
+                id="expense_date"
+                type="date"
+                {...register("expense_date")}
+                max={new Date().toISOString().split("T")[0]}
+              />
               {errors.expense_date && (
                 <p className="text-sm text-red-600 mt-1">{errors.expense_date.message}</p>
               )}
@@ -364,17 +369,10 @@ export function ExpenseForm() {
                 <Upload className="h-5 w-5 text-gray-400" />
                 <div>
                   <p className="font-medium">{receipt.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {(receipt.size / 1024).toFixed(1)} KB
-                  </p>
+                  <p className="text-sm text-gray-500">{(receipt.size / 1024).toFixed(1)} KB</p>
                 </div>
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setReceipt(null)}
-              >
+              <Button type="button" variant="ghost" size="sm" onClick={() => setReceipt(null)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>

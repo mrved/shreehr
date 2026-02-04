@@ -1,23 +1,26 @@
-'use client';
+"use client";
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 // Validation schema matching UPDATABLE_FIELDS
 const profileEditSchema = z.object({
-  address_line1: z.string().min(1, 'Address line 1 is required').max(255),
+  address_line1: z.string().min(1, "Address line 1 is required").max(255),
   address_line2: z.string().max(255).optional(),
-  city: z.string().min(1, 'City is required').max(100),
-  state: z.string().min(1, 'State is required').max(100),
-  postal_code: z.string().regex(/^\d{6}$/, 'Postal code must be 6 digits'),
+  city: z.string().min(1, "City is required").max(100),
+  state: z.string().min(1, "State is required").max(100),
+  postal_code: z.string().regex(/^\d{6}$/, "Postal code must be 6 digits"),
   emergency_contact: z.string().max(255).optional(),
-  emergency_phone: z.string().regex(/^\d{10}$/, 'Phone number must be 10 digits').optional(),
-  personal_phone: z.string().regex(/^\d{10}$/, 'Phone number must be 10 digits'),
-  personal_email: z.string().email('Invalid email format').optional(),
-  reason: z.string().min(10, 'Please provide a reason (at least 10 characters)').max(500),
+  emergency_phone: z
+    .string()
+    .regex(/^\d{10}$/, "Phone number must be 10 digits")
+    .optional(),
+  personal_phone: z.string().regex(/^\d{10}$/, "Phone number must be 10 digits"),
+  personal_email: z.string().email("Invalid email format").optional(),
+  reason: z.string().min(10, "Please provide a reason (at least 10 characters)").max(500),
 });
 
 type ProfileEditFormData = z.infer<typeof profileEditSchema>;
@@ -50,16 +53,16 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
   } = useForm<ProfileEditFormData>({
     resolver: zodResolver(profileEditSchema),
     defaultValues: {
-      address_line1: defaultValues.address_line1 || '',
-      address_line2: defaultValues.address_line2 || '',
-      city: defaultValues.city || '',
-      state: defaultValues.state || '',
-      postal_code: defaultValues.postal_code || '',
-      emergency_contact: defaultValues.emergency_contact || '',
-      emergency_phone: defaultValues.emergency_phone || '',
-      personal_phone: defaultValues.personal_phone || '',
-      personal_email: defaultValues.personal_email || '',
-      reason: '',
+      address_line1: defaultValues.address_line1 || "",
+      address_line2: defaultValues.address_line2 || "",
+      city: defaultValues.city || "",
+      state: defaultValues.state || "",
+      postal_code: defaultValues.postal_code || "",
+      emergency_contact: defaultValues.emergency_contact || "",
+      emergency_phone: defaultValues.emergency_phone || "",
+      personal_phone: defaultValues.personal_phone || "",
+      personal_email: defaultValues.personal_email || "",
+      reason: "",
     },
   });
 
@@ -67,10 +70,10 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
   const formValues = watch();
   const checkFieldChanged = (fieldName: keyof typeof formValues) => {
     // Skip 'reason' field as it doesn't exist in defaultValues
-    if (fieldName === 'reason') return false;
+    if (fieldName === "reason") return false;
 
-    const currentValue = formValues[fieldName] || '';
-    const originalValue = defaultValues[fieldName] || '';
+    const currentValue = formValues[fieldName] || "";
+    const originalValue = defaultValues[fieldName] || "";
     const isChanged = currentValue !== originalValue;
 
     if (isChanged && !changedFields.has(fieldName)) {
@@ -89,21 +92,21 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
     setError(null);
 
     try {
-      const response = await fetch('/api/profile/update-requests', {
-        method: 'POST',
+      const response = await fetch("/api/profile/update-requests", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to submit update request');
+        throw new Error(error.error || "Failed to submit update request");
       }
 
       // Success - redirect to profile page
-      router.push('/employee/profile');
+      router.push("/employee/profile");
       router.refresh();
     } catch (err: any) {
       setError(err.message);
@@ -113,7 +116,7 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
   };
 
   const handleCancel = () => {
-    router.push('/employee/profile');
+    router.push("/employee/profile");
   };
 
   return (
@@ -133,11 +136,11 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
               Address Line 1 <span className="text-red-500">*</span>
             </label>
             <input
-              {...register('address_line1')}
+              {...register("address_line1")}
               type="text"
               id="address_line1"
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                checkFieldChanged('address_line1') ? 'bg-yellow-50 border-yellow-300' : ''
+                checkFieldChanged("address_line1") ? "bg-yellow-50 border-yellow-300" : ""
               }`}
             />
             {errors.address_line1 && (
@@ -150,11 +153,11 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
               Address Line 2
             </label>
             <input
-              {...register('address_line2')}
+              {...register("address_line2")}
               type="text"
               id="address_line2"
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                checkFieldChanged('address_line2') ? 'bg-yellow-50 border-yellow-300' : ''
+                checkFieldChanged("address_line2") ? "bg-yellow-50 border-yellow-300" : ""
               }`}
             />
             {errors.address_line2 && (
@@ -167,11 +170,11 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
               City <span className="text-red-500">*</span>
             </label>
             <input
-              {...register('city')}
+              {...register("city")}
               type="text"
               id="city"
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                checkFieldChanged('city') ? 'bg-yellow-50 border-yellow-300' : ''
+                checkFieldChanged("city") ? "bg-yellow-50 border-yellow-300" : ""
               }`}
             />
             {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>}
@@ -182,11 +185,11 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
               State <span className="text-red-500">*</span>
             </label>
             <input
-              {...register('state')}
+              {...register("state")}
               type="text"
               id="state"
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                checkFieldChanged('state') ? 'bg-yellow-50 border-yellow-300' : ''
+                checkFieldChanged("state") ? "bg-yellow-50 border-yellow-300" : ""
               }`}
             />
             {errors.state && <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>}
@@ -197,12 +200,12 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
               Postal Code <span className="text-red-500">*</span>
             </label>
             <input
-              {...register('postal_code')}
+              {...register("postal_code")}
               type="text"
               id="postal_code"
               maxLength={6}
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                checkFieldChanged('postal_code') ? 'bg-yellow-50 border-yellow-300' : ''
+                checkFieldChanged("postal_code") ? "bg-yellow-50 border-yellow-300" : ""
               }`}
             />
             {errors.postal_code && (
@@ -221,12 +224,12 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
               Personal Phone <span className="text-red-500">*</span>
             </label>
             <input
-              {...register('personal_phone')}
+              {...register("personal_phone")}
               type="tel"
               id="personal_phone"
               maxLength={10}
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                checkFieldChanged('personal_phone') ? 'bg-yellow-50 border-yellow-300' : ''
+                checkFieldChanged("personal_phone") ? "bg-yellow-50 border-yellow-300" : ""
               }`}
             />
             {errors.personal_phone && (
@@ -239,11 +242,11 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
               Personal Email
             </label>
             <input
-              {...register('personal_email')}
+              {...register("personal_email")}
               type="email"
               id="personal_email"
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                checkFieldChanged('personal_email') ? 'bg-yellow-50 border-yellow-300' : ''
+                checkFieldChanged("personal_email") ? "bg-yellow-50 border-yellow-300" : ""
               }`}
             />
             {errors.personal_email && (
@@ -256,11 +259,11 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
               Emergency Contact Name
             </label>
             <input
-              {...register('emergency_contact')}
+              {...register("emergency_contact")}
               type="text"
               id="emergency_contact"
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                checkFieldChanged('emergency_contact') ? 'bg-yellow-50 border-yellow-300' : ''
+                checkFieldChanged("emergency_contact") ? "bg-yellow-50 border-yellow-300" : ""
               }`}
             />
             {errors.emergency_contact && (
@@ -273,12 +276,12 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
               Emergency Contact Phone
             </label>
             <input
-              {...register('emergency_phone')}
+              {...register("emergency_phone")}
               type="tel"
               id="emergency_phone"
               maxLength={10}
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-                checkFieldChanged('emergency_phone') ? 'bg-yellow-50 border-yellow-300' : ''
+                checkFieldChanged("emergency_phone") ? "bg-yellow-50 border-yellow-300" : ""
               }`}
             />
             {errors.emergency_phone && (
@@ -297,7 +300,7 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
           Please explain why you are requesting these changes
         </p>
         <textarea
-          {...register('reason')}
+          {...register("reason")}
           id="reason"
           rows={4}
           className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
@@ -312,9 +315,7 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
           <p className="text-sm font-medium text-blue-800">
             {changedFields.size} field(s) will be updated
           </p>
-          <p className="mt-1 text-sm text-blue-700">
-            Changed fields are highlighted in yellow
-          </p>
+          <p className="mt-1 text-sm text-blue-700">Changed fields are highlighted in yellow</p>
         </div>
       )}
 
@@ -325,7 +326,7 @@ export function ProfileEditForm({ defaultValues }: ProfileEditFormProps) {
           disabled={isSubmitting}
           className="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Submitting...' : 'Submit for Approval'}
+          {isSubmitting ? "Submitting..." : "Submit for Approval"}
         </button>
         <button
           type="button"

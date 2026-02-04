@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface LeaveBalance {
   leaveTypeId: string;
@@ -35,27 +35,21 @@ export function LeaveBalanceCards({ balances }: LeaveBalanceCardsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {balances.map((balance) => {
-        const usagePercentage = balance.opening > 0
-          ? ((balance.used / balance.opening) * 100)
-          : 0;
+        const usagePercentage = balance.opening > 0 ? (balance.used / balance.opening) * 100 : 0;
 
         return (
           <Card key={balance.leaveTypeId} className="overflow-hidden">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="text-base">
-                    {balance.leaveTypeName}
-                  </CardTitle>
+                  <CardTitle className="text-base">{balance.leaveTypeName}</CardTitle>
                   <p className="text-xs text-muted-foreground mt-1">
                     {balance.leaveTypeCode}
-                    {!balance.isPaid && ' • Unpaid'}
+                    {!balance.isPaid && " • Unpaid"}
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-primary">
-                    {balance.available}
-                  </div>
+                  <div className="text-2xl font-bold text-primary">{balance.available}</div>
                   <p className="text-xs text-muted-foreground">Available</p>
                 </div>
               </div>
@@ -66,10 +60,12 @@ export function LeaveBalanceCards({ balances }: LeaveBalanceCardsProps) {
                 <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                   <div
                     className={cn(
-                      'h-full rounded-full transition-all',
-                      usagePercentage >= 80 ? 'bg-red-500' :
-                      usagePercentage >= 50 ? 'bg-yellow-500' :
-                      'bg-green-500'
+                      "h-full rounded-full transition-all",
+                      usagePercentage >= 80
+                        ? "bg-red-500"
+                        : usagePercentage >= 50
+                          ? "bg-yellow-500"
+                          : "bg-green-500",
                     )}
                     style={{ width: `${Math.min(usagePercentage, 100)}%` }}
                   />

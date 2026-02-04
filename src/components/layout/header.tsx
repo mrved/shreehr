@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { signOut } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   user: {
@@ -23,17 +23,11 @@ export function Header({ user }: HeaderProps) {
               <User className="h-4 w-4 text-gray-600" />
             </div>
             <div className="hidden sm:block">
-              <p className="text-sm font-medium text-gray-900">
-                {user.name || user.email}
-              </p>
+              <p className="text-sm font-medium text-gray-900">{user.name || user.email}</p>
               <p className="text-xs text-gray-500">{user.role}</p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => signOut({ callbackUrl: '/login' })}
-          >
+          <Button variant="ghost" size="sm" onClick={() => signOut({ callbackUrl: "/login" })}>
             <LogOut className="h-4 w-4" />
             <span className="ml-2 hidden sm:inline">Sign out</span>
           </Button>

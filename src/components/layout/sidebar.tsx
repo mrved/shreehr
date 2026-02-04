@@ -1,28 +1,36 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import {
-  Users,
-  Building2,
-  FileText,
-  Upload,
-  Home,
-  Settings,
-} from 'lucide-react';
+import { Building2, FileText, Home, Settings, Upload, Users } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   role: string;
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['ADMIN', 'HR_MANAGER', 'PAYROLL_MANAGER', 'EMPLOYEE'] },
-  { name: 'Employees', href: '/dashboard/employees', icon: Users, roles: ['ADMIN', 'HR_MANAGER'] },
-  { name: 'Departments', href: '/dashboard/departments', icon: Building2, roles: ['ADMIN', 'HR_MANAGER'] },
-  { name: 'Documents', href: '/dashboard/documents', icon: FileText, roles: ['ADMIN', 'HR_MANAGER', 'EMPLOYEE'] },
-  { name: 'Import Data', href: '/dashboard/import', icon: Upload, roles: ['ADMIN'] },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['ADMIN'] },
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: Home,
+    roles: ["ADMIN", "HR_MANAGER", "PAYROLL_MANAGER", "EMPLOYEE"],
+  },
+  { name: "Employees", href: "/dashboard/employees", icon: Users, roles: ["ADMIN", "HR_MANAGER"] },
+  {
+    name: "Departments",
+    href: "/dashboard/departments",
+    icon: Building2,
+    roles: ["ADMIN", "HR_MANAGER"],
+  },
+  {
+    name: "Documents",
+    href: "/dashboard/documents",
+    icon: FileText,
+    roles: ["ADMIN", "HR_MANAGER", "EMPLOYEE"],
+  },
+  { name: "Import Data", href: "/dashboard/import", icon: Upload, roles: ["ADMIN"] },
+  { name: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN"] },
 ];
 
 export function Sidebar({ role }: SidebarProps) {
@@ -45,10 +53,10 @@ export function Sidebar({ role }: SidebarProps) {
                   <Link
                     href={item.href}
                     className={cn(
-                      'group flex gap-x-3 rounded-md p-2 text-sm font-medium',
+                      "group flex gap-x-3 rounded-md p-2 text-sm font-medium",
                       isActive
-                        ? 'bg-gray-100 text-gray-900'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ? "bg-gray-100 text-gray-900"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
                     )}
                   >
                     <item.icon className="h-5 w-5 shrink-0" />

@@ -1,4 +1,4 @@
-import { Resend } from 'resend';
+import { Resend } from "resend";
 
 /**
  * Resend email service
@@ -28,7 +28,7 @@ interface SendEmailResult {
 export async function sendEmail(params: SendEmailParams): Promise<SendEmailResult> {
   const { to, subject, html, text } = params;
 
-  const from = process.env.EMAIL_FROM || 'noreply@shreehr.local';
+  const from = process.env.EMAIL_FROM || "noreply@shreehr.local";
 
   try {
     const result = await resend.emails.send({
@@ -44,7 +44,7 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
     }
 
     if (!result.data?.id) {
-      throw new Error('Resend API returned no message ID');
+      throw new Error("Resend API returned no message ID");
     }
 
     return {

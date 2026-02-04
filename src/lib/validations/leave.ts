@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const leaveTypeCreateSchema = z.object({
   name: z.string().min(2).max(50),
@@ -13,34 +13,47 @@ export const leaveTypeCreateSchema = z.object({
 
 export const leaveTypeUpdateSchema = leaveTypeCreateSchema.partial();
 
-export const leaveRequestCreateSchema = z.object({
-  leaveTypeId: z.string().cuid(),
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime(),
-  isHalfDay: z.boolean().default(false),
-  halfDayPeriod: z.enum(['FIRST_HALF', 'SECOND_HALF']).optional(),
-  reason: z.string().min(3).max(1000),
-}).refine((data) => {
-  // If half day, start and end date must be same
-  if (data.isHalfDay) {
-    const start = new Date(data.startDate).setHours(0, 0, 0, 0);
-    const end = new Date(data.endDate).setHours(0, 0, 0, 0);
-    return start === end;
-  }
-  return true;
-}, { message: 'Half-day leave must be for a single day' }).refine((data) => {
-  // If half day, period must be specified
-  if (data.isHalfDay && !data.halfDayPeriod) {
-    return false;
-  }
-  return true;
-}, { message: 'Half-day period must be specified for half-day leave' }).refine((data) => {
-  // End date must be >= start date
-  return new Date(data.endDate) >= new Date(data.startDate);
-}, { message: 'End date must be on or after start date' });
+export const leaveRequestCreateSchema = z
+  .object({
+    leaveTypeId: z.string().cuid(),
+    startDate: z.string().datetime(),
+    endDate: z.string().datetime(),
+    isHalfDay: z.boolean().default(false),
+    halfDayPeriod: z.enum(["FIRST_HALF", "SECOND_HALF"]).optional(),
+    reason: z.string().min(3).max(1000),
+  })
+  .refine(
+    (data) => {
+      // If half day, start and end date must be same
+      if (data.isHalfDay) {
+        const start = new Date(data.startDate).setHours(0, 0, 0, 0);
+        const end = new Date(data.endDate).setHours(0, 0, 0, 0);
+        return start === end;
+      }
+      return true;
+    },
+    { message: "Half-day leave must be for a single day" },
+  )
+  .refine(
+    (data) => {
+      // If half day, period must be specified
+      if (data.isHalfDay && !data.halfDayPeriod) {
+        return false;
+      }
+      return true;
+    },
+    { message: "Half-day period must be specified for half-day leave" },
+  )
+  .refine(
+    (data) => {
+      // End date must be >= start date
+      return new Date(data.endDate) >= new Date(data.startDate);
+    },
+    { message: "End date must be on or after start date" },
+  );
 
 export const leaveRequestActionSchema = z.object({
-  action: z.enum(['approve', 'reject', 'cancel']),
+  action: z.enum(["approve", "reject", "cancel"]),
   reason: z.string().max(500).optional(),
 });
 

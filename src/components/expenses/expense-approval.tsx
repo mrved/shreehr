@@ -1,14 +1,14 @@
 "use client";
 
+import { Check, Download, FileText, Image as ImageIcon, Loader2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Check, Download, FileText, Image as ImageIcon, Loader2, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 interface ApprovalLevel {
   level: number;
@@ -171,9 +171,7 @@ export function ExpenseApproval({
             <h3 className="text-sm font-medium text-gray-700 mb-2">Policy Information</h3>
             <div className="flex flex-wrap gap-2">
               <Badge variant="outline">
-                {policyLimit
-                  ? `Limit: ₹${policyLimit.toLocaleString("en-IN")}`
-                  : "No limit"}
+                {policyLimit ? `Limit: ₹${policyLimit.toLocaleString("en-IN")}` : "No limit"}
               </Badge>
               <Badge variant="outline">
                 {receiptRequired ? "Receipt required" : "Receipt optional"}
@@ -192,7 +190,12 @@ export function ExpenseApproval({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Receipt</CardTitle>
-              <a href={receiptPath} download={receiptOriginalName || "receipt"} target="_blank" rel="noopener noreferrer">
+              <a
+                href={receiptPath}
+                download={receiptOriginalName || "receipt"}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Button variant="outline" size="sm">
                   <Download className="h-4 w-4 mr-2" />
                   Download
@@ -269,7 +272,9 @@ export function ExpenseApproval({
                     <Check className="h-3 w-3 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium">Level {approval.level} - {approval.role}</p>
+                    <p className="font-medium">
+                      Level {approval.level} - {approval.role}
+                    </p>
                     {approval.approved_by_name && approval.approved_at && (
                       <p className="text-sm text-gray-600">
                         Approved by {approval.approved_by_name} on{" "}

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { FileText, Download } from 'lucide-react';
+import { Download, FileText } from "lucide-react";
 
 interface Form16ListProps {
   certificates: {
@@ -18,7 +18,8 @@ export function Form16List({ certificates, employeeId }: Form16ListProps) {
         <FileText className="mx-auto h-12 w-12 text-gray-400" />
         <h3 className="mt-2 text-sm font-semibold text-gray-900">No Form 16 available</h3>
         <p className="mt-1 text-sm text-gray-500">
-          Form 16 certificates will be available after the financial year closes and TDS filing is complete.
+          Form 16 certificates will be available after the financial year closes and TDS filing is
+          complete.
         </p>
       </div>
     );
@@ -32,9 +33,7 @@ export function Form16List({ certificates, employeeId }: Form16ListProps) {
           <div key={cert.financialYear} className="bg-white rounded-lg shadow p-4">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <h3 className="font-semibold text-gray-900 text-lg">
-                  FY {cert.financialYear}
-                </h3>
+                <h3 className="font-semibold text-gray-900 text-lg">FY {cert.financialYear}</h3>
                 <p className="text-sm text-gray-500">
                   {cert.startYear}-{cert.endYear}
                 </p>
@@ -60,9 +59,7 @@ export function Form16List({ certificates, employeeId }: Form16ListProps) {
               <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
                 Financial Year
               </th>
-              <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                Period
-              </th>
+              <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Period</th>
               <th className="relative py-3.5 pl-3 pr-4 text-right text-sm font-semibold text-gray-900">
                 Actions
               </th>

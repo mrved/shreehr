@@ -1,29 +1,29 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
+import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import {
+  calculateAnnualCTC,
   salaryStructureSchema,
   validate50PercentRule,
-  calculateAnnualCTC
-} from '@/lib/payroll/validators';
+} from "@/lib/payroll/validators";
 
 // GET /api/salary-structures - List salary structures
 // Query params: employee_id (optional), active_only (boolean)
 export async function GET(request: NextRequest) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Only ADMIN, HR_MANAGER, PAYROLL_MANAGER can view salary structures
-  const allowedRoles = ['SUPER_ADMIN', 'ADMIN', 'HR_MANAGER', 'PAYROLL_MANAGER'];
+  const allowedRoles = ["SUPER_ADMIN", "ADMIN", "HR_MANAGER", "PAYROLL_MANAGER"];
   if (!allowedRoles.includes(session.user.role)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { searchParams } = new URL(request.url);
-  const employeeId = searchParams.get('employee_id');
-  const activeOnly = searchParams.get('active_only') === 'true';
+  const employeeId = searchParams.get("employee_id");
+  const activeOnly = searchParams.get("active_only") === "true";
 
   const where: any = {};
 
@@ -34,10 +34,7 @@ export async function GET(request: NextRequest) {
   if (activeOnly) {
     const today = new Date();
     where.effective_from = { lte: today };
-    where.OR = [
-      { effective_to: null },
-      { effective_to: { gte: today } }
-    ];
+    where.OR = [{ effective_to: null }, { effective_to: { gte: today } }];
   }
 
   const structures = await prisma.salaryStructure.findMany({
@@ -50,14 +47,11 @@ export async function GET(request: NextRequest) {
           first_name: true,
           last_name: true,
           department: { select: { name: true } },
-          designation: { select: { title: true } }
-        }
-      }
+          designation: { select: { title: true } },
+        },
+      },
     },
-    orderBy: [
-      { employee_id: 'asc' },
-      { effective_from: 'desc' }
-    ]
+    orderBy: [{ employee_id: "asc" }, { effective_from: "desc" }],
   });
 
   return NextResponse.json({ data: structures });
@@ -67,13 +61,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Only ADMIN, HR_MANAGER, PAYROLL_MANAGER can create salary structures
-  const allowedRoles = ['SUPER_ADMIN', 'ADMIN', 'HR_MANAGER', 'PAYROLL_MANAGER'];
+  const allowedRoles = ["SUPER_ADMIN", "ADMIN", "HR_MANAGER", "PAYROLL_MANAGER"];
   if (!allowedRoles.includes(session.user.role)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
@@ -82,33 +76,27 @@ export async function POST(request: NextRequest) {
 
     // Verify employee exists
     const employee = await prisma.employee.findUnique({
-      where: { id: validated.employee_id }
+      where: { id: validated.employee_id },
     });
 
     if (!employee) {
-      return NextResponse.json(
-        { error: 'Employee not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
     // Calculate derived fields
     const validationResult = validate50PercentRule(validated);
-    const annualCTC = calculateAnnualCTC(
-      validationResult.grossMonthlyPaise,
-      validated.basic_paise
-    );
+    const annualCTC = calculateAnnualCTC(validationResult.grossMonthlyPaise, validated.basic_paise);
 
     // End previous active structure if exists
     await prisma.salaryStructure.updateMany({
       where: {
         employee_id: validated.employee_id,
         effective_to: null,
-        effective_from: { lt: validated.effective_from }
+        effective_from: { lt: validated.effective_from },
       },
       data: {
-        effective_to: new Date(validated.effective_from.getTime() - 86400000) // Day before
-      }
+        effective_to: new Date(validated.effective_from.getTime() - 86400000), // Day before
+      },
     });
 
     // Create new structure
@@ -134,33 +122,29 @@ export async function POST(request: NextRequest) {
         tax_regime: validated.tax_regime,
 
         created_by: session.user.id,
-        updated_by: session.user.id
+        updated_by: session.user.id,
       },
       include: {
         employee: {
           select: {
             employee_code: true,
             first_name: true,
-            last_name: true
-          }
-        }
-      }
+            last_name: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({ data: structure }, { status: 201 });
-
   } catch (error: any) {
-    if (error.name === 'ZodError') {
+    if (error.name === "ZodError") {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
-        { status: 400 }
+        { error: "Validation failed", details: error.errors },
+        { status: 400 },
       );
     }
 
-    console.error('Create salary structure error:', error);
-    return NextResponse.json(
-      { error: 'Failed to create salary structure' },
-      { status: 500 }
-    );
+    console.error("Create salary structure error:", error);
+    return NextResponse.json({ error: "Failed to create salary structure" }, { status: 500 });
   }
 }

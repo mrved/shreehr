@@ -1,36 +1,38 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { investmentCreateSchema } from '@/lib/validations/investment';
-import { ZodError } from 'zod';
+import { type NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { investmentCreateSchema } from "@/lib/validations/investment";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const searchParams = request.nextUrl.searchParams;
-    const employeeId = searchParams.get('employeeId');
-    const financialYear = searchParams.get('financialYear');
-    const status = searchParams.get('status');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const employeeId = searchParams.get("employeeId");
+    const financialYear = searchParams.get("financialYear");
+    const status = searchParams.get("status");
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "20");
 
     const where: any = {};
 
     // Role-based access control
-    if (session.user.role === 'EMPLOYEE') {
+    if (session.user.role === "EMPLOYEE") {
       // Employees can only see their own declarations
       where.employee_id = session.user.employeeId;
-    } else if (['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'PAYROLL_MANAGER'].includes(session.user.role || '')) {
+    } else if (
+      ["ADMIN", "SUPER_ADMIN", "HR_MANAGER", "PAYROLL_MANAGER"].includes(session.user.role || "")
+    ) {
       // Admins can filter by employee
       if (employeeId) {
         where.employee_id = employeeId;
       }
     } else {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     if (financialYear) {
@@ -46,19 +48,19 @@ export async function GET(request: NextRequest) {
         where,
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { updated_at: 'desc' },
+        orderBy: { updated_at: "desc" },
         include: {
           employee: {
             select: {
               id: true,
               first_name: true,
               last_name: true,
-              employee_code: true
-            }
-          }
-        }
+              employee_code: true,
+            },
+          },
+        },
       }),
-      prisma.investmentDeclaration.count({ where })
+      prisma.investmentDeclaration.count({ where }),
     ]);
 
     return NextResponse.json({
@@ -68,18 +70,18 @@ export async function GET(request: NextRequest) {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
-      }
+      },
     });
   } catch (error) {
-    console.error('Investment declarations list error:', error);
-    return NextResponse.json({ error: 'Failed to fetch investment declarations' }, { status: 500 });
+    console.error("Investment declarations list error:", error);
+    return NextResponse.json({ error: "Failed to fetch investment declarations" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user || !session.user.employeeId) {
-    return NextResponse.json({ error: 'Unauthorized or no employee profile' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized or no employee profile" }, { status: 401 });
   }
 
   try {
@@ -92,14 +94,17 @@ export async function POST(request: NextRequest) {
         employee_id_financial_year: {
           employee_id: session.user.employeeId,
           financial_year: validated.financial_year,
-        }
-      }
+        },
+      },
     });
 
     if (existing) {
-      return NextResponse.json({
-        error: `Investment declaration already exists for financial year ${validated.financial_year}. Use PATCH to update.`
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: `Investment declaration already exists for financial year ${validated.financial_year}. Use PATCH to update.`,
+        },
+        { status: 400 },
+      );
     }
 
     // Create new declaration
@@ -135,7 +140,7 @@ export async function POST(request: NextRequest) {
         section_24_home_loan_interest: validated.section_24_home_loan_interest,
 
         // Status
-        status: 'DRAFT',
+        status: "DRAFT",
 
         // Audit fields
         created_by: session.user.id,
@@ -147,23 +152,26 @@ export async function POST(request: NextRequest) {
             id: true,
             first_name: true,
             last_name: true,
-            employee_code: true
-          }
-        }
-      }
+            employee_code: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(declaration, { status: 201 });
   } catch (error) {
-    console.error('Investment declaration create error:', error);
+    console.error("Investment declaration create error:", error);
 
     if (error instanceof ZodError) {
-      return NextResponse.json({
-        error: 'Validation failed',
-        details: error.issues
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          details: error.issues,
+        },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ error: 'Failed to create investment declaration' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to create investment declaration" }, { status: 500 });
   }
 }

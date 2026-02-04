@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { FileText, Download } from 'lucide-react';
+import { Download, FileText } from "lucide-react";
+import Link from "next/link";
 
 interface PayslipListProps {
   payslips: {
@@ -19,9 +19,7 @@ export function PayslipList({ payslips }: PayslipListProps) {
       <div className="text-center py-12">
         <FileText className="mx-auto h-12 w-12 text-gray-400" />
         <h3 className="mt-2 text-sm font-semibold text-gray-900">No payslips</h3>
-        <p className="mt-1 text-sm text-gray-500">
-          You don't have any payslips available yet.
-        </p>
+        <p className="mt-1 text-sm text-gray-500">You don't have any payslips available yet.</p>
       </div>
     );
   }
@@ -35,9 +33,9 @@ export function PayslipList({ payslips }: PayslipListProps) {
             <div className="flex justify-between items-start mb-2">
               <div>
                 <h3 className="font-semibold text-gray-900">
-                  {new Date(payslip.year, payslip.month - 1).toLocaleDateString('en-IN', {
-                    month: 'long',
-                    year: 'numeric',
+                  {new Date(payslip.year, payslip.month - 1).toLocaleDateString("en-IN", {
+                    month: "long",
+                    year: "numeric",
                   })}
                 </h3>
                 <p className="text-sm text-gray-500">Status: {payslip.status}</p>
@@ -48,7 +46,8 @@ export function PayslipList({ payslips }: PayslipListProps) {
             </div>
             <div className="mt-2">
               <p className="text-2xl font-bold text-gray-900">
-                ₹{(payslip.netSalary / 100).toLocaleString('en-IN', {
+                ₹
+                {(payslip.netSalary / 100).toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -86,9 +85,7 @@ export function PayslipList({ payslips }: PayslipListProps) {
               <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                 Net Salary
               </th>
-              <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                Status
-              </th>
+              <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
               <th className="relative py-3.5 pl-3 pr-4 text-right text-sm font-semibold text-gray-900">
                 Actions
               </th>
@@ -98,13 +95,14 @@ export function PayslipList({ payslips }: PayslipListProps) {
             {payslips.map((payslip) => (
               <tr key={payslip.id}>
                 <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-                  {new Date(payslip.year, payslip.month - 1).toLocaleDateString('en-IN', {
-                    month: 'long',
-                    year: 'numeric',
+                  {new Date(payslip.year, payslip.month - 1).toLocaleDateString("en-IN", {
+                    month: "long",
+                    year: "numeric",
                   })}
                 </td>
                 <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                  ₹{(payslip.netSalary / 100).toLocaleString('en-IN', {
+                  ₹
+                  {(payslip.netSalary / 100).toLocaleString("en-IN", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}

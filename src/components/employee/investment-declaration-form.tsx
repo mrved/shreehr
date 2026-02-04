@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import { investmentCreateSchema } from '@/lib/validations/investment';
-import { DocumentUpload } from './document-upload';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { investmentCreateSchema } from "@/lib/validations/investment";
+import { DocumentUpload } from "./document-upload";
 
 interface InvestmentDeclarationFormProps {
   declarationId?: string | null;
@@ -61,13 +61,13 @@ export function InvestmentDeclarationForm({
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [currentDeclarationId, setCurrentDeclarationId] = useState<string | null>(
-    declarationId || null
+    declarationId || null,
   );
 
   // Section collapse state
   const [collapsed, setCollapsed] = useState({
-    '80c': false,
-    '80d': true,
+    "80c": false,
+    "80d": true,
     hra: true,
     other: true,
   });
@@ -95,9 +95,9 @@ export function InvestmentDeclarationForm({
           section_80d_parents: (initialData.section_80d_parents || 0) / 100,
           section_80d_checkup: (initialData.section_80d_checkup || 0) / 100,
           hra_monthly_rent: (initialData.hra_monthly_rent || 0) / 100,
-          hra_landlord_name: initialData.hra_landlord_name || '',
-          hra_landlord_pan: initialData.hra_landlord_pan || '',
-          hra_rental_address: initialData.hra_rental_address || '',
+          hra_landlord_name: initialData.hra_landlord_name || "",
+          hra_landlord_pan: initialData.hra_landlord_pan || "",
+          hra_rental_address: initialData.hra_rental_address || "",
           section_80e_education_loan: (initialData.section_80e_education_loan || 0) / 100,
           section_80g_donations: (initialData.section_80g_donations || 0) / 100,
           section_24_home_loan_interest: (initialData.section_24_home_loan_interest || 0) / 100,
@@ -115,9 +115,9 @@ export function InvestmentDeclarationForm({
           section_80d_parents: 0,
           section_80d_checkup: 0,
           hra_monthly_rent: 0,
-          hra_landlord_name: '',
-          hra_landlord_pan: '',
-          hra_rental_address: '',
+          hra_landlord_name: "",
+          hra_landlord_pan: "",
+          hra_rental_address: "",
           section_80e_education_loan: 0,
           section_80g_donations: 0,
           section_24_home_loan_interest: 0,
@@ -128,14 +128,14 @@ export function InvestmentDeclarationForm({
   const section80CFields = useWatch({
     control,
     name: [
-      'section_80c_ppf',
-      'section_80c_elss',
-      'section_80c_life_insurance',
-      'section_80c_tuition_fees',
-      'section_80c_nps',
-      'section_80c_home_loan_principal',
-      'section_80c_sukanya',
-      'section_80c_other',
+      "section_80c_ppf",
+      "section_80c_elss",
+      "section_80c_life_insurance",
+      "section_80c_tuition_fees",
+      "section_80c_nps",
+      "section_80c_home_loan_principal",
+      "section_80c_sukanya",
+      "section_80c_other",
     ],
   });
 
@@ -144,7 +144,7 @@ export function InvestmentDeclarationForm({
   const exceeds80C = total80C > 150000;
 
   // HRA annual rent for PAN requirement check
-  const hraMonthlyRent = watch('hra_monthly_rent') || 0;
+  const hraMonthlyRent = watch("hra_monthly_rent") || 0;
   const annualRent = hraMonthlyRent * 12;
   const requiresPAN = annualRent > 100000;
 
@@ -183,29 +183,29 @@ export function InvestmentDeclarationForm({
       let response;
       if (currentDeclarationId) {
         response = await fetch(`/api/investments/${currentDeclarationId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
-        response = await fetch('/api/investments', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        response = await fetch("/api/investments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       }
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to save declaration');
+        throw new Error(error.error || "Failed to save declaration");
       }
 
       const savedDeclaration = await response.json();
       setCurrentDeclarationId(savedDeclaration.id);
 
       toast({
-        title: 'Declaration saved',
-        description: 'Your investment declaration has been saved as draft.',
+        title: "Declaration saved",
+        description: "Your investment declaration has been saved as draft.",
       });
 
       // If submitting for verification
@@ -214,9 +214,9 @@ export function InvestmentDeclarationForm({
       }
     } catch (error) {
       toast({
-        title: 'Save failed',
-        description: error instanceof Error ? error.message : 'Failed to save declaration',
-        variant: 'destructive',
+        title: "Save failed",
+        description: error instanceof Error ? error.message : "Failed to save declaration",
+        variant: "destructive",
       });
     } finally {
       setSubmitting(false);
@@ -226,26 +226,26 @@ export function InvestmentDeclarationForm({
   const submitForVerification = async (declId: string) => {
     try {
       const response = await fetch(`/api/investments/${declId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'submit' }),
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "submit" }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit for verification');
+        throw new Error("Failed to submit for verification");
       }
 
       toast({
-        title: 'Submitted for verification',
-        description: 'Your declaration has been submitted to HR for verification.',
+        title: "Submitted for verification",
+        description: "Your declaration has been submitted to HR for verification.",
       });
 
-      router.push('/employee/investments');
+      router.push("/employee/investments");
     } catch (error) {
       toast({
-        title: 'Submission failed',
-        description: error instanceof Error ? error.message : 'Failed to submit',
-        variant: 'destructive',
+        title: "Submission failed",
+        description: error instanceof Error ? error.message : "Failed to submit",
+        variant: "destructive",
       });
     }
   };
@@ -253,16 +253,16 @@ export function InvestmentDeclarationForm({
   const handleSubmitForVerification = async () => {
     if (!currentDeclarationId) {
       toast({
-        title: 'Please save as draft first',
-        description: 'Save your declaration before submitting.',
-        variant: 'destructive',
+        title: "Please save as draft first",
+        description: "Save your declaration before submitting.",
+        variant: "destructive",
       });
       return;
     }
 
     // Check if documents are uploaded
     const confirmSubmit = confirm(
-      'Have you uploaded all supporting documents? Submit for verification?'
+      "Have you uploaded all supporting documents? Submit for verification?",
     );
 
     if (confirmSubmit) {
@@ -274,22 +274,23 @@ export function InvestmentDeclarationForm({
     <form className="space-y-6">
       {/* Section 80C */}
       <Card>
-        <CardHeader
-          className="cursor-pointer"
-          onClick={() => toggleSection('80c')}
-        >
+        <CardHeader className="cursor-pointer" onClick={() => toggleSection("80c")}>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-lg">Section 80C</CardTitle>
               <p className="text-sm text-gray-500">
-                Max deduction: ₹1,50,000 | Total: ₹{total80C.toLocaleString('en-IN')}
+                Max deduction: ₹1,50,000 | Total: ₹{total80C.toLocaleString("en-IN")}
                 {exceeds80C && <span className="text-red-600 ml-2">Exceeds limit!</span>}
               </p>
             </div>
-            {collapsed['80c'] ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+            {collapsed["80c"] ? (
+              <ChevronDown className="h-5 w-5" />
+            ) : (
+              <ChevronUp className="h-5 w-5" />
+            )}
           </div>
         </CardHeader>
-        {!collapsed['80c'] && (
+        {!collapsed["80c"] && (
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -300,7 +301,7 @@ export function InvestmentDeclarationForm({
                     id="ppf"
                     type="number"
                     className="pl-8"
-                    {...register('section_80c_ppf', { valueAsNumber: true })}
+                    {...register("section_80c_ppf", { valueAsNumber: true })}
                   />
                 </div>
               </div>
@@ -313,7 +314,7 @@ export function InvestmentDeclarationForm({
                     id="elss"
                     type="number"
                     className="pl-8"
-                    {...register('section_80c_elss', { valueAsNumber: true })}
+                    {...register("section_80c_elss", { valueAsNumber: true })}
                   />
                 </div>
               </div>
@@ -326,7 +327,7 @@ export function InvestmentDeclarationForm({
                     id="life_insurance"
                     type="number"
                     className="pl-8"
-                    {...register('section_80c_life_insurance', { valueAsNumber: true })}
+                    {...register("section_80c_life_insurance", { valueAsNumber: true })}
                   />
                 </div>
               </div>
@@ -339,7 +340,7 @@ export function InvestmentDeclarationForm({
                     id="tuition"
                     type="number"
                     className="pl-8"
-                    {...register('section_80c_tuition_fees', { valueAsNumber: true })}
+                    {...register("section_80c_tuition_fees", { valueAsNumber: true })}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Max 2 children</p>
@@ -353,7 +354,7 @@ export function InvestmentDeclarationForm({
                     id="nps"
                     type="number"
                     className="pl-8"
-                    {...register('section_80c_nps', { valueAsNumber: true })}
+                    {...register("section_80c_nps", { valueAsNumber: true })}
                   />
                 </div>
               </div>
@@ -366,7 +367,7 @@ export function InvestmentDeclarationForm({
                     id="home_loan_principal"
                     type="number"
                     className="pl-8"
-                    {...register('section_80c_home_loan_principal', { valueAsNumber: true })}
+                    {...register("section_80c_home_loan_principal", { valueAsNumber: true })}
                   />
                 </div>
               </div>
@@ -379,7 +380,7 @@ export function InvestmentDeclarationForm({
                     id="sukanya"
                     type="number"
                     className="pl-8"
-                    {...register('section_80c_sukanya', { valueAsNumber: true })}
+                    {...register("section_80c_sukanya", { valueAsNumber: true })}
                   />
                 </div>
               </div>
@@ -392,29 +393,33 @@ export function InvestmentDeclarationForm({
                     id="other_80c"
                     type="number"
                     className="pl-8"
-                    {...register('section_80c_other', { valueAsNumber: true })}
+                    {...register("section_80c_other", { valueAsNumber: true })}
                   />
                 </div>
               </div>
             </div>
 
             {/* Real-time total */}
-            <div className={`p-3 rounded-lg ${exceeds80C ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'}`}>
+            <div
+              className={`p-3 rounded-lg ${exceeds80C ? "bg-red-50 border border-red-200" : "bg-blue-50 border border-blue-200"}`}
+            >
               <div className="flex justify-between items-center">
                 <span className="font-medium">Total Section 80C:</span>
-                <span className={`text-lg font-bold ${exceeds80C ? 'text-red-700' : 'text-blue-700'}`}>
-                  ₹{total80C.toLocaleString('en-IN')}
+                <span
+                  className={`text-lg font-bold ${exceeds80C ? "text-red-700" : "text-blue-700"}`}
+                >
+                  ₹{total80C.toLocaleString("en-IN")}
                 </span>
               </div>
               {!exceeds80C && remaining80C > 0 && (
                 <p className="text-sm text-gray-600 mt-1">
-                  Remaining: ₹{remaining80C.toLocaleString('en-IN')}
+                  Remaining: ₹{remaining80C.toLocaleString("en-IN")}
                 </p>
               )}
               {exceeds80C && (
                 <p className="text-sm text-red-600 mt-1 flex items-center gap-1">
                   <AlertCircle className="h-4 w-4" />
-                  Exceeds maximum limit by ₹{(total80C - 150000).toLocaleString('en-IN')}
+                  Exceeds maximum limit by ₹{(total80C - 150000).toLocaleString("en-IN")}
                 </p>
               )}
             </div>
@@ -422,10 +427,7 @@ export function InvestmentDeclarationForm({
             {/* Document upload for 80C */}
             {currentDeclarationId && (
               <div className="mt-4 pt-4 border-t">
-                <DocumentUpload
-                  declarationId={currentDeclarationId}
-                  section="80C"
-                />
+                <DocumentUpload declarationId={currentDeclarationId} section="80C" />
               </div>
             )}
             {!currentDeclarationId && (
@@ -437,19 +439,20 @@ export function InvestmentDeclarationForm({
 
       {/* Section 80D */}
       <Card>
-        <CardHeader
-          className="cursor-pointer"
-          onClick={() => toggleSection('80d')}
-        >
+        <CardHeader className="cursor-pointer" onClick={() => toggleSection("80d")}>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-lg">Section 80D - Health Insurance</CardTitle>
               <p className="text-sm text-gray-500">Self: ₹25K, Parents: ₹50K (senior)</p>
             </div>
-            {collapsed['80d'] ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+            {collapsed["80d"] ? (
+              <ChevronDown className="h-5 w-5" />
+            ) : (
+              <ChevronUp className="h-5 w-5" />
+            )}
           </div>
         </CardHeader>
-        {!collapsed['80d'] && (
+        {!collapsed["80d"] && (
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -460,7 +463,7 @@ export function InvestmentDeclarationForm({
                     id="health_self"
                     type="number"
                     className="pl-8"
-                    {...register('section_80d_self', { valueAsNumber: true })}
+                    {...register("section_80d_self", { valueAsNumber: true })}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Max ₹25,000</p>
@@ -474,7 +477,7 @@ export function InvestmentDeclarationForm({
                     id="health_parents"
                     type="number"
                     className="pl-8"
-                    {...register('section_80d_parents', { valueAsNumber: true })}
+                    {...register("section_80d_parents", { valueAsNumber: true })}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Max ₹50,000 if senior citizen</p>
@@ -488,7 +491,7 @@ export function InvestmentDeclarationForm({
                     id="preventive_checkup"
                     type="number"
                     className="pl-8"
-                    {...register('section_80d_checkup', { valueAsNumber: true })}
+                    {...register("section_80d_checkup", { valueAsNumber: true })}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Max ₹5,000</p>
@@ -498,10 +501,7 @@ export function InvestmentDeclarationForm({
             {/* Document upload for 80D */}
             {currentDeclarationId && (
               <div className="mt-4 pt-4 border-t">
-                <DocumentUpload
-                  declarationId={currentDeclarationId}
-                  section="80D"
-                />
+                <DocumentUpload declarationId={currentDeclarationId} section="80D" />
               </div>
             )}
           </CardContent>
@@ -510,16 +510,17 @@ export function InvestmentDeclarationForm({
 
       {/* HRA Section */}
       <Card>
-        <CardHeader
-          className="cursor-pointer"
-          onClick={() => toggleSection('hra')}
-        >
+        <CardHeader className="cursor-pointer" onClick={() => toggleSection("hra")}>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-lg">HRA - House Rent Allowance</CardTitle>
               <p className="text-sm text-gray-500">Rent paid during the year</p>
             </div>
-            {collapsed.hra ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+            {collapsed.hra ? (
+              <ChevronDown className="h-5 w-5" />
+            ) : (
+              <ChevronUp className="h-5 w-5" />
+            )}
           </div>
         </CardHeader>
         {!collapsed.hra && (
@@ -533,23 +534,19 @@ export function InvestmentDeclarationForm({
                     id="monthly_rent"
                     type="number"
                     className="pl-8"
-                    {...register('hra_monthly_rent', { valueAsNumber: true })}
+                    {...register("hra_monthly_rent", { valueAsNumber: true })}
                   />
                 </div>
                 {annualRent > 0 && (
                   <p className="text-xs text-gray-500 mt-1">
-                    Annual: ₹{annualRent.toLocaleString('en-IN')}
+                    Annual: ₹{annualRent.toLocaleString("en-IN")}
                   </p>
                 )}
               </div>
 
               <div>
                 <Label htmlFor="landlord_name">Landlord Name</Label>
-                <Input
-                  id="landlord_name"
-                  type="text"
-                  {...register('hra_landlord_name')}
-                />
+                <Input id="landlord_name" type="text" {...register("hra_landlord_name")} />
               </div>
 
               <div>
@@ -560,7 +557,7 @@ export function InvestmentDeclarationForm({
                   id="landlord_pan"
                   type="text"
                   placeholder="ABCDE1234F"
-                  {...register('hra_landlord_pan')}
+                  {...register("hra_landlord_pan")}
                 />
                 {requiresPAN && (
                   <p className="text-xs text-red-600 mt-1">
@@ -571,21 +568,14 @@ export function InvestmentDeclarationForm({
 
               <div className="md:col-span-2">
                 <Label htmlFor="rental_address">Rental Address</Label>
-                <Textarea
-                  id="rental_address"
-                  rows={2}
-                  {...register('hra_rental_address')}
-                />
+                <Textarea id="rental_address" rows={2} {...register("hra_rental_address")} />
               </div>
             </div>
 
             {/* Document upload for HRA */}
             {currentDeclarationId && (
               <div className="mt-4 pt-4 border-t">
-                <DocumentUpload
-                  declarationId={currentDeclarationId}
-                  section="HRA"
-                />
+                <DocumentUpload declarationId={currentDeclarationId} section="HRA" />
               </div>
             )}
           </CardContent>
@@ -594,16 +584,17 @@ export function InvestmentDeclarationForm({
 
       {/* Other Deductions */}
       <Card>
-        <CardHeader
-          className="cursor-pointer"
-          onClick={() => toggleSection('other')}
-        >
+        <CardHeader className="cursor-pointer" onClick={() => toggleSection("other")}>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-lg">Other Deductions</CardTitle>
               <p className="text-sm text-gray-500">80E, 80G, Section 24</p>
             </div>
-            {collapsed.other ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+            {collapsed.other ? (
+              <ChevronDown className="h-5 w-5" />
+            ) : (
+              <ChevronUp className="h-5 w-5" />
+            )}
           </div>
         </CardHeader>
         {!collapsed.other && (
@@ -617,7 +608,7 @@ export function InvestmentDeclarationForm({
                     id="education_loan"
                     type="number"
                     className="pl-8"
-                    {...register('section_80e_education_loan', { valueAsNumber: true })}
+                    {...register("section_80e_education_loan", { valueAsNumber: true })}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">No limit</p>
@@ -631,7 +622,7 @@ export function InvestmentDeclarationForm({
                     id="donations"
                     type="number"
                     className="pl-8"
-                    {...register('section_80g_donations', { valueAsNumber: true })}
+                    {...register("section_80g_donations", { valueAsNumber: true })}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">50% or 100% deductible</p>
@@ -645,7 +636,7 @@ export function InvestmentDeclarationForm({
                     id="home_loan_interest"
                     type="number"
                     className="pl-8"
-                    {...register('section_24_home_loan_interest', { valueAsNumber: true })}
+                    {...register("section_24_home_loan_interest", { valueAsNumber: true })}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Max ₹2,00,000</p>
@@ -655,10 +646,7 @@ export function InvestmentDeclarationForm({
             {/* Document upload for Other */}
             {currentDeclarationId && (
               <div className="mt-4 pt-4 border-t">
-                <DocumentUpload
-                  declarationId={currentDeclarationId}
-                  section="OTHER"
-                />
+                <DocumentUpload declarationId={currentDeclarationId} section="OTHER" />
               </div>
             )}
           </CardContent>
@@ -680,7 +668,7 @@ export function InvestmentDeclarationForm({
               Saving...
             </>
           ) : (
-            'Save as Draft'
+            "Save as Draft"
           )}
         </Button>
         <Button

@@ -20,8 +20,8 @@
  * 12. Refund
  */
 
-import { prisma } from '@/lib/db';
-import { formatCurrency } from '@/lib/payroll/constants';
+import { prisma } from "@/lib/db";
+import { formatCurrency } from "@/lib/payroll/constants";
 
 export interface ECREmployeeRecord {
   uan: string;
@@ -52,10 +52,7 @@ export interface ECRHeader {
 /**
  * Generate ECR file content in EPFO format
  */
-export function generateECRFile(
-  header: ECRHeader,
-  records: ECREmployeeRecord[]
-): string {
+export function generateECRFile(header: ECRHeader, records: ECREmployeeRecord[]): string {
   const lines: string[] = [];
 
   // Helper to convert paise to rupees with 2 decimals
@@ -68,13 +65,13 @@ export function generateECRFile(
   const headerLine = [
     header.establishmentCode,
     header.establishmentName,
-    header.month.toString().padStart(2, '0'),
+    header.month.toString().padStart(2, "0"),
     header.year.toString(),
     header.totalEmployees.toString(),
     toRupees(header.totalWages),
     toRupees(header.totalEmployeeContribution),
     toRupees(header.totalEmployerContribution),
-  ].join('#~#');
+  ].join("#~#");
 
   lines.push(headerLine);
 
@@ -93,12 +90,12 @@ export function generateECRFile(
       toRupees(record.employerEDLI),
       record.ncpDays.toString(),
       toRupees(record.refund),
-    ].join('#~#');
+    ].join("#~#");
 
     lines.push(employeeLine);
   }
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
@@ -107,7 +104,7 @@ export function generateECRFile(
 export async function generateECRForPayrollRun(
   payrollRunId: string,
   establishmentCode: string,
-  establishmentName: string
+  establishmentName: string,
 ): Promise<string> {
   // Get payroll run with records
   const payrollRun = await prisma.payrollRun.findUnique({
@@ -115,7 +112,7 @@ export async function generateECRForPayrollRun(
     include: {
       records: {
         where: {
-          status: { in: ['CALCULATED', 'VERIFIED', 'PAID'] },
+          status: { in: ["CALCULATED", "VERIFIED", "PAID"] },
         },
         include: {
           employee: {
@@ -132,7 +129,7 @@ export async function generateECRForPayrollRun(
   });
 
   if (!payrollRun) {
-    throw new Error('Payroll run not found');
+    throw new Error("Payroll run not found");
   }
 
   // Build employee records
@@ -150,7 +147,7 @@ export async function generateECRForPayrollRun(
       record.employee.middle_name,
       record.employee.last_name,
     ].filter(Boolean);
-    const name = nameParts.join(' ');
+    const name = nameParts.join(" ");
 
     ecrRecords.push({
       uan: record.employee.uan,
@@ -169,17 +166,11 @@ export async function generateECRForPayrollRun(
   }
 
   // Calculate totals
-  const totalWages = ecrRecords.reduce(
-    (sum, r) => sum + r.grossWages,
-    0
-  );
-  const totalEmployeeContribution = ecrRecords.reduce(
-    (sum, r) => sum + r.employeeEPF,
-    0
-  );
+  const totalWages = ecrRecords.reduce((sum, r) => sum + r.grossWages, 0);
+  const totalEmployeeContribution = ecrRecords.reduce((sum, r) => sum + r.employeeEPF, 0);
   const totalEmployerContribution = ecrRecords.reduce(
     (sum, r) => sum + r.employerEPF + r.employerEPS + r.employerEDLI,
-    0
+    0,
   );
 
   // Build header

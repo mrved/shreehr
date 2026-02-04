@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // Indian PAN format: 5 letters, 4 digits, 1 letter
 const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
@@ -16,8 +16,8 @@ export const employeeCreateSchema = z.object({
   middleName: z.string().max(100).optional().nullable(),
   lastName: z.string().min(1).max(100),
   dateOfBirth: z.string().transform((s) => new Date(s)),
-  gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
-  maritalStatus: z.enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED']).default('SINGLE').optional(),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"]),
+  maritalStatus: z.enum(["SINGLE", "MARRIED", "DIVORCED", "WIDOWED"]).default("SINGLE").optional(),
   bloodGroup: z.string().max(10).optional().nullable(),
 
   // Contact
@@ -32,13 +32,23 @@ export const employeeCreateSchema = z.object({
   city: z.string().max(100),
   state: z.string().max(100),
   postalCode: z.string().max(10),
-  country: z.string().max(100).default('India').optional(),
+  country: z.string().max(100).default("India").optional(),
 
   // Employment
   dateOfJoining: z.string().transform((s) => new Date(s)),
-  dateOfLeaving: z.string().transform((s) => new Date(s)).optional().nullable(),
-  employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERN']).default('FULL_TIME').optional(),
-  employmentStatus: z.enum(['ACTIVE', 'ON_LEAVE', 'TERMINATED', 'RESIGNED', 'RETIRED']).default('ACTIVE').optional(),
+  dateOfLeaving: z
+    .string()
+    .transform((s) => new Date(s))
+    .optional()
+    .nullable(),
+  employmentType: z
+    .enum(["FULL_TIME", "PART_TIME", "CONTRACT", "INTERN"])
+    .default("FULL_TIME")
+    .optional(),
+  employmentStatus: z
+    .enum(["ACTIVE", "ON_LEAVE", "TERMINATED", "RESIGNED", "RETIRED"])
+    .default("ACTIVE")
+    .optional(),
 
   // Organization
   departmentId: z.string(),
@@ -46,10 +56,18 @@ export const employeeCreateSchema = z.object({
   reportingManagerId: z.string().optional().nullable(),
 
   // Sensitive (will be encrypted) - Optional for now
-  panNumber: z.string().regex(panRegex, 'Invalid PAN format (AAAAA9999A)').optional().nullable(),
-  aadhaarNumber: z.string().regex(aadhaarRegex, 'Invalid Aadhaar format (12 digits)').optional().nullable(),
+  panNumber: z.string().regex(panRegex, "Invalid PAN format (AAAAA9999A)").optional().nullable(),
+  aadhaarNumber: z
+    .string()
+    .regex(aadhaarRegex, "Invalid Aadhaar format (12 digits)")
+    .optional()
+    .nullable(),
   bankAccountNumber: z.string().min(9).max(18).optional().nullable(),
-  bankIfscCode: z.string().regex(ifscRegex, 'Invalid IFSC format (AAAA0NNNNNN)').optional().nullable(),
+  bankIfscCode: z
+    .string()
+    .regex(ifscRegex, "Invalid IFSC format (AAAA0NNNNNN)")
+    .optional()
+    .nullable(),
   bankName: z.string().max(100).optional().nullable(),
   bankBranch: z.string().max(100).optional().nullable(),
 

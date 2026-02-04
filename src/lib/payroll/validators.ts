@@ -1,8 +1,8 @@
 // ShreeHR Payroll Validators
 // Labour Code 2026 compliance validation for salary structures
 
-import { z } from 'zod';
-import { type SalaryComponents, type ValidationResult } from './types';
+import { z } from "zod";
+import type { SalaryComponents, ValidationResult } from "./types";
 
 // Minimum basic pay percentage per Labour Code 2026
 const MIN_BASIC_PERCENTAGE = 50;
@@ -28,7 +28,7 @@ export function validate50PercentRule(components: SalaryComponents): ValidationR
       isValid: false,
       basicPercentage: 0,
       grossMonthlyPaise: 0,
-      error: 'Total salary must be greater than zero'
+      error: "Total salary must be greater than zero",
     };
   }
 
@@ -42,20 +42,21 @@ export function validate50PercentRule(components: SalaryComponents): ValidationR
       isValid: false,
       basicPercentage: Math.round(basicPercentage * 100) / 100,
       grossMonthlyPaise,
-      error: `Basic pay (${basicPercentage.toFixed(2)}%) must be at least 50% of gross salary per Labour Code 2026. ` +
-             `Increase basic by ${formatCurrencyShort(shortfallPaise)} or reduce allowances.`
+      error:
+        `Basic pay (${basicPercentage.toFixed(2)}%) must be at least 50% of gross salary per Labour Code 2026. ` +
+        `Increase basic by ${formatCurrencyShort(shortfallPaise)} or reduce allowances.`,
     };
   }
 
   return {
     isValid: true,
     basicPercentage: Math.round(basicPercentage * 100) / 100,
-    grossMonthlyPaise
+    grossMonthlyPaise,
   };
 }
 
 function formatCurrencyShort(paise: number): string {
-  return `Rs.${(paise / 100).toLocaleString('en-IN')}`;
+  return `Rs.${(paise / 100).toLocaleString("en-IN")}`;
 }
 
 /**
@@ -69,22 +70,21 @@ export function calculateAnnualCTC(grossMonthlyPaise: number, basicPaise: number
 
   // Employer ESI contribution (3.25% if gross <= Rs.21,000)
   const ESI_WAGE_CEILING_PAISE = 2100000; // Rs.21,000
-  const employerESIMonthly = grossMonthlyPaise <= ESI_WAGE_CEILING_PAISE
-    ? Math.round(grossMonthlyPaise * 0.0325)
-    : 0;
+  const employerESIMonthly =
+    grossMonthlyPaise <= ESI_WAGE_CEILING_PAISE ? Math.round(grossMonthlyPaise * 0.0325) : 0;
 
   // Annual CTC = (Gross + Employer PF + Employer ESI) * 12
   return (grossMonthlyPaise + employerPFMonthly + employerESIMonthly) * 12;
 }
 
-// Zod schema for API validation
-export const salaryStructureSchema = z.object({
-  employee_id: z.string().cuid(),
+// Base Zod schema for API validation (without refinement)
+const salaryStructureBaseSchema = z.object({
+  employee_id: z.string().min(1), // Allow any string ID (not just CUID)
   effective_from: z.coerce.date(),
   effective_to: z.coerce.date().optional().nullable(),
 
   // All amounts in paise (integers)
-  basic_paise: z.number().int().positive('Basic pay must be positive'),
+  basic_paise: z.number().int().positive("Basic pay must be positive"),
   hra_paise: z.number().int().min(0).default(0),
   special_allowance_paise: z.number().int().min(0).default(0),
   lta_paise: z.number().int().min(0).default(0),
@@ -92,14 +92,23 @@ export const salaryStructureSchema = z.object({
   conveyance_paise: z.number().int().min(0).default(0),
   other_allowances_paise: z.number().int().min(0).default(0),
 
-  tax_regime: z.enum(['OLD', 'NEW']).default('NEW'),
-}).refine((data) => {
-  // Validate 50% rule
-  const result = validate50PercentRule(data);
-  return result.isValid;
-}, {
-  message: 'Salary structure does not meet 50% Basic Pay Rule (Labour Code 2026)',
-  path: ['basic_paise']
+  tax_regime: z.enum(["OLD", "NEW"]).default("NEW"),
 });
 
-export const salaryStructureUpdateSchema = salaryStructureSchema.partial().omit({ employee_id: true });
+// Schema with 50% rule validation for creation
+export const salaryStructureSchema = salaryStructureBaseSchema.refine(
+  (data) => {
+    // Validate 50% rule
+    const result = validate50PercentRule(data);
+    return result.isValid;
+  },
+  {
+    message: "Salary structure does not meet 50% Basic Pay Rule (Labour Code 2026)",
+    path: ["basic_paise"],
+  },
+);
+
+// Update schema - partial without the refinement (validation done in route handler)
+export const salaryStructureUpdateSchema = salaryStructureBaseSchema
+  .partial()
+  .omit({ employee_id: true });

@@ -1,58 +1,58 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
+import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ employeeId: string }> }
+  { params }: { params: Promise<{ employeeId: string }> },
 ) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { employeeId } = await params;
 
   // Check access
-  if (session.user.role === 'EMPLOYEE' && session.user.employeeId !== employeeId) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (session.user.role === "EMPLOYEE" && session.user.employeeId !== employeeId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
     const searchParams = request.nextUrl.searchParams;
-    const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()));
+    const year = parseInt(searchParams.get("year") || String(new Date().getFullYear()));
 
     // Get employee info
     const employee = await prisma.employee.findUnique({
       where: { id: employeeId },
-      select: { id: true, first_name: true, last_name: true, employee_code: true }
+      select: { id: true, first_name: true, last_name: true, employee_code: true },
     });
 
     if (!employee) {
-      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
     // Get all leave types
     const leaveTypes = await prisma.leaveType.findMany({
       where: { is_active: true },
-      orderBy: { name: 'asc' }
+      orderBy: { name: "asc" },
     });
 
     // Get existing balances
     const existingBalances = await prisma.leaveBalance.findMany({
-      where: { employee_id: employeeId, year }
+      where: { employee_id: employeeId, year },
     });
 
     // Get pending and approved leave counts
     const leaveStats = await prisma.leaveRequest.groupBy({
-      by: ['leave_type_id', 'status'],
+      by: ["leave_type_id", "status"],
       where: {
         employee_id: employeeId,
-        status: { in: ['PENDING', 'APPROVED'] },
+        status: { in: ["PENDING", "APPROVED"] },
         start_date: { gte: new Date(year, 0, 1) },
         end_date: { lte: new Date(year, 11, 31) },
       },
-      _sum: { days_count: true }
+      _sum: { days_count: true },
     });
 
     // Get leave history for this year
@@ -63,18 +63,22 @@ export async function GET(
         end_date: { lte: new Date(year, 11, 31) },
       },
       include: {
-        leave_type: { select: { name: true, code: true } }
+        leave_type: { select: { name: true, code: true } },
       },
-      orderBy: { start_date: 'desc' },
-      take: 10
+      orderBy: { start_date: "desc" },
+      take: 10,
     });
 
     // Build detailed balance view
-    const balances = leaveTypes.map(lt => {
-      const existing = existingBalances.find(b => b.leave_type === lt.code);
+    const balances = leaveTypes.map((lt) => {
+      const existing = existingBalances.find((b) => b.leave_type === lt.code);
 
-      const pendingStat = leaveStats.find(s => s.leave_type_id === lt.id && s.status === 'PENDING');
-      const approvedStat = leaveStats.find(s => s.leave_type_id === lt.id && s.status === 'APPROVED');
+      const pendingStat = leaveStats.find(
+        (s) => s.leave_type_id === lt.id && s.status === "PENDING",
+      );
+      const approvedStat = leaveStats.find(
+        (s) => s.leave_type_id === lt.id && s.status === "APPROVED",
+      );
 
       const pending = pendingStat?._sum.days_count || 0;
       const approvedThisYear = approvedStat?._sum.days_count || 0;
@@ -104,19 +108,19 @@ export async function GET(
       recentRequests: leaveHistory,
     });
   } catch (error) {
-    console.error('Leave balance detail error:', error);
-    return NextResponse.json({ error: 'Failed to fetch leave balance' }, { status: 500 });
+    console.error("Leave balance detail error:", error);
+    return NextResponse.json({ error: "Failed to fetch leave balance" }, { status: 500 });
   }
 }
 
 // Admin can manually adjust leave balance
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ employeeId: string }> }
+  { params }: { params: Promise<{ employeeId: string }> },
 ) {
   const session = await auth();
-  if (!session?.user || !['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER'].includes(session.user.role)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!session?.user || !["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(session.user.role)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { employeeId } = await params;
@@ -126,7 +130,10 @@ export async function PATCH(
     const { leaveTypeCode, year, adjustment, reason } = body;
 
     if (!leaveTypeCode || !year || adjustment === undefined) {
-      return NextResponse.json({ error: 'leaveTypeCode, year, and adjustment are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: "leaveTypeCode, year, and adjustment are required" },
+        { status: 400 },
+      );
     }
 
     const existing = await prisma.leaveBalance.findFirst({
@@ -134,17 +141,20 @@ export async function PATCH(
         employee_id: employeeId,
         leave_type: leaveTypeCode,
         year,
-      }
+      },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: 'Leave balance record not found' }, { status: 404 });
+      return NextResponse.json({ error: "Leave balance record not found" }, { status: 404 });
     }
 
     const newBalance = existing.balance + adjustment;
 
     if (newBalance < 0) {
-      return NextResponse.json({ error: 'Adjustment would result in negative balance' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Adjustment would result in negative balance" },
+        { status: 400 },
+      );
     }
 
     const updated = await prisma.leaveBalance.update({
@@ -154,18 +164,18 @@ export async function PATCH(
         used: adjustment < 0 ? existing.used - adjustment : existing.used,
         balance: newBalance,
         updated_by: session.user.id,
-      }
+      },
     });
 
     return NextResponse.json({
-      message: 'Leave balance adjusted',
+      message: "Leave balance adjusted",
       previousBalance: existing.balance,
       adjustment,
       newBalance,
       reason,
     });
   } catch (error) {
-    console.error('Leave balance adjust error:', error);
-    return NextResponse.json({ error: 'Failed to adjust leave balance' }, { status: 500 });
+    console.error("Leave balance adjust error:", error);
+    return NextResponse.json({ error: "Failed to adjust leave balance" }, { status: 500 });
   }
 }

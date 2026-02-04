@@ -1,21 +1,21 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from "vitest";
 import {
-  calculatePF,
   calculateEmployerPFBreakdown,
-  PF_WAGE_CEILING_PAISE,
+  calculatePF,
   EPS_MAX_MONTHLY_PAISE,
-} from './pf';
+  PF_WAGE_CEILING_PAISE,
+} from "./pf";
 
-describe('PF Calculation', () => {
-  describe('calculatePF', () => {
-    it('should calculate 12% employee PF for basic under ceiling', () => {
+describe("PF Calculation", () => {
+  describe("calculatePF", () => {
+    it("should calculate 12% employee PF for basic under ceiling", () => {
       // Basic: Rs.12,000 = 1,200,000 paise
       const result = calculatePF(1200000);
       expect(result.employeePF).toBe(144000); // 12% of 12,000 = 1,440
       expect(result.pfBase).toBe(1200000);
     });
 
-    it('should cap PF at wage ceiling for high basic', () => {
+    it("should cap PF at wage ceiling for high basic", () => {
       // Basic: Rs.25,000 = 2,500,000 paise
       // PF base should be capped at Rs.15,000
       const result = calculatePF(2500000);
@@ -23,19 +23,19 @@ describe('PF Calculation', () => {
       expect(result.employeePF).toBe(180000); // 12% of 15,000 = 1,800
     });
 
-    it('should handle exact wage ceiling amount', () => {
+    it("should handle exact wage ceiling amount", () => {
       const result = calculatePF(1500000); // Rs.15,000 exactly
       expect(result.pfBase).toBe(1500000);
       expect(result.employeePF).toBe(180000);
     });
 
-    it('should handle zero basic', () => {
+    it("should handle zero basic", () => {
       const result = calculatePF(0);
       expect(result.employeePF).toBe(0);
       expect(result.pfBase).toBe(0);
     });
 
-    it('should include employer breakdown in result', () => {
+    it("should include employer breakdown in result", () => {
       const result = calculatePF(1200000);
       expect(result.breakdown).toBeDefined();
       expect(result.breakdown.epf).toBeGreaterThan(0);
@@ -45,8 +45,8 @@ describe('PF Calculation', () => {
     });
   });
 
-  describe('calculateEmployerPFBreakdown', () => {
-    it('should correctly split employer contribution for basic under ceiling', () => {
+  describe("calculateEmployerPFBreakdown", () => {
+    it("should correctly split employer contribution for basic under ceiling", () => {
       // Basic: Rs.12,000 = 1,200,000 paise
       const result = calculateEmployerPFBreakdown(1200000);
 
@@ -66,7 +66,7 @@ describe('PF Calculation', () => {
       expect(result.total).toBeGreaterThan(0);
     });
 
-    it('should calculate correctly for high basic (wage ceiling applies)', () => {
+    it("should calculate correctly for high basic (wage ceiling applies)", () => {
       // Basic: Rs.25,000 = 2,500,000 paise
       // PF base is capped at Rs.15,000 = 1,500,000 paise
       const result = calculateEmployerPFBreakdown(2500000);
@@ -83,7 +83,7 @@ describe('PF Calculation', () => {
       expect(result.edli).toBe(7500);
     });
 
-    it('should handle exact wage ceiling amount', () => {
+    it("should handle exact wage ceiling amount", () => {
       // Basic: Rs.15,000 = 1,500,000 paise
       const result = calculateEmployerPFBreakdown(1500000);
 
@@ -93,7 +93,7 @@ describe('PF Calculation', () => {
       expect(result.edli).toBe(7500); // 0.50% of 15,000 = 75
     });
 
-    it('should return all zero for zero basic', () => {
+    it("should return all zero for zero basic", () => {
       const result = calculateEmployerPFBreakdown(0);
       expect(result.epf).toBe(0);
       expect(result.eps).toBe(0);
@@ -102,19 +102,19 @@ describe('PF Calculation', () => {
       expect(result.total).toBe(0);
     });
 
-    it('should ensure total matches sum of components', () => {
+    it("should ensure total matches sum of components", () => {
       const result = calculateEmployerPFBreakdown(1200000);
       const sum = result.epf + result.eps + result.edli + result.adminCharges;
       expect(result.total).toBe(sum);
     });
   });
 
-  describe('constants', () => {
-    it('should export correct PF wage ceiling', () => {
+  describe("constants", () => {
+    it("should export correct PF wage ceiling", () => {
       expect(PF_WAGE_CEILING_PAISE).toBe(1500000); // Rs.15,000
     });
 
-    it('should export correct EPS max monthly', () => {
+    it("should export correct EPS max monthly", () => {
       expect(EPS_MAX_MONTHLY_PAISE).toBe(125000); // Rs.1,250
     });
   });

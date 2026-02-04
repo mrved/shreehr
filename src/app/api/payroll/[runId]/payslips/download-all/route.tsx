@@ -1,30 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { renderToStream } from '@react-pdf/renderer';
-import { PayslipDocument, type PayslipData } from '@/lib/pdf/payslip';
-import { decrypt } from '@/lib/encryption';
-import JSZip from 'jszip';
+import { renderToStream } from "@react-pdf/renderer";
+import JSZip from "jszip";
+import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { decrypt } from "@/lib/encryption";
+import { type PayslipData, PayslipDocument } from "@/lib/pdf/payslip";
 
 const COMPANY_INFO = {
-  name: 'ShreeHR Demo Company',
-  address: 'Bangalore, Karnataka 560001',
-  pfCode: 'KN/BLR/0000000',
-  esiCode: 'KA00000000',
+  name: "ShreeHR Demo Company",
+  address: "Bangalore, Karnataka 560001",
+  pfCode: "KN/BLR/0000000",
+  esiCode: "KA00000000",
 };
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ runId: string }> }
+  { params }: { params: Promise<{ runId: string }> },
 ) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Only admin roles can bulk download
-  if (!['SUPER_ADMIN', 'ADMIN', 'HR_MANAGER', 'PAYROLL_MANAGER'].includes(session.user.role)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (!["SUPER_ADMIN", "ADMIN", "HR_MANAGER", "PAYROLL_MANAGER"].includes(session.user.role)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { runId } = await params;
@@ -33,7 +33,7 @@ export async function GET(
   const records = await prisma.payrollRecord.findMany({
     where: {
       payroll_run_id: runId,
-      status: { in: ['CALCULATED', 'VERIFIED', 'PAID'] },
+      status: { in: ["CALCULATED", "VERIFIED", "PAID"] },
     },
     include: {
       employee: {
@@ -47,10 +47,7 @@ export async function GET(
   });
 
   if (records.length === 0) {
-    return NextResponse.json(
-      { error: 'No payroll records found' },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "No payroll records found" }, { status: 404 });
   }
 
   try {
@@ -106,9 +103,7 @@ export async function GET(
       };
 
       // Generate PDF as buffer
-      const stream = await renderToStream(
-        <PayslipDocument data={payslipData} />
-      );
+      const stream = await renderToStream(<PayslipDocument data={payslipData} />);
 
       // Convert stream to buffer
       const chunks: Uint8Array[] = [];
@@ -127,20 +122,17 @@ export async function GET(
     }
 
     // Generate zip file
-    const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
-    const zipFilename = `payslips-${year}-${String(month).padStart(2, '0')}.zip`;
+    const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
+    const zipFilename = `payslips-${year}-${String(month).padStart(2, "0")}.zip`;
 
     return new Response(new Uint8Array(zipBuffer), {
       headers: {
-        'Content-Type': 'application/zip',
-        'Content-Disposition': `attachment; filename="${zipFilename}"`,
+        "Content-Type": "application/zip",
+        "Content-Disposition": `attachment; filename="${zipFilename}"`,
       },
     });
   } catch (error: any) {
-    console.error('Bulk PDF generation error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate payslips' },
-      { status: 500 }
-    );
+    console.error("Bulk PDF generation error:", error);
+    return NextResponse.json({ error: "Failed to generate payslips" }, { status: 500 });
   }
 }

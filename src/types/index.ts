@@ -1,26 +1,23 @@
 // Re-export Prisma types for convenience
 export type {
-  User,
-  Employee,
   Department,
   Designation,
   Document,
-  SalaryRecord,
-  LeaveBalance,
-  ImportBatch,
-} from "@prisma/client";
-
-export type {
-  UserRole,
-  Gender,
-  MaritalStatus,
-  EmploymentType,
-  EmploymentStatus,
   DocumentType,
-  PaymentMode,
-  SalaryStatus,
-  ImportType,
+  Employee,
+  EmploymentStatus,
+  EmploymentType,
+  Gender,
+  ImportBatch,
   ImportStatus,
+  ImportType,
+  LeaveBalance,
+  MaritalStatus,
+  PaymentMode,
+  SalaryRecord,
+  SalaryStatus,
+  User,
+  UserRole,
 } from "@prisma/client";
 
 // Document types for UI selection

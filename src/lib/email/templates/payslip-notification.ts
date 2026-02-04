@@ -16,23 +16,21 @@ interface EmailTemplate {
 }
 
 const MONTH_NAMES = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
-export function payslipNotificationTemplate(
-  data: PayslipNotificationData
-): EmailTemplate {
+export function payslipNotificationTemplate(data: PayslipNotificationData): EmailTemplate {
   const { employeeName, month, year, payslipUrl } = data;
   const monthName = MONTH_NAMES[month - 1];
 

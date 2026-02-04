@@ -1,27 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { addPayrollJob } from '@/lib/queues/payroll.queue';
+import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { addPayrollJob } from "@/lib/queues/payroll.queue";
 
 // POST /api/payroll/run - Initiate new payroll run
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!['SUPER_ADMIN', 'ADMIN', 'PAYROLL_MANAGER'].includes(session.user.role)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (!["SUPER_ADMIN", "ADMIN", "PAYROLL_MANAGER"].includes(session.user.role)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
     const { month, year } = await request.json();
 
     if (!month || !year) {
-      return NextResponse.json(
-        { error: 'Month and year are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Month and year are required" }, { status: 400 });
     }
 
     // Check if payroll already exists for this month
@@ -29,14 +26,14 @@ export async function POST(request: NextRequest) {
       where: { month_year: { month, year } },
     });
 
-    if (existing && existing.status !== 'REVERTED') {
+    if (existing && existing.status !== "REVERTED") {
       return NextResponse.json(
         {
           error: `Payroll for ${year}-${month} already exists`,
           status: existing.status,
           id: existing.id,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,7 +45,7 @@ export async function POST(request: NextRequest) {
     if (!lock) {
       return NextResponse.json(
         { error: `Attendance not locked for ${year}-${month}. Lock attendance first.` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -57,8 +54,8 @@ export async function POST(request: NextRequest) {
       data: {
         month,
         year,
-        status: 'PENDING',
-        current_stage: 'VALIDATION',
+        status: "PENDING",
+        current_stage: "VALIDATION",
         created_by: session.user.id,
       },
     });
@@ -68,7 +65,7 @@ export async function POST(request: NextRequest) {
       payrollRunId: payrollRun.id,
       month,
       year,
-      stage: 'validation',
+      stage: "validation",
     });
 
     // Update with job ID
@@ -77,17 +74,19 @@ export async function POST(request: NextRequest) {
       data: { job_id: job.id },
     });
 
-    return NextResponse.json({
-      data: payrollRun,
-      message: 'Payroll run initiated',
-      jobId: job.id,
-    }, { status: 201 });
-
-  } catch (error: any) {
-    console.error('Payroll run error:', error);
     return NextResponse.json(
-      { error: 'Failed to initiate payroll run', details: error.message },
-      { status: 500 }
+      {
+        data: payrollRun,
+        message: "Payroll run initiated",
+        jobId: job.id,
+      },
+      { status: 201 },
+    );
+  } catch (error: any) {
+    console.error("Payroll run error:", error);
+    return NextResponse.json(
+      { error: "Failed to initiate payroll run", details: error.message },
+      { status: 500 },
     );
   }
 }

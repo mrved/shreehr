@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface AttendanceRecord {
   id: string;
@@ -16,12 +16,12 @@ interface AttendanceRecord {
 }
 
 const statusColors: Record<string, string> = {
-  PRESENT: 'bg-green-500',
-  HALF_DAY: 'bg-yellow-500',
-  ABSENT: 'bg-red-500',
-  ON_LEAVE: 'bg-blue-500',
-  HOLIDAY: 'bg-purple-500',
-  WEEKEND: 'bg-gray-300',
+  PRESENT: "bg-green-500",
+  HALF_DAY: "bg-yellow-500",
+  ABSENT: "bg-red-500",
+  ON_LEAVE: "bg-blue-500",
+  HOLIDAY: "bg-purple-500",
+  WEEKEND: "bg-gray-300",
 };
 
 export function AttendanceCalendar({ employeeId }: { employeeId?: string }) {
@@ -45,18 +45,18 @@ export function AttendanceCalendar({ employeeId }: { employeeId?: string }) {
       const params = new URLSearchParams({
         startDate,
         endDate,
-        limit: '31',
+        limit: "31",
       });
 
       if (employeeId) {
-        params.set('employeeId', employeeId);
+        params.set("employeeId", employeeId);
       }
 
       const res = await fetch(`/api/attendance?${params}`);
       const data = await res.json();
       setAttendance(data.attendances || []);
     } catch (error) {
-      console.error('Failed to fetch attendance:', error);
+      console.error("Failed to fetch attendance:", error);
     } finally {
       setLoading(false);
     }
@@ -81,8 +81,8 @@ export function AttendanceCalendar({ employeeId }: { employeeId?: string }) {
   }
 
   function getAttendanceForDay(day: number) {
-    const dateStr = new Date(year, month, day).toISOString().split('T')[0];
-    return attendance.find(a => a.date.startsWith(dateStr));
+    const dateStr = new Date(year, month, day).toISOString().split("T")[0];
+    return attendance.find((a) => a.date.startsWith(dateStr));
   }
 
   function previousMonth() {
@@ -93,9 +93,9 @@ export function AttendanceCalendar({ employeeId }: { employeeId?: string }) {
     setCurrentDate(new Date(year, month + 1, 1));
   }
 
-  const monthName = currentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const monthName = currentDate.toLocaleString("en-US", { month: "long", year: "numeric" });
   const days = getDaysInMonth();
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
     <Card>
@@ -118,8 +118,11 @@ export function AttendanceCalendar({ employeeId }: { employeeId?: string }) {
         ) : (
           <>
             <div className="grid grid-cols-7 gap-1 mb-2">
-              {weekDays.map(day => (
-                <div key={day} className="text-center text-xs font-medium text-muted-foreground py-1">
+              {weekDays.map((day) => (
+                <div
+                  key={day}
+                  className="text-center text-xs font-medium text-muted-foreground py-1"
+                >
                   {day}
                 </div>
               ))}
@@ -132,16 +135,16 @@ export function AttendanceCalendar({ employeeId }: { employeeId?: string }) {
 
                 const record = getAttendanceForDay(day);
                 const isWeekend = new Date(year, month, day).getDay() % 6 === 0;
-                const status = record?.status || (isWeekend ? 'WEEKEND' : null);
+                const status = record?.status || (isWeekend ? "WEEKEND" : null);
 
                 return (
                   <div
                     key={day}
                     className={cn(
-                      'h-10 flex items-center justify-center rounded text-sm relative',
+                      "h-10 flex items-center justify-center rounded text-sm relative",
                       status && statusColors[status],
-                      status && 'text-white',
-                      !status && 'hover:bg-muted'
+                      status && "text-white",
+                      !status && "hover:bg-muted",
                     )}
                     title={status ? `${status} - ${record?.work_minutes || 0} mins` : undefined}
                   >
@@ -154,8 +157,8 @@ export function AttendanceCalendar({ employeeId }: { employeeId?: string }) {
             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
               {Object.entries(statusColors).map(([status, color]) => (
                 <div key={status} className="flex items-center gap-1 text-xs">
-                  <div className={cn('w-3 h-3 rounded', color)} />
-                  <span>{status.replace('_', ' ')}</span>
+                  <div className={cn("w-3 h-3 rounded", color)} />
+                  <span>{status.replace("_", " ")}</span>
                 </div>
               ))}
             </div>

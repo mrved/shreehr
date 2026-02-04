@@ -1,16 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 interface LeaveType {
   id: string;
@@ -29,22 +35,22 @@ export function LeaveRequestForm() {
   const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
-    leaveTypeId: '',
-    startDate: '',
-    endDate: '',
+    leaveTypeId: "",
+    startDate: "",
+    endDate: "",
     isHalfDay: false,
-    halfDayPeriod: 'FIRST_HALF',
-    reason: '',
+    halfDayPeriod: "FIRST_HALF",
+    reason: "",
   });
 
   useEffect(() => {
     async function fetchLeaveTypes() {
       try {
-        const res = await fetch('/api/leave-types?activeOnly=true');
+        const res = await fetch("/api/leave-types?activeOnly=true");
         const data = await res.json();
         setLeaveTypes(data);
       } catch (error) {
-        console.error('Failed to fetch leave types:', error);
+        console.error("Failed to fetch leave types:", error);
       } finally {
         setLoading(false);
       }
@@ -64,21 +70,21 @@ export function LeaveRequestForm() {
         endDate: new Date(formData.endDate).toISOString(),
       };
 
-      const res = await fetch('/api/leave-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/leave-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        toast({ title: 'Leave request submitted successfully' });
-        router.push('/leave');
+        toast({ title: "Leave request submitted successfully" });
+        router.push("/leave");
       } else {
         const data = await res.json();
-        toast({ title: 'Failed to submit', description: data.error, variant: 'destructive' });
+        toast({ title: "Failed to submit", description: data.error, variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: 'Failed to submit leave request', variant: 'destructive' });
+      toast({ title: "Failed to submit leave request", variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -111,10 +117,9 @@ export function LeaveRequestForm() {
                 <SelectValue placeholder="Select leave type" />
               </SelectTrigger>
               <SelectContent>
-                {leaveTypes.map(lt => (
+                {leaveTypes.map((lt) => (
                   <SelectItem key={lt.id} value={lt.id}>
-                    {lt.name} ({lt.code})
-                    {!lt.is_paid && ' - Unpaid'}
+                    {lt.name} ({lt.code}){!lt.is_paid && " - Unpaid"}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -128,11 +133,13 @@ export function LeaveRequestForm() {
                 type="date"
                 id="startDate"
                 value={formData.startDate}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  startDate: e.target.value,
-                  endDate: formData.isHalfDay ? e.target.value : formData.endDate
-                })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    startDate: e.target.value,
+                    endDate: formData.isHalfDay ? e.target.value : formData.endDate,
+                  })
+                }
                 required
               />
             </div>
@@ -155,11 +162,13 @@ export function LeaveRequestForm() {
             <Switch
               id="halfDay"
               checked={formData.isHalfDay}
-              onCheckedChange={(checked) => setFormData({
-                ...formData,
-                isHalfDay: checked,
-                endDate: checked ? formData.startDate : formData.endDate
-              })}
+              onCheckedChange={(checked) =>
+                setFormData({
+                  ...formData,
+                  isHalfDay: checked,
+                  endDate: checked ? formData.startDate : formData.endDate,
+                })
+              }
             />
             <Label htmlFor="halfDay">Half Day Leave</Label>
           </div>

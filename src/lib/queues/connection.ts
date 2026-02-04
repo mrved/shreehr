@@ -1,4 +1,4 @@
-import IORedis from 'ioredis';
+import IORedis from "ioredis";
 
 // Redis connection singleton
 let redisConnection: IORedis | null = null;
@@ -9,19 +9,19 @@ let redisConnection: IORedis | null = null;
  */
 export function getRedisConnection(): IORedis {
   if (!redisConnection) {
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
 
     redisConnection = new IORedis(redisUrl, {
       maxRetriesPerRequest: null, // Required for BullMQ
       enableReadyCheck: false,
     });
 
-    redisConnection.on('error', (err) => {
-      console.error('Redis connection error:', err);
+    redisConnection.on("error", (err) => {
+      console.error("Redis connection error:", err);
     });
 
-    redisConnection.on('connect', () => {
-      console.log('Connected to Redis');
+    redisConnection.on("connect", () => {
+      console.log("Connected to Redis");
     });
   }
 

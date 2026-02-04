@@ -1,18 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { designationSchema } from '@/lib/validations/organization';
-import { ZodError } from 'zod';
+import { type NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { designationSchema } from "@/lib/validations/organization";
 
 export async function GET() {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const designations = await prisma.designation.findMany({
-      orderBy: [{ level: 'asc' }, { title: 'asc' }],
+      orderBy: [{ level: "asc" }, { title: "asc" }],
       include: {
         _count: { select: { employees: true } },
       },
@@ -20,15 +20,20 @@ export async function GET() {
 
     return NextResponse.json(designations);
   } catch (error) {
-    console.error('Designation list error:', error);
-    return NextResponse.json({ error: 'Failed to fetch designations' }, { status: 500 });
+    console.error("Designation list error:", error);
+    return NextResponse.json({ error: "Failed to fetch designations" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   const session = await auth();
-  if (!session?.user || (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN' && session.user.role !== 'HR_MANAGER')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (
+    !session?.user ||
+    (session.user.role !== "ADMIN" &&
+      session.user.role !== "SUPER_ADMIN" &&
+      session.user.role !== "HR_MANAGER")
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -48,22 +53,19 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(designation, { status: 201 });
   } catch (error) {
-    console.error('Designation create error:', error);
+    console.error("Designation create error:", error);
 
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.issues },
-        { status: 400 }
+        { error: "Validation failed", details: error.issues },
+        { status: 400 },
       );
     }
 
-    if (error instanceof Error && error.message.includes('Unique constraint')) {
-      return NextResponse.json(
-        { error: 'Designation title already exists' },
-        { status: 400 }
-      );
+    if (error instanceof Error && error.message.includes("Unique constraint")) {
+      return NextResponse.json({ error: "Designation title already exists" }, { status: 400 });
     }
 
-    return NextResponse.json({ error: 'Failed to create designation' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to create designation" }, { status: 500 });
   }
 }

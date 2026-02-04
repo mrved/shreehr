@@ -1,22 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { profileUpdateSchema, UPDATABLE_FIELDS, type UpdatableField } from '@/lib/validations/profile';
-import { ZodError } from 'zod';
+import { type NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import {
+  profileUpdateSchema,
+  UPDATABLE_FIELDS,
+  type UpdatableField,
+} from "@/lib/validations/profile";
 
 // GET /api/profile/update-requests - List update requests
 export async function GET(request: NextRequest) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const searchParams = request.nextUrl.searchParams;
-  const status = searchParams.get('status');
+  const status = searchParams.get("status");
 
   try {
     // Build filter based on role
-    const isAdmin = ['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER'].includes(session.user.role);
+    const isAdmin = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(session.user.role);
 
     const where: any = {};
 
@@ -26,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter by status if provided
-    if (status && ['PENDING', 'APPROVED', 'REJECTED'].includes(status)) {
+    if (status && ["PENDING", "APPROVED", "REJECTED"].includes(status)) {
       where.status = status;
     }
 
@@ -49,14 +53,14 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        created_at: 'desc',
+        created_at: "desc",
       },
     });
 
     return NextResponse.json(requests);
   } catch (error) {
-    console.error('Profile update requests fetch error:', error);
-    return NextResponse.json({ error: 'Failed to fetch update requests' }, { status: 500 });
+    console.error("Profile update requests fetch error:", error);
+    return NextResponse.json({ error: "Failed to fetch update requests" }, { status: 500 });
   }
 }
 
@@ -64,11 +68,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!session.user.employeeId) {
-    return NextResponse.json({ error: 'No employee record linked to this user' }, { status: 404 });
+    return NextResponse.json({ error: "No employee record linked to this user" }, { status: 404 });
   }
 
   try {
@@ -93,7 +97,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!employee) {
-      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
     // Build changes JSON with only fields that actually changed
@@ -116,8 +120,8 @@ export async function POST(request: NextRequest) {
 
     if (!hasChanges) {
       return NextResponse.json(
-        { error: 'No changes detected. All fields match current values.' },
-        { status: 400 }
+        { error: "No changes detected. All fields match current values." },
+        { status: 400 },
       );
     }
 
@@ -125,16 +129,17 @@ export async function POST(request: NextRequest) {
     const existingRequest = await prisma.profileUpdateRequest.findFirst({
       where: {
         employee_id: session.user.employeeId,
-        status: 'PENDING',
+        status: "PENDING",
       },
     });
 
     if (existingRequest) {
       return NextResponse.json(
         {
-          error: 'You already have a pending profile update request. Please wait for it to be processed.',
+          error:
+            "You already have a pending profile update request. Please wait for it to be processed.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -143,7 +148,7 @@ export async function POST(request: NextRequest) {
       data: {
         employee_id: session.user.employeeId,
         changes,
-        status: 'PENDING',
+        status: "PENDING",
         reason: validated.reason || null,
         created_by: session.user.id,
         updated_by: session.user.id,
@@ -162,15 +167,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(updateRequest, { status: 201 });
   } catch (error) {
-    console.error('Profile update request creation error:', error);
+    console.error("Profile update request creation error:", error);
 
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.issues },
-        { status: 400 }
+        { error: "Validation failed", details: error.issues },
+        { status: 400 },
       );
     }
 
-    return NextResponse.json({ error: 'Failed to create update request' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to create update request" }, { status: 500 });
   }
 }

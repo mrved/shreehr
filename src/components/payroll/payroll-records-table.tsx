@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface PayrollRecord {
   id: string;
@@ -25,9 +25,9 @@ interface Props {
 }
 
 function formatCurrency(paise: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
     minimumFractionDigits: 0,
   }).format(paise / 100);
 }
@@ -41,7 +41,7 @@ export function PayrollRecordsTable({ records, runId }: Props) {
       const res = await fetch(`/api/payroll/${runId}/payslips/${employeeId}`);
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `payslip-${employeeId}.pdf`;
       a.click();
@@ -72,17 +72,11 @@ export function PayrollRecordsTable({ records, runId }: Props) {
                   <p className="font-medium">
                     {record.employee.first_name} {record.employee.last_name}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {record.employee.employee_code}
-                  </p>
+                  <p className="text-xs text-gray-500">{record.employee.employee_code}</p>
                 </div>
               </td>
-              <td className="py-2 px-2 text-sm">
-                {record.employee.department.name}
-              </td>
-              <td className="py-2 px-2 text-right">
-                {formatCurrency(record.gross_salary_paise)}
-              </td>
+              <td className="py-2 px-2 text-sm">{record.employee.department.name}</td>
+              <td className="py-2 px-2 text-right">{formatCurrency(record.gross_salary_paise)}</td>
               <td className="py-2 px-2 text-right text-red-600">
                 {formatCurrency(record.total_deductions_paise)}
               </td>
@@ -90,13 +84,15 @@ export function PayrollRecordsTable({ records, runId }: Props) {
                 {formatCurrency(record.net_salary_paise)}
               </td>
               <td className="py-2 px-2">
-                <span className={`text-xs px-2 py-1 rounded ${
-                  record.status === 'CALCULATED' || record.status === 'VERIFIED'
-                    ? 'bg-green-100 text-green-800'
-                    : record.status === 'ERROR'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-gray-100'
-                }`}>
+                <span
+                  className={`text-xs px-2 py-1 rounded ${
+                    record.status === "CALCULATED" || record.status === "VERIFIED"
+                      ? "bg-green-100 text-green-800"
+                      : record.status === "ERROR"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-gray-100"
+                  }`}
+                >
                   {record.status}
                 </span>
               </td>
@@ -107,7 +103,7 @@ export function PayrollRecordsTable({ records, runId }: Props) {
                   onClick={() => downloadPayslip(record.employee.id)}
                   disabled={downloading === record.employee.id}
                 >
-                  {downloading === record.employee.id ? '...' : 'Payslip'}
+                  {downloading === record.employee.id ? "..." : "Payslip"}
                 </Button>
               </td>
             </tr>

@@ -2,7 +2,8 @@
 // Prisma schema for HR management with Indian statutory compliance
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "client"
 }
 
 datasource db {

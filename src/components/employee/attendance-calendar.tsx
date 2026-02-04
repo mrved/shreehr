@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface Attendance {
   id: string;
@@ -12,7 +12,7 @@ interface Attendance {
   check_in: string | null;
   check_out: string | null;
   work_minutes: number;
-  status: 'PRESENT' | 'HALF_DAY' | 'ABSENT' | 'ON_LEAVE';
+  status: "PRESENT" | "HALF_DAY" | "ABSENT" | "ON_LEAVE";
 }
 
 interface AttendanceCalendarProps {
@@ -23,11 +23,11 @@ interface AttendanceCalendarProps {
 }
 
 const statusColors = {
-  PRESENT: 'bg-green-100 text-green-800 border-green-300',
-  HALF_DAY: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  ABSENT: 'bg-red-100 text-red-800 border-red-300',
-  ON_LEAVE: 'bg-blue-100 text-blue-800 border-blue-300',
-  WEEKEND: 'bg-gray-100 text-gray-500 border-gray-200',
+  PRESENT: "bg-green-100 text-green-800 border-green-300",
+  HALF_DAY: "bg-yellow-100 text-yellow-800 border-yellow-300",
+  ABSENT: "bg-red-100 text-red-800 border-red-300",
+  ON_LEAVE: "bg-blue-100 text-blue-800 border-blue-300",
+  WEEKEND: "bg-gray-100 text-gray-500 border-gray-200",
 };
 
 export function AttendanceCalendar({
@@ -40,10 +40,10 @@ export function AttendanceCalendar({
 
   // Calculate monthly summary
   const summary = {
-    present: attendances.filter((a) => a.status === 'PRESENT').length,
-    absent: attendances.filter((a) => a.status === 'ABSENT').length,
-    leave: attendances.filter((a) => a.status === 'ON_LEAVE').length,
-    halfDay: attendances.filter((a) => a.status === 'HALF_DAY').length,
+    present: attendances.filter((a) => a.status === "PRESENT").length,
+    absent: attendances.filter((a) => a.status === "ABSENT").length,
+    leave: attendances.filter((a) => a.status === "ON_LEAVE").length,
+    halfDay: attendances.filter((a) => a.status === "HALF_DAY").length,
   };
 
   // Get calendar days
@@ -63,7 +63,7 @@ export function AttendanceCalendar({
 
   // Get attendance for a specific day
   const getAttendanceForDay = (day: number) => {
-    const dateStr = new Date(year, month, day).toISOString().split('T')[0];
+    const dateStr = new Date(year, month, day).toISOString().split("T")[0];
     return attendances.find((a) => a.date.startsWith(dateStr));
   };
 
@@ -76,11 +76,7 @@ export function AttendanceCalendar({
   // Check if day is today
   const isToday = (day: number) => {
     const today = new Date();
-    return (
-      today.getDate() === day &&
-      today.getMonth() === month &&
-      today.getFullYear() === year
-    );
+    return today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
   };
 
   // Handle month navigation
@@ -96,12 +92,12 @@ export function AttendanceCalendar({
     onMonthChange?.(newMonth, newYear);
   };
 
-  const monthName = new Date(year, month, 1).toLocaleString('en-US', {
-    month: 'long',
-    year: 'numeric',
+  const monthName = new Date(year, month, 1).toLocaleString("en-US", {
+    month: "long",
+    year: "numeric",
   });
 
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const selectedAttendance = selectedDay ? getAttendanceForDay(selectedDay) : null;
 
@@ -152,10 +148,7 @@ export function AttendanceCalendar({
           {/* Week day headers */}
           <div className="grid grid-cols-7 gap-1 mb-2">
             {weekDays.map((day) => (
-              <div
-                key={day}
-                className="text-center text-xs font-medium text-muted-foreground py-1"
-              >
+              <div key={day} className="text-center text-xs font-medium text-muted-foreground py-1">
                 {day}
               </div>
             ))}
@@ -171,7 +164,7 @@ export function AttendanceCalendar({
               const attendance = getAttendanceForDay(day);
               const weekend = isWeekend(day);
               const today = isToday(day);
-              const status = attendance?.status || (weekend ? 'WEEKEND' : null);
+              const status = attendance?.status || (weekend ? "WEEKEND" : null);
 
               return (
                 <button
@@ -179,11 +172,11 @@ export function AttendanceCalendar({
                   type="button"
                   onClick={() => setSelectedDay(day)}
                   className={cn(
-                    'aspect-square p-1 text-center text-sm rounded border touch-manipulation transition-all',
+                    "aspect-square p-1 text-center text-sm rounded border touch-manipulation transition-all",
                     status && statusColors[status],
-                    !status && 'hover:bg-muted border-transparent',
-                    today && 'ring-2 ring-primary ring-offset-2',
-                    selectedDay === day && 'ring-2 ring-offset-1'
+                    !status && "hover:bg-muted border-transparent",
+                    today && "ring-2 ring-primary ring-offset-2",
+                    selectedDay === day && "ring-2 ring-offset-1",
                   )}
                 >
                   {day}
@@ -199,11 +192,11 @@ export function AttendanceCalendar({
         <Card className="border-primary">
           <CardHeader>
             <CardTitle className="text-base">
-              {new Date(year, month, selectedDay).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
+              {new Date(year, month, selectedDay).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
               })}
             </CardTitle>
           </CardHeader>
@@ -212,18 +205,22 @@ export function AttendanceCalendar({
               <>
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Status</span>
-                  <span className={cn('text-sm font-medium px-2 py-1 rounded',
-                    statusColors[selectedAttendance.status])}>
-                    {selectedAttendance.status.replace('_', ' ')}
+                  <span
+                    className={cn(
+                      "text-sm font-medium px-2 py-1 rounded",
+                      statusColors[selectedAttendance.status],
+                    )}
+                  >
+                    {selectedAttendance.status.replace("_", " ")}
                   </span>
                 </div>
                 {selectedAttendance.check_in && (
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Check In</span>
                     <span className="text-sm font-medium">
-                      {new Date(selectedAttendance.check_in).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
+                      {new Date(selectedAttendance.check_in).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </span>
                   </div>
@@ -232,9 +229,9 @@ export function AttendanceCalendar({
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Check Out</span>
                     <span className="text-sm font-medium">
-                      {new Date(selectedAttendance.check_out).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
+                      {new Date(selectedAttendance.check_out).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </span>
                   </div>
@@ -249,9 +246,7 @@ export function AttendanceCalendar({
             ) : isWeekend(selectedDay) ? (
               <p className="text-sm text-muted-foreground text-center py-4">Weekend</p>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No attendance record
-              </p>
+              <p className="text-sm text-muted-foreground text-center py-4">No attendance record</p>
             )}
           </CardContent>
         </Card>

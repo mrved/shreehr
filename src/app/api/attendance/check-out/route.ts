@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { checkOutSchema, calculateAttendanceStatus } from '@/lib/validations/attendance';
-import { ZodError } from 'zod';
+import { type NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { calculateAttendanceStatus, checkOutSchema } from "@/lib/validations/attendance";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user || !session.user.employeeId) {
-    return NextResponse.json({ error: 'Unauthorized or no employee profile' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized or no employee profile" }, { status: 401 });
   }
 
   try {
@@ -19,28 +19,31 @@ export async function POST(request: NextRequest) {
 
     // Check if attendance is locked
     const lock = await prisma.attendanceLock.findUnique({
-      where: { month_year: { month: today.getMonth() + 1, year: today.getFullYear() } }
+      where: { month_year: { month: today.getMonth() + 1, year: today.getFullYear() } },
     });
 
     if (lock && !lock.unlock_approved_at) {
-      return NextResponse.json({ error: 'Attendance is locked for this period' }, { status: 400 });
+      return NextResponse.json({ error: "Attendance is locked for this period" }, { status: 400 });
     }
 
     // Find today's attendance record
     const existing = await prisma.attendance.findUnique({
-      where: { employee_id_date: { employee_id: session.user.employeeId, date: today } }
+      where: { employee_id_date: { employee_id: session.user.employeeId, date: today } },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: 'No check-in record found for today' }, { status: 400 });
+      return NextResponse.json({ error: "No check-in record found for today" }, { status: 400 });
     }
 
     if (!existing.check_in) {
-      return NextResponse.json({ error: 'Cannot check out without checking in first' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Cannot check out without checking in first" },
+        { status: 400 },
+      );
     }
 
     if (existing.check_out) {
-      return NextResponse.json({ error: 'Already checked out for today' }, { status: 400 });
+      return NextResponse.json({ error: "Already checked out for today" }, { status: 400 });
     }
 
     // Calculate work minutes
@@ -55,19 +58,24 @@ export async function POST(request: NextRequest) {
         check_out: now,
         work_minutes: workMinutes,
         status,
-        remarks: validated.remarks ? `${existing.remarks || ''}\n${validated.remarks}`.trim() : existing.remarks,
+        remarks: validated.remarks
+          ? `${existing.remarks || ""}\n${validated.remarks}`.trim()
+          : existing.remarks,
         updated_by: session.user.id,
       },
     });
 
     return NextResponse.json(attendance);
   } catch (error) {
-    console.error('Check-out error:', error);
+    console.error("Check-out error:", error);
 
     if (error instanceof ZodError) {
-      return NextResponse.json({ error: 'Validation failed', details: error.issues }, { status: 400 });
+      return NextResponse.json(
+        { error: "Validation failed", details: error.issues },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ error: 'Failed to check out' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to check out" }, { status: 500 });
   }
 }

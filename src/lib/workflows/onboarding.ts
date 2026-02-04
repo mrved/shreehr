@@ -1,33 +1,32 @@
-import { OnboardingStatus } from '@prisma/client';
-import type { ChecklistItem } from '@/lib/validations/onboarding';
+import type { OnboardingStatus } from "@prisma/client";
+import type { ChecklistItem } from "@/lib/validations/onboarding";
 
 /**
  * Onboarding workflow helpers
  */
 
 // Allowed status transitions
-export const ALLOWED_TRANSITIONS: Record<OnboardingStatus, OnboardingStatus[]> =
-  {
-    PENDING: ['ACCEPTED', 'CANCELLED'],
-    ACCEPTED: ['IN_PROGRESS', 'CANCELLED'],
-    IN_PROGRESS: ['COMPLETED', 'CANCELLED'],
-    COMPLETED: [],
-    CANCELLED: [],
-  };
+export const ALLOWED_TRANSITIONS: Record<OnboardingStatus, OnboardingStatus[]> = {
+  PENDING: ["ACCEPTED", "CANCELLED"],
+  ACCEPTED: ["IN_PROGRESS", "CANCELLED"],
+  IN_PROGRESS: ["COMPLETED", "CANCELLED"],
+  COMPLETED: [],
+  CANCELLED: [],
+};
 
 /**
  * Check if a status transition is valid
  */
 export function canTransitionOnboarding(
   from: OnboardingStatus,
-  to: OnboardingStatus
+  to: OnboardingStatus,
 ): { valid: boolean; error?: string } {
   const allowedStates = ALLOWED_TRANSITIONS[from];
 
   if (!allowedStates.includes(to)) {
     return {
       valid: false,
-      error: `Cannot transition from ${from} to ${to}. Allowed transitions: ${allowedStates.join(', ')}`,
+      error: `Cannot transition from ${from} to ${to}. Allowed transitions: ${allowedStates.join(", ")}`,
     };
   }
 
@@ -50,10 +49,10 @@ export function generateDefaultChecklist(joiningDate: Date): ChecklistItem[] {
   return [
     {
       id: crypto.randomUUID(),
-      category: 'IT',
-      title: 'Laptop Provisioning',
-      description: 'Provision laptop with required software and access',
-      assignedTo: 'IT_TEAM',
+      category: "IT",
+      title: "Laptop Provisioning",
+      description: "Provision laptop with required software and access",
+      assignedTo: "IT_TEAM",
       dueDate: twoDaysBefore,
       completedAt: null,
       completedBy: null,
@@ -61,10 +60,10 @@ export function generateDefaultChecklist(joiningDate: Date): ChecklistItem[] {
     },
     {
       id: crypto.randomUUID(),
-      category: 'IT',
-      title: 'Email Account Creation',
-      description: 'Create company email account and provide credentials',
-      assignedTo: 'IT_TEAM',
+      category: "IT",
+      title: "Email Account Creation",
+      description: "Create company email account and provide credentials",
+      assignedTo: "IT_TEAM",
       dueDate: oneDayBefore,
       completedAt: null,
       completedBy: null,
@@ -72,10 +71,10 @@ export function generateDefaultChecklist(joiningDate: Date): ChecklistItem[] {
     },
     {
       id: crypto.randomUUID(),
-      category: 'ADMIN',
-      title: 'Desk Assignment',
-      description: 'Assign desk and workspace for new employee',
-      assignedTo: 'ADMIN_TEAM',
+      category: "ADMIN",
+      title: "Desk Assignment",
+      description: "Assign desk and workspace for new employee",
+      assignedTo: "ADMIN_TEAM",
       dueDate: oneDayBefore,
       completedAt: null,
       completedBy: null,
@@ -83,11 +82,10 @@ export function generateDefaultChecklist(joiningDate: Date): ChecklistItem[] {
     },
     {
       id: crypto.randomUUID(),
-      category: 'HR',
-      title: 'Documentation Collection',
-      description:
-        'Collect required documents: PAN, Aadhaar, bank details, certificates',
-      assignedTo: 'HR_TEAM',
+      category: "HR",
+      title: "Documentation Collection",
+      description: "Collect required documents: PAN, Aadhaar, bank details, certificates",
+      assignedTo: "HR_TEAM",
       dueDate: joining,
       completedAt: null,
       completedBy: null,
@@ -95,10 +93,10 @@ export function generateDefaultChecklist(joiningDate: Date): ChecklistItem[] {
     },
     {
       id: crypto.randomUUID(),
-      category: 'MANAGER',
-      title: 'Welcome Meeting',
-      description: 'Conduct welcome meeting and team introduction',
-      assignedTo: 'MANAGER',
+      category: "MANAGER",
+      title: "Welcome Meeting",
+      description: "Conduct welcome meeting and team introduction",
+      assignedTo: "MANAGER",
       dueDate: joining,
       completedAt: null,
       completedBy: null,

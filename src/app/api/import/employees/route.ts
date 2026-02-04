@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { parseKekaEmployees } from "@/lib/parsers/keka";
 import { encryptOptional } from "@/lib/encryption";
+import { parseKekaEmployees } from "@/lib/parsers/keka";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -41,12 +41,8 @@ export async function POST(request: NextRequest) {
     const deptMap = new Map<string, string>();
     const desigMap = new Map<string, string>();
 
-    const uniqueDepts = [
-      ...new Set(data.map((e) => e.department).filter(Boolean)),
-    ];
-    const uniqueDesigs = [
-      ...new Set(data.map((e) => e.designation).filter(Boolean)),
-    ];
+    const uniqueDepts = [...new Set(data.map((e) => e.department).filter(Boolean))];
+    const uniqueDesigs = [...new Set(data.map((e) => e.designation).filter(Boolean))];
 
     for (const deptName of uniqueDepts) {
       if (!deptName) continue;
@@ -166,10 +162,7 @@ export async function POST(request: NextRequest) {
 
     // Second pass: update reporting managers
     for (const emp of data) {
-      if (
-        emp.reportingManagerCode &&
-        empCodeMap.has(emp.reportingManagerCode)
-      ) {
+      if (emp.reportingManagerCode && empCodeMap.has(emp.reportingManagerCode)) {
         try {
           await prisma.employee.update({
             where: { employee_code: emp.employeeCode },

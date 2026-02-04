@@ -3,9 +3,9 @@
  * Local filesystem storage for employee documents with 8-year retention
  */
 
-import { mkdir, writeFile, unlink, access, readFile } from "node:fs/promises";
-import { join } from "node:path";
 import { randomBytes } from "node:crypto";
+import { access, mkdir, readFile, unlink, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 
 // Base directory for file storage
 const UPLOAD_DIR = process.env.UPLOAD_DIR || "./uploads";
@@ -118,10 +118,7 @@ export const MAX_FILE_SIZE = 10 * 1024 * 1024;
 /**
  * Validate file upload
  */
-export function validateFile(
-  mimeType: string,
-  size: number,
-): { valid: boolean; error?: string } {
+export function validateFile(mimeType: string, size: number): { valid: boolean; error?: string } {
   if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
     return {
       valid: false,

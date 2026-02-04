@@ -67,9 +67,7 @@ interface KekaLeaveBalance {
  * Personal Email, Work Email, Phone, Date of Joining, Department, Designation,
  * Reporting Manager Code, PAN, Bank Account, IFSC, Bank Name, UAN, State
  */
-export function parseKekaEmployees(
-  csvContent: string,
-): ParseResult<KekaEmployee> {
+export function parseKekaEmployees(csvContent: string): ParseResult<KekaEmployee> {
   const records = parse(csvContent, {
     columns: true,
     skip_empty_lines: true,
@@ -148,8 +146,7 @@ export function parseKekaEmployees(
         dateOfJoining,
         department: record["Department"]?.trim() || undefined,
         designation: record["Designation"]?.trim() || undefined,
-        reportingManagerCode:
-          record["Reporting Manager Code"]?.trim() || undefined,
+        reportingManagerCode: record["Reporting Manager Code"]?.trim() || undefined,
         panNumber: record["PAN"]?.trim() || undefined,
         bankAccountNumber: record["Bank Account"]?.trim() || undefined,
         bankIfscCode: record["IFSC"]?.trim() || undefined,
@@ -203,8 +200,7 @@ export function parseKekaSalary(csvContent: string): ParseResult<KekaSalary> {
       }
 
       // Parse amounts (stored in paise for precision)
-      const toPaise = (val: string) =>
-        Math.round(parseFloat(val || "0") * 100);
+      const toPaise = (val: string) => Math.round(parseFloat(val || "0") * 100);
 
       data.push({
         employeeCode,
@@ -237,9 +233,7 @@ export function parseKekaSalary(csvContent: string): ParseResult<KekaSalary> {
  * Parse Keka leave balance export CSV
  * Expected columns: Employee Code, Leave Type, Year, Opening, Accrued, Used, Balance
  */
-export function parseKekaLeave(
-  csvContent: string,
-): ParseResult<KekaLeaveBalance> {
+export function parseKekaLeave(csvContent: string): ParseResult<KekaLeaveBalance> {
   const records = parse(csvContent, {
     columns: true,
     skip_empty_lines: true,
@@ -290,11 +284,7 @@ function parseDate(dateStr: string): Date | null {
   // Try DD/MM/YYYY
   const ddmmyyyy = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (ddmmyyyy) {
-    return new Date(
-      parseInt(ddmmyyyy[3]),
-      parseInt(ddmmyyyy[2]) - 1,
-      parseInt(ddmmyyyy[1]),
-    );
+    return new Date(parseInt(ddmmyyyy[3]), parseInt(ddmmyyyy[2]) - 1, parseInt(ddmmyyyy[1]));
   }
 
   // Try YYYY-MM-DD

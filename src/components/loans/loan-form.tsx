@@ -58,8 +58,8 @@ function calculateEMI(principal: number, annualRate: number, months: number) {
   }
 
   // EMI = [P × R × (1+R)^N] / [(1+R)^N – 1]
-  const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) /
-    (Math.pow(1 + monthlyRate, months) - 1);
+  const emi =
+    (principal * monthlyRate * (1 + monthlyRate) ** months) / ((1 + monthlyRate) ** months - 1);
 
   const totalRepayment = emi * months;
   const totalInterest = totalRepayment - principal;
@@ -365,9 +365,7 @@ export function LoanForm({ employees }: LoanFormProps) {
                         <tr key={row.month} className="border-b">
                           <td className="py-2">{row.month}</td>
                           <td className="py-2">{row.date}</td>
-                          <td className="text-right py-2">
-                            ₹{row.emi.toLocaleString("en-IN")}
-                          </td>
+                          <td className="text-right py-2">₹{row.emi.toLocaleString("en-IN")}</td>
                           <td className="text-right py-2">
                             ₹{row.principal.toLocaleString("en-IN")}
                           </td>

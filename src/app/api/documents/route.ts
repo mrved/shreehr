@@ -1,11 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import {
-  saveFile,
-  calculateRetentionDate,
-  validateFile,
-} from "@/lib/storage";
+import { calculateRetentionDate, saveFile, validateFile } from "@/lib/storage";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -21,10 +17,7 @@ export async function GET(request: NextRequest) {
 
   if (employeeId) {
     // Access control
-    if (
-      session.user.role === "EMPLOYEE" &&
-      session.user.employeeId !== employeeId
-    ) {
+    if (session.user.role === "EMPLOYEE" && session.user.employeeId !== employeeId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
     where.employee_id = employeeId;
@@ -85,19 +78,12 @@ export async function POST(request: NextRequest) {
       where: { id: employeeId },
     });
     if (!employee) {
-      return NextResponse.json(
-        { error: "Employee not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
     // Save file
     const fileBuffer = Buffer.from(await file.arrayBuffer());
-    const { fileName, storagePath } = await saveFile(
-      employeeId,
-      fileBuffer,
-      file.name,
-    );
+    const { fileName, storagePath } = await saveFile(employeeId, fileBuffer, file.name);
 
     // Create document record
     const uploadedAt = new Date();

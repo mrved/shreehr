@@ -1,8 +1,13 @@
-import { describe, it, expect } from 'vitest';
-import { calculateEMI, generateAmortizationSchedule, calculateTotalInterest, calculateEndDate } from './loan';
+import { describe, expect, it } from "vitest";
+import {
+  calculateEMI,
+  calculateEndDate,
+  calculateTotalInterest,
+  generateAmortizationSchedule,
+} from "./loan";
 
-describe('Loan EMI Calculation', () => {
-  it('calculates EMI correctly for Rs.100,000 @ 12% for 12 months', () => {
+describe("Loan EMI Calculation", () => {
+  it("calculates EMI correctly for Rs.100,000 @ 12% for 12 months", () => {
     const params = {
       principalPaise: 10000000, // Rs.100,000
       annualInterestRate: 12,
@@ -17,7 +22,7 @@ describe('Loan EMI Calculation', () => {
     expect(emi).toBeLessThan(889000);
   });
 
-  it('calculates EMI correctly for zero interest loan', () => {
+  it("calculates EMI correctly for zero interest loan", () => {
     const params = {
       principalPaise: 5000000, // Rs.50,000
       annualInterestRate: 0,
@@ -30,7 +35,7 @@ describe('Loan EMI Calculation', () => {
     expect(emi).toBe(500000);
   });
 
-  it('generates schedule where total equals principal + interest', () => {
+  it("generates schedule where total equals principal + interest", () => {
     const params = {
       principalPaise: 10000000, // Rs.100,000
       annualInterestRate: 12,
@@ -48,7 +53,7 @@ describe('Loan EMI Calculation', () => {
     expect(Math.abs(totalPaid - expected)).toBeLessThanOrEqual(1);
   });
 
-  it('generates schedule where final balance is zero', () => {
+  it("generates schedule where final balance is zero", () => {
     const params = {
       principalPaise: 10000000, // Rs.100,000
       annualInterestRate: 12,
@@ -62,7 +67,7 @@ describe('Loan EMI Calculation', () => {
     expect(lastEntry.balanceAfterPaise).toBe(0);
   });
 
-  it('generates schedule where each EMI equals principal + interest', () => {
+  it("generates schedule where each EMI equals principal + interest", () => {
     const params = {
       principalPaise: 10000000, // Rs.100,000
       annualInterestRate: 12,
@@ -77,7 +82,7 @@ describe('Loan EMI Calculation', () => {
     });
   });
 
-  it('generates schedule with correct number of entries', () => {
+  it("generates schedule with correct number of entries", () => {
     const params = {
       principalPaise: 10000000,
       annualInterestRate: 12,
@@ -89,7 +94,7 @@ describe('Loan EMI Calculation', () => {
     expect(schedule.length).toBe(12);
   });
 
-  it('generates schedule with decreasing interest and increasing principal', () => {
+  it("generates schedule with decreasing interest and increasing principal", () => {
     const params = {
       principalPaise: 10000000,
       annualInterestRate: 12,
@@ -110,8 +115,8 @@ describe('Loan EMI Calculation', () => {
     }
   });
 
-  it('calculates end date correctly', () => {
-    const startDate = new Date('2026-02-01');
+  it("calculates end date correctly", () => {
+    const startDate = new Date("2026-02-01");
     const tenureMonths = 12;
 
     const endDate = calculateEndDate(startDate, tenureMonths);
@@ -121,7 +126,7 @@ describe('Loan EMI Calculation', () => {
     expect(endDate.getDate()).toBe(1);
   });
 
-  it('calculates total interest correctly', () => {
+  it("calculates total interest correctly", () => {
     const params = {
       principalPaise: 10000000,
       annualInterestRate: 12,

@@ -1,16 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { leaveTypeUpdateSchema } from '@/lib/validations/leave';
-import { ZodError } from 'zod';
+import { type NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { leaveTypeUpdateSchema } from "@/lib/validations/leave";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -19,23 +16,20 @@ export async function GET(
     const leaveType = await prisma.leaveType.findUnique({ where: { id } });
 
     if (!leaveType) {
-      return NextResponse.json({ error: 'Leave type not found' }, { status: 404 });
+      return NextResponse.json({ error: "Leave type not found" }, { status: 404 });
     }
 
     return NextResponse.json(leaveType);
   } catch (error) {
-    console.error('Leave type get error:', error);
-    return NextResponse.json({ error: 'Failed to fetch leave type' }, { status: 500 });
+    console.error("Leave type get error:", error);
+    return NextResponse.json({ error: "Failed to fetch leave type" }, { status: 500 });
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session?.user || !['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER'].includes(session.user.role)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!session?.user || !["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(session.user.role)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -47,7 +41,7 @@ export async function PATCH(
     const existing = await prisma.leaveType.findUnique({ where: { id } });
 
     if (!existing) {
-      return NextResponse.json({ error: 'Leave type not found' }, { status: 404 });
+      return NextResponse.json({ error: "Leave type not found" }, { status: 404 });
     }
 
     const leaveType = await prisma.leaveType.update({
@@ -67,23 +61,26 @@ export async function PATCH(
 
     return NextResponse.json(leaveType);
   } catch (error) {
-    console.error('Leave type update error:', error);
+    console.error("Leave type update error:", error);
 
     if (error instanceof ZodError) {
-      return NextResponse.json({ error: 'Validation failed', details: error.issues }, { status: 400 });
+      return NextResponse.json(
+        { error: "Validation failed", details: error.issues },
+        { status: 400 },
+      );
     }
 
-    return NextResponse.json({ error: 'Failed to update leave type' }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update leave type" }, { status: 500 });
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth();
-  if (!session?.user || !['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER'].includes(session.user.role)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!session?.user || !["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(session.user.role)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -98,13 +95,13 @@ export async function DELETE(
         where: { id },
         data: { is_active: false, updated_by: session.user.id },
       });
-      return NextResponse.json({ message: 'Leave type deactivated (has existing requests)' });
+      return NextResponse.json({ message: "Leave type deactivated (has existing requests)" });
     }
 
     await prisma.leaveType.delete({ where: { id } });
-    return NextResponse.json({ message: 'Leave type deleted' });
+    return NextResponse.json({ message: "Leave type deleted" });
   } catch (error) {
-    console.error('Leave type delete error:', error);
-    return NextResponse.json({ error: 'Failed to delete leave type' }, { status: 500 });
+    console.error("Leave type delete error:", error);
+    return NextResponse.json({ error: "Failed to delete leave type" }, { status: 500 });
   }
 }

@@ -8,8 +8,8 @@
  * - Frequency (monthly/yearly)
  */
 
-import { prisma } from '@/lib/db';
-import type { Gender } from '@prisma/client';
+import type { Gender } from "@prisma/client";
+import { prisma } from "@/lib/db";
 
 export interface PTCalculationInput {
   stateCode: string;
@@ -31,23 +31,11 @@ export interface PTCalculationResult {
  * @param input - Calculation parameters
  * @returns PT amount in paise
  */
-export async function calculatePT(
-  input: PTCalculationInput,
-): Promise<PTCalculationResult> {
+export async function calculatePT(input: PTCalculationInput): Promise<PTCalculationResult> {
   const { stateCode, grossSalaryPaise, month, gender } = input;
 
   // Check if state has PT
-  const exemptStates = [
-    'DL',
-    'HR',
-    'HP',
-    'JH',
-    'KL',
-    'PB',
-    'RJ',
-    'UP',
-    'UT',
-  ];
+  const exemptStates = ["DL", "HR", "HP", "JH", "KL", "PB", "RJ", "UP", "UT"];
   if (exemptStates.includes(stateCode)) {
     return {
       ptAmountPaise: 0,
@@ -69,7 +57,7 @@ export async function calculatePT(
         { OR: [{ applies_to_gender: null }, { applies_to_gender: gender }] },
       ],
     },
-    orderBy: [{ month: 'desc' }, { salary_from: 'desc' }], // Prefer month-specific, then highest slab
+    orderBy: [{ month: "desc" }, { salary_from: "desc" }], // Prefer month-specific, then highest slab
   });
 
   // If no month-specific slab, find general slab (month = null)
@@ -85,7 +73,7 @@ export async function calculatePT(
           { OR: [{ applies_to_gender: null }, { applies_to_gender: gender }] },
         ],
       },
-      orderBy: { salary_from: 'desc' }, // Highest matching slab
+      orderBy: { salary_from: "desc" }, // Highest matching slab
     });
   }
 
@@ -95,7 +83,7 @@ export async function calculatePT(
       ptAmountPaise: 0,
       slabId: null,
       isExempt: true,
-      reason: 'Salary below PT threshold',
+      reason: "Salary below PT threshold",
     };
   }
 
@@ -118,7 +106,7 @@ export async function getPTSlabsForState(stateCode: string) {
       state_code: stateCode,
       is_active: true,
     },
-    orderBy: [{ month: 'asc' }, { salary_from: 'asc' }],
+    orderBy: [{ month: "asc" }, { salary_from: "asc" }],
   });
 
   return slabs;
@@ -133,8 +121,8 @@ export async function getPTStates() {
   const states = await prisma.professionalTaxSlab.findMany({
     where: { is_active: true },
     select: { state_code: true },
-    distinct: ['state_code'],
-    orderBy: { state_code: 'asc' },
+    distinct: ["state_code"],
+    orderBy: { state_code: "asc" },
   });
 
   return states.map((s) => s.state_code);

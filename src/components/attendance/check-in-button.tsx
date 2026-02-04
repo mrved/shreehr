@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Clock, LogIn, LogOut, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Clock, Loader2, LogIn, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 interface AttendanceStatus {
   checkedIn: boolean;
@@ -27,7 +27,7 @@ export function CheckInButton() {
 
   async function fetchStatus() {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       const res = await fetch(`/api/attendance?startDate=${today}&endDate=${today}`);
       const data = await res.json();
 
@@ -44,7 +44,7 @@ export function CheckInButton() {
         setStatus({ checkedIn: false, checkedOut: false });
       }
     } catch (error) {
-      console.error('Failed to fetch attendance status:', error);
+      console.error("Failed to fetch attendance status:", error);
       setStatus({ checkedIn: false, checkedOut: false });
     } finally {
       setLoading(false);
@@ -54,21 +54,21 @@ export function CheckInButton() {
   async function handleCheckIn() {
     setActionLoading(true);
     try {
-      const res = await fetch('/api/attendance/check-in', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/attendance/check-in", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
 
       if (res.ok) {
-        toast({ title: 'Checked in successfully' });
+        toast({ title: "Checked in successfully" });
         fetchStatus();
       } else {
         const data = await res.json();
-        toast({ title: 'Check-in failed', description: data.error, variant: 'destructive' });
+        toast({ title: "Check-in failed", description: data.error, variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: 'Check-in failed', variant: 'destructive' });
+      toast({ title: "Check-in failed", variant: "destructive" });
     } finally {
       setActionLoading(false);
     }
@@ -77,30 +77,30 @@ export function CheckInButton() {
   async function handleCheckOut() {
     setActionLoading(true);
     try {
-      const res = await fetch('/api/attendance/check-out', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/attendance/check-out", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
 
       if (res.ok) {
-        toast({ title: 'Checked out successfully' });
+        toast({ title: "Checked out successfully" });
         fetchStatus();
       } else {
         const data = await res.json();
-        toast({ title: 'Check-out failed', description: data.error, variant: 'destructive' });
+        toast({ title: "Check-out failed", description: data.error, variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: 'Check-out failed', variant: 'destructive' });
+      toast({ title: "Check-out failed", variant: "destructive" });
     } finally {
       setActionLoading(false);
     }
   }
 
   function formatTime(isoString: string) {
-    return new Date(isoString).toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(isoString).toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   }
 
@@ -135,9 +135,7 @@ export function CheckInButton() {
                 </p>
               )}
               {status?.workMinutes && status.workMinutes > 0 && (
-                <p className="text-sm font-medium">
-                  Work: {formatDuration(status.workMinutes)}
-                </p>
+                <p className="text-sm font-medium">Work: {formatDuration(status.workMinutes)}</p>
               )}
             </div>
           </div>
@@ -145,21 +143,27 @@ export function CheckInButton() {
           <div className="flex items-center gap-2">
             {!status?.checkedIn && (
               <Button onClick={handleCheckIn} disabled={actionLoading}>
-                {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4 mr-2" />}
+                {actionLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <LogIn className="h-4 w-4 mr-2" />
+                )}
                 Check In
               </Button>
             )}
 
             {status?.checkedIn && !status?.checkedOut && (
               <Button onClick={handleCheckOut} disabled={actionLoading} variant="outline">
-                {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4 mr-2" />}
+                {actionLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <LogOut className="h-4 w-4 mr-2" />
+                )}
                 Check Out
               </Button>
             )}
 
-            {status?.checkedOut && (
-              <Badge variant="secondary">Day Complete</Badge>
-            )}
+            {status?.checkedOut && <Badge variant="secondary">Day Complete</Badge>}
           </div>
         </div>
       </CardContent>

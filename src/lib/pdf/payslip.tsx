@@ -1,22 +1,7 @@
-import React from 'react';
-import {
-  Document,
-  Page,
-  Text,
-  View,
-} from '@react-pdf/renderer';
-import {
-  pdfStyles,
-  InfoRow,
-  TotalRow,
-  SectionTitle,
-} from './components';
-import {
-  formatCurrencyPDF,
-  maskPAN,
-  getMonthName,
-  formatNetPayInWords,
-} from './utils';
+import { Document, Page, Text, View } from "@react-pdf/renderer";
+import React from "react";
+import { InfoRow, pdfStyles, SectionTitle, TotalRow } from "./components";
+import { formatCurrencyPDF, formatNetPayInWords, getMonthName, maskPAN } from "./utils";
 
 export interface PayslipData {
   // Company info
@@ -115,9 +100,9 @@ export function PayslipDocument({ data }: { data: PayslipData }) {
             </View>
             <View style={pdfStyles.column}>
               <InfoRow label="PAN" value={maskPAN(employee.pan || null)} />
-              <InfoRow label="UAN" value={employee.uan || 'N/A'} />
-              <InfoRow label="Bank" value={employee.bankName || 'N/A'} />
-              <InfoRow label="ESIC No" value={employee.esicNumber || 'N/A'} />
+              <InfoRow label="UAN" value={employee.uan || "N/A"} />
+              <InfoRow label="Bank" value={employee.bankName || "N/A"} />
+              <InfoRow label="ESIC No" value={employee.esicNumber || "N/A"} />
             </View>
           </View>
         </View>
@@ -143,10 +128,11 @@ export function PayslipDocument({ data }: { data: PayslipData }) {
             <SectionTitle title="Earnings" />
             <InfoRow label="Basic Salary" value={formatCurrencyPDF(earnings.basic)} />
             <InfoRow label="HRA" value={formatCurrencyPDF(earnings.hra)} />
-            <InfoRow label="Special Allowance" value={formatCurrencyPDF(earnings.specialAllowance)} />
-            {earnings.lta > 0 && (
-              <InfoRow label="LTA" value={formatCurrencyPDF(earnings.lta)} />
-            )}
+            <InfoRow
+              label="Special Allowance"
+              value={formatCurrencyPDF(earnings.specialAllowance)}
+            />
+            {earnings.lta > 0 && <InfoRow label="LTA" value={formatCurrencyPDF(earnings.lta)} />}
             {earnings.medical > 0 && (
               <InfoRow label="Medical Allowance" value={formatCurrencyPDF(earnings.medical)} />
             )}
@@ -154,7 +140,10 @@ export function PayslipDocument({ data }: { data: PayslipData }) {
               <InfoRow label="Conveyance" value={formatCurrencyPDF(earnings.conveyance)} />
             )}
             {earnings.otherAllowances > 0 && (
-              <InfoRow label="Other Allowances" value={formatCurrencyPDF(earnings.otherAllowances)} />
+              <InfoRow
+                label="Other Allowances"
+                value={formatCurrencyPDF(earnings.otherAllowances)}
+              />
             )}
             <TotalRow label="Gross Earnings" value={formatCurrencyPDF(data.grossBeforeLOP)} />
           </View>
@@ -178,9 +167,15 @@ export function PayslipDocument({ data }: { data: PayslipData }) {
               <InfoRow label="Loss of Pay" value={formatCurrencyPDF(deductions.lopDeduction)} />
             )}
             {deductions.otherDeductions > 0 && (
-              <InfoRow label="Other Deductions" value={formatCurrencyPDF(deductions.otherDeductions)} />
+              <InfoRow
+                label="Other Deductions"
+                value={formatCurrencyPDF(deductions.otherDeductions)}
+              />
             )}
-            <TotalRow label="Total Deductions" value={formatCurrencyPDF(data.totalDeductions + deductions.lopDeduction)} />
+            <TotalRow
+              label="Total Deductions"
+              value={formatCurrencyPDF(data.totalDeductions + deductions.lopDeduction)}
+            />
           </View>
         </View>
 
@@ -198,10 +193,16 @@ export function PayslipDocument({ data }: { data: PayslipData }) {
           <SectionTitle title="Employer Contributions (For Your Information)" />
           <View style={pdfStyles.twoColumn}>
             <View style={pdfStyles.column}>
-              <InfoRow label="Employer PF Contribution" value={formatCurrencyPDF(data.employerPF)} />
+              <InfoRow
+                label="Employer PF Contribution"
+                value={formatCurrencyPDF(data.employerPF)}
+              />
             </View>
             <View style={pdfStyles.column}>
-              <InfoRow label="Employer ESI Contribution" value={formatCurrencyPDF(data.employerESI)} />
+              <InfoRow
+                label="Employer ESI Contribution"
+                value={formatCurrencyPDF(data.employerESI)}
+              />
             </View>
           </View>
         </View>
@@ -209,7 +210,7 @@ export function PayslipDocument({ data }: { data: PayslipData }) {
         {/* Footer */}
         <View style={pdfStyles.footer}>
           <Text>This is a system-generated payslip and does not require a signature.</Text>
-          <Text>Generated on: {new Date().toLocaleDateString('en-IN')}</Text>
+          <Text>Generated on: {new Date().toLocaleDateString("en-IN")}</Text>
           <Text>For queries, contact HR department.</Text>
         </View>
       </Page>

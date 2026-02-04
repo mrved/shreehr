@@ -3,7 +3,7 @@
  * Approval routing and status transition validation
  */
 
-import { ExpenseStatus, ApprovalStatus } from "@prisma/client";
+import { ApprovalStatus, type ExpenseStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
 // ============================================================================
@@ -82,10 +82,7 @@ export const EXPENSE_TRANSITIONS: Record<ExpenseStatus, ExpenseStatus[]> = {
 /**
  * Check if a status transition is valid
  */
-export function canTransitionExpense(
-  from: ExpenseStatus,
-  to: ExpenseStatus
-): boolean {
+export function canTransitionExpense(from: ExpenseStatus, to: ExpenseStatus): boolean {
   const validTransitions = EXPENSE_TRANSITIONS[from] || [];
   return validTransitions.includes(to);
 }
@@ -106,7 +103,7 @@ export interface PolicyValidationResult {
 export async function validateExpenseAgainstPolicy(
   policyId: string,
   amountPaise: number,
-  hasReceipt: boolean
+  hasReceipt: boolean,
 ): Promise<PolicyValidationResult> {
   const policy = await prisma.expensePolicy.findUnique({
     where: { id: policyId },
@@ -159,7 +156,7 @@ export async function validateExpenseAgainstPolicy(
  */
 export function shouldAutoApprove(
   policy: { auto_approve_below_paise: number | null; requires_approval: boolean },
-  amountPaise: number
+  amountPaise: number,
 ): boolean {
   // If policy doesn't require approval at all
   if (!policy.requires_approval) {
@@ -167,10 +164,7 @@ export function shouldAutoApprove(
   }
 
   // If auto-approve threshold is set and amount is below it
-  if (
-    policy.auto_approve_below_paise !== null &&
-    amountPaise < policy.auto_approve_below_paise
-  ) {
+  if (policy.auto_approve_below_paise !== null && amountPaise < policy.auto_approve_below_paise) {
     return true;
   }
 

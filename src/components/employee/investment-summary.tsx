@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { calculate80CTotal, calculate80DTotal } from '@/lib/validations/investment';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { calculate80CTotal, calculate80DTotal } from "@/lib/validations/investment";
 
 interface InvestmentDeclaration {
   id: string;
@@ -40,7 +40,7 @@ interface InvestmentSummaryProps {
 }
 
 const formatCurrency = (paise: number) => {
-  return `₹${(paise / 100).toLocaleString('en-IN', {
+  return `₹${(paise / 100).toLocaleString("en-IN", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })}`;
@@ -48,16 +48,16 @@ const formatCurrency = (paise: number) => {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'DRAFT':
-      return 'bg-gray-100 text-gray-800';
-    case 'SUBMITTED':
-      return 'bg-blue-100 text-blue-800';
-    case 'VERIFIED':
-      return 'bg-green-100 text-green-800';
-    case 'REJECTED':
-      return 'bg-red-100 text-red-800';
+    case "DRAFT":
+      return "bg-gray-100 text-gray-800";
+    case "SUBMITTED":
+      return "bg-blue-100 text-blue-800";
+    case "VERIFIED":
+      return "bg-green-100 text-green-800";
+    case "REJECTED":
+      return "bg-red-100 text-red-800";
     default:
-      return 'bg-gray-100 text-gray-800';
+      return "bg-gray-100 text-gray-800";
   }
 };
 
@@ -67,8 +67,8 @@ export function InvestmentSummary({ declaration }: InvestmentSummaryProps) {
   const totalHRA = declaration.hra_monthly_rent * 12;
 
   // Rough tax savings estimate (simplified - assumes 30% tax bracket)
-  const taxSavings80C = Math.min(total80C, 15000000) * 0.30; // Max Rs.1.5L
-  const taxSavings80D = total80D * 0.30;
+  const taxSavings80C = Math.min(total80C, 15000000) * 0.3; // Max Rs.1.5L
+  const taxSavings80D = total80D * 0.3;
   const totalEstimatedSavings = (taxSavings80C + taxSavings80D) / 100;
 
   return (
@@ -76,7 +76,9 @@ export function InvestmentSummary({ declaration }: InvestmentSummaryProps) {
       {/* Status Badge */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Investment Declaration</h2>
-        <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(declaration.status)}`}>
+        <span
+          className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(declaration.status)}`}
+        >
           {declaration.status}
         </span>
       </div>
@@ -105,13 +107,17 @@ export function InvestmentSummary({ declaration }: InvestmentSummaryProps) {
             {declaration.section_80c_life_insurance > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Life Insurance</span>
-                <span className="font-medium">{formatCurrency(declaration.section_80c_life_insurance)}</span>
+                <span className="font-medium">
+                  {formatCurrency(declaration.section_80c_life_insurance)}
+                </span>
               </div>
             )}
             {declaration.section_80c_tuition_fees > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Tuition Fees</span>
-                <span className="font-medium">{formatCurrency(declaration.section_80c_tuition_fees)}</span>
+                <span className="font-medium">
+                  {formatCurrency(declaration.section_80c_tuition_fees)}
+                </span>
               </div>
             )}
             {declaration.section_80c_nps > 0 && (
@@ -123,13 +129,17 @@ export function InvestmentSummary({ declaration }: InvestmentSummaryProps) {
             {declaration.section_80c_home_loan_principal > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Home Loan Principal</span>
-                <span className="font-medium">{formatCurrency(declaration.section_80c_home_loan_principal)}</span>
+                <span className="font-medium">
+                  {formatCurrency(declaration.section_80c_home_loan_principal)}
+                </span>
               </div>
             )}
             {declaration.section_80c_sukanya > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Sukanya Samriddhi</span>
-                <span className="font-medium">{formatCurrency(declaration.section_80c_sukanya)}</span>
+                <span className="font-medium">
+                  {formatCurrency(declaration.section_80c_sukanya)}
+                </span>
               </div>
             )}
             {declaration.section_80c_other > 0 && (
@@ -141,7 +151,7 @@ export function InvestmentSummary({ declaration }: InvestmentSummaryProps) {
             <div className="border-t pt-2 mt-2">
               <div className="flex justify-between text-sm font-bold">
                 <span>Total 80C</span>
-                <span className={total80C > 15000000 ? 'text-red-600' : 'text-green-600'}>
+                <span className={total80C > 15000000 ? "text-red-600" : "text-green-600"}>
                   {formatCurrency(total80C)}
                 </span>
               </div>
@@ -168,13 +178,17 @@ export function InvestmentSummary({ declaration }: InvestmentSummaryProps) {
             {declaration.section_80d_parents > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Parents</span>
-                <span className="font-medium">{formatCurrency(declaration.section_80d_parents)}</span>
+                <span className="font-medium">
+                  {formatCurrency(declaration.section_80d_parents)}
+                </span>
               </div>
             )}
             {declaration.section_80d_checkup > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Preventive Checkup</span>
-                <span className="font-medium">{formatCurrency(declaration.section_80d_checkup)}</span>
+                <span className="font-medium">
+                  {formatCurrency(declaration.section_80d_checkup)}
+                </span>
               </div>
             )}
             <div className="border-t pt-2 mt-2">
@@ -226,19 +240,25 @@ export function InvestmentSummary({ declaration }: InvestmentSummaryProps) {
               {declaration.section_80e_education_loan > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">80E Education Loan</span>
-                  <span className="font-medium">{formatCurrency(declaration.section_80e_education_loan)}</span>
+                  <span className="font-medium">
+                    {formatCurrency(declaration.section_80e_education_loan)}
+                  </span>
                 </div>
               )}
               {declaration.section_80g_donations > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">80G Donations</span>
-                  <span className="font-medium">{formatCurrency(declaration.section_80g_donations)}</span>
+                  <span className="font-medium">
+                    {formatCurrency(declaration.section_80g_donations)}
+                  </span>
                 </div>
               )}
               {declaration.section_24_home_loan_interest > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Sec 24 Home Loan Interest</span>
-                  <span className="font-medium">{formatCurrency(declaration.section_24_home_loan_interest)}</span>
+                  <span className="font-medium">
+                    {formatCurrency(declaration.section_24_home_loan_interest)}
+                  </span>
                 </div>
               )}
             </CardContent>
@@ -252,7 +272,8 @@ export function InvestmentSummary({ declaration }: InvestmentSummaryProps) {
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-1">Estimated Annual Tax Savings</p>
             <p className="text-3xl font-bold text-green-700">
-              ₹{totalEstimatedSavings.toLocaleString('en-IN', {
+              ₹
+              {totalEstimatedSavings.toLocaleString("en-IN", {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
               })}

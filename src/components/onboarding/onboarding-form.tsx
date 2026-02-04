@@ -198,11 +198,7 @@ export function OnboardingForm({ departments, designations }: OnboardingFormProp
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="candidate_name">Full Name *</Label>
-              <Input
-                id="candidate_name"
-                {...register("candidate_name")}
-                placeholder="John Doe"
-              />
+              <Input id="candidate_name" {...register("candidate_name")} placeholder="John Doe" />
               {errors.candidate_name && (
                 <p className="text-sm text-red-600 mt-1">{errors.candidate_name.message}</p>
               )}
@@ -395,7 +391,10 @@ export function OnboardingForm({ departments, designations }: OnboardingFormProp
               </div>
 
               <div className="flex items-center space-x-2">
-                <Switch id={`checklist.${index}.required`} {...register(`checklist.${index}.required`)} />
+                <Switch
+                  id={`checklist.${index}.required`}
+                  {...register(`checklist.${index}.required`)}
+                />
                 <Label htmlFor={`checklist.${index}.required`} className="font-normal">
                   Required for completion
                 </Label>

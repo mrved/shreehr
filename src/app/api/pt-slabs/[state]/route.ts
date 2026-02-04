@@ -5,10 +5,10 @@
  * DELETE - Soft delete PT slab
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { auth } from '@/lib/auth';
-import { getPTSlabsForState } from '@/lib/statutory/pt';
+import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { getPTSlabsForState } from "@/lib/statutory/pt";
 
 /**
  * GET /api/pt-slabs/[state]
@@ -21,14 +21,12 @@ export async function GET(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Only admins and payroll managers can view PT slabs
-    if (
-      !['SUPER_ADMIN', 'ADMIN', 'PAYROLL_MANAGER'].includes(session.user.role)
-    ) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!["SUPER_ADMIN", "ADMIN", "PAYROLL_MANAGER"].includes(session.user.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { state } = await params;
@@ -38,11 +36,8 @@ export async function GET(
 
     return NextResponse.json({ state_code: stateCode, slabs });
   } catch (error) {
-    console.error('Error fetching PT slabs for state:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 },
-    );
+    console.error("Error fetching PT slabs for state:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -57,22 +52,19 @@ export async function PUT(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Only admins can update PT slabs
-    if (!['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!["SUPER_ADMIN", "ADMIN"].includes(session.user.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const body = await request.json();
     const { id, ...updateData } = body;
 
     if (!id) {
-      return NextResponse.json(
-        { error: 'PT slab ID required' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "PT slab ID required" }, { status: 400 });
     }
 
     // Validate salary range if both are provided
@@ -83,7 +75,7 @@ export async function PUT(
       updateData.salary_to < updateData.salary_from
     ) {
       return NextResponse.json(
-        { error: 'salary_to must be greater than salary_from' },
+        { error: "salary_to must be greater than salary_from" },
         { status: 400 },
       );
     }
@@ -98,11 +90,8 @@ export async function PUT(
 
     return NextResponse.json({ slab });
   } catch (error) {
-    console.error('Error updating PT slab:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 },
-    );
+    console.error("Error updating PT slab:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -117,22 +106,19 @@ export async function DELETE(
   try {
     const session = await auth();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Only admins can delete PT slabs
-    if (!['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!["SUPER_ADMIN", "ADMIN"].includes(session.user.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json(
-        { error: 'PT slab ID required' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "PT slab ID required" }, { status: 400 });
     }
 
     // Soft delete by setting is_active to false
@@ -146,10 +132,7 @@ export async function DELETE(
 
     return NextResponse.json({ slab });
   } catch (error) {
-    console.error('Error deleting PT slab:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 },
-    );
+    console.error("Error deleting PT slab:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

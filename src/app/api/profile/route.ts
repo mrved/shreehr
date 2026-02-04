@@ -1,17 +1,17 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 
 // GET /api/profile - Return current employee profile
 export async function GET() {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Employees can only view their own profile
   if (!session.user.employeeId) {
-    return NextResponse.json({ error: 'No employee record linked to this user' }, { status: 404 });
+    return NextResponse.json({ error: "No employee record linked to this user" }, { status: 404 });
   }
 
   try {
@@ -76,15 +76,13 @@ export async function GET() {
     });
 
     if (!employee) {
-      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
     // Mask PII (show only last 4 characters)
     const maskedProfile = {
       ...employee,
-      pan: employee.pan_encrypted
-        ? `******${employee.pan_encrypted.slice(-4)}`
-        : null,
+      pan: employee.pan_encrypted ? `******${employee.pan_encrypted.slice(-4)}` : null,
       aadhaar: employee.aadhaar_encrypted
         ? `********${employee.aadhaar_encrypted.slice(-4)}`
         : null,
@@ -95,7 +93,7 @@ export async function GET() {
 
     return NextResponse.json(profileData);
   } catch (error) {
-    console.error('Profile fetch error:', error);
-    return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
+    console.error("Profile fetch error:", error);
+    return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 });
   }
 }
