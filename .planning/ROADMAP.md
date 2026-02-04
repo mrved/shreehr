@@ -17,7 +17,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Payroll & Compliance** - Automated payroll with Indian statutory compliance
 - [x] **Phase 4: Employee Self-Service** - Mobile-first portal for employees
 - [x] **Phase 5: Supporting Workflows** - Onboarding, expenses, and loan management
-- [ ] **Phase 6: AI Assistant** - Chat interface for HR queries and policy Q&A
+- [x] **Phase 6: AI Assistant** - Chat interface for HR queries and policy Q&A
+- [ ] **Phase 7: AI Enhancement** - Claude API, test data, security hardening, MCP analytics
 
 ## Phase Details
 
@@ -177,6 +178,28 @@ Plans:
 - [ ] 06-04-PLAN.md — Chat API with streaming and policy management
 - [ ] 06-05-PLAN.md — Chat UI and policy management pages
 - [ ] 06-06-PLAN.md — End-to-end verification (checkpoint)
+
+### Phase 7: AI Enhancement
+**Goal**: Production-ready AI assistant with Claude API, comprehensive test data, and security hardening
+
+**Depends on**: Phase 6
+
+**Requirements**: Enhanced from research findings
+
+**Success Criteria** (what must be TRUE):
+  1. AI assistant uses Claude API instead of Ollama for better reasoning
+  2. Test data covers 5 roles, multi-state employees, ESI salary ranges, historical payroll
+  3. Centralized RBAC middleware enforces permissions consistently
+  4. Audit logging tracks sensitive operations (PII access, tool executions)
+  5. MCP available for SUPER_ADMIN analytics queries only
+
+**Plans**: 4 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Test data seeding (multi-role, multi-state, varied salaries)
+- [ ] 07-02-PLAN.md — Security hardening (RBAC middleware, audit logging)
+- [ ] 07-03-PLAN.md — Claude API integration (replace Ollama)
+- [ ] 07-04-PLAN.md — MCP for SUPER_ADMIN analytics
 
 ## Progress
 

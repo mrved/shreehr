@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
+import { invalidateDesignations } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 import { designationSchema } from "@/lib/validations/organization";
 
@@ -64,6 +65,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       data: updateData,
     });
 
+    // Invalidate designation cache
+    invalidateDesignations();
+
     return NextResponse.json(designation);
   } catch (error) {
     console.error("Designation update error:", error);
@@ -115,6 +119,10 @@ export async function DELETE(
     }
 
     await prisma.designation.delete({ where: { id } });
+
+    // Invalidate designation cache
+    invalidateDesignations();
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Designation delete error:", error);

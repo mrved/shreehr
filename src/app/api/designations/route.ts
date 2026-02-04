@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
+import { getCachedDesignationsWithCounts, invalidateDesignations } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 import { designationSchema } from "@/lib/validations/organization";
 
@@ -11,13 +12,8 @@ export async function GET() {
   }
 
   try {
-    const designations = await prisma.designation.findMany({
-      orderBy: [{ level: "asc" }, { title: "asc" }],
-      include: {
-        _count: { select: { employees: true } },
-      },
-    });
-
+    // Use cached query (15 min TTL)
+    const designations = await getCachedDesignationsWithCounts();
     return NextResponse.json(designations);
   } catch (error) {
     console.error("Designation list error:", error);
@@ -50,6 +46,9 @@ export async function POST(request: NextRequest) {
         updated_by: session.user.id,
       },
     });
+
+    // Invalidate designation cache
+    invalidateDesignations();
 
     return NextResponse.json(designation, { status: 201 });
   } catch (error) {

@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { invalidateLeaveTypes } from "@/lib/cache";
 import { leaveTypeUpdateSchema } from "@/lib/validations/leave";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -59,6 +60,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       },
     });
 
+    // Invalidate leave types cache
+    invalidateLeaveTypes();
+
     return NextResponse.json(leaveType);
   } catch (error) {
     console.error("Leave type update error:", error);
@@ -95,10 +99,16 @@ export async function DELETE(
         where: { id },
         data: { is_active: false, updated_by: session.user.id },
       });
+      // Invalidate leave types cache
+      invalidateLeaveTypes();
       return NextResponse.json({ message: "Leave type deactivated (has existing requests)" });
     }
 
     await prisma.leaveType.delete({ where: { id } });
+
+    // Invalidate leave types cache
+    invalidateLeaveTypes();
+
     return NextResponse.json({ message: "Leave type deleted" });
   } catch (error) {
     console.error("Leave type delete error:", error);

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
+import { invalidateEmployees, invalidateDashboard } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 import { decrypt, encrypt, maskAadhaar, maskBankAccount, maskPAN } from "@/lib/encryption";
 import { employeeUpdateSchema } from "@/lib/validations/employee";
@@ -162,6 +163,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       },
     });
 
+    // Invalidate employee cache (status changes affect dashboard counts)
+    invalidateEmployees();
+    if (validated.employmentStatus !== undefined) {
+      invalidateDashboard();
+    }
+
     return NextResponse.json(employee);
   } catch (error) {
     console.error("Employee update error:", error);
@@ -202,6 +209,10 @@ export async function DELETE(
         updated_by: session.user.id,
       },
     });
+
+    // Invalidate employee and dashboard caches
+    invalidateEmployees();
+    invalidateDashboard();
 
     return NextResponse.json({ success: true });
   } catch (error) {

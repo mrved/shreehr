@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { invalidateDocuments, invalidateDashboard } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -49,6 +50,10 @@ export async function DELETE(
       updated_by: session.user.id,
     },
   });
+
+  // Invalidate document and dashboard caches
+  invalidateDocuments();
+  invalidateDashboard();
 
   return NextResponse.json({ success: true });
 }

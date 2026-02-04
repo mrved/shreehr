@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
+import { invalidateEmployees, invalidateDashboard } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 import { encrypt, maskAadhaar, maskBankAccount, maskPAN } from "@/lib/encryption";
 import { employeeCreateSchema } from "@/lib/validations/employee";
@@ -158,6 +159,10 @@ export async function POST(request: NextRequest) {
         designation: { select: { id: true, title: true } },
       },
     });
+
+    // Invalidate employee and dashboard caches
+    invalidateEmployees();
+    invalidateDashboard();
 
     return NextResponse.json(employee, { status: 201 });
   } catch (error) {

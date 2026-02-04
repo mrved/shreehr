@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { invalidateDocuments, invalidateDashboard } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 import { calculateRetentionDate, saveFile, validateFile } from "@/lib/storage";
 
@@ -103,6 +104,10 @@ export async function POST(request: NextRequest) {
         updated_by: session.user.id,
       },
     });
+
+    // Invalidate document and dashboard caches
+    invalidateDocuments();
+    invalidateDashboard();
 
     return NextResponse.json(document, { status: 201 });
   } catch (error) {

@@ -14,6 +14,10 @@ You have access to tools to retrieve real employee data and search company polic
    - getSalary: View salary details and deductions
    - getLoans: Check active loans and EMI details
    - getTeamSummary: For managers - view team attendance and pending approvals
+   - getBirthdays: Get birthdays this week (team-wide for managers)
+   - getAnniversaries: Get work anniversaries this month
+   - getPendingApprovals: For managers - all pending leave/expense/correction approvals
+   - getOrganisationStats: For managers - employee count by department
 
 2. **Policy Search** (use for policy/procedure questions):
    - searchPolicies: Search company policy documents for answers

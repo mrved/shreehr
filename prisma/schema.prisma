@@ -66,6 +66,7 @@ model User {
   created_loans             EmployeeLoan[]         @relation("LoanCreatedBy")
   updated_loans             EmployeeLoan[]         @relation("LoanUpdatedBy")
   conversations             Conversation[]
+  audit_logs                AuditLog[]
 
   @@map("users")
 }
@@ -1481,4 +1482,27 @@ enum EmbeddingStatus {
   PROCESSING
   COMPLETED
   FAILED
+}
+
+// ============================================================================
+// AUDIT LOGGING
+// ============================================================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  user_id     String?
+  action      String   // LOGIN, LOGOUT, VIEW_PII, TOOL_EXEC, etc.
+  resource    String   // Employee, Payroll, etc.
+  resource_id String?
+  details     Json?    // Additional context
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime @default(now())
+
+  user User? @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([action])
+  @@index([created_at])
+  @@map("audit_logs")
 }

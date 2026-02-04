@@ -1,17 +1,13 @@
 import { Building2, FileText, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { getCachedDashboardCounts } from "@/lib/cache";
 
 export default async function DashboardPage() {
   const session = await auth();
 
-  // Fetch actual counts
-  const [employeeCount, departmentCount, documentCount] = await Promise.all([
-    prisma.employee.count(),
-    prisma.department.count(),
-    prisma.document.count(),
-  ]);
+  // Fetch cached counts
+  const counts = await getCachedDashboardCounts();
 
   return (
     <div className="space-y-6">
@@ -27,9 +23,9 @@ export default async function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{employeeCount}</div>
+            <div className="text-2xl font-bold">{counts.employees}</div>
             <p className="text-xs text-muted-foreground">
-              {employeeCount === 0 ? "No employees yet" : "Active in system"}
+              {counts.employees === 0 ? "No employees yet" : "Active in system"}
             </p>
           </CardContent>
         </Card>
@@ -40,9 +36,9 @@ export default async function DashboardPage() {
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{departmentCount}</div>
+            <div className="text-2xl font-bold">{counts.departments}</div>
             <p className="text-xs text-muted-foreground">
-              {departmentCount === 0 ? "No departments yet" : "Configured"}
+              {counts.departments === 0 ? "No departments yet" : "Configured"}
             </p>
           </CardContent>
         </Card>
@@ -53,9 +49,9 @@ export default async function DashboardPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{documentCount}</div>
+            <div className="text-2xl font-bold">{counts.documents}</div>
             <p className="text-xs text-muted-foreground">
-              {documentCount === 0 ? "No documents yet" : "Uploaded"}
+              {counts.documents === 0 ? "No documents yet" : "Uploaded"}
             </p>
           </CardContent>
         </Card>

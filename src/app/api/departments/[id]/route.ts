@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
+import { invalidateDepartments, invalidateDashboard } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 import { departmentSchema } from "@/lib/validations/organization";
 
@@ -63,6 +64,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       data: updateData,
     });
 
+    // Invalidate department cache
+    invalidateDepartments();
+
     return NextResponse.json(department);
   } catch (error) {
     console.error("Department update error:", error);
@@ -114,6 +118,11 @@ export async function DELETE(
     }
 
     await prisma.department.delete({ where: { id } });
+
+    // Invalidate department and dashboard caches
+    invalidateDepartments();
+    invalidateDashboard();
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Department delete error:", error);

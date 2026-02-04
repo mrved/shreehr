@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
+import { getCachedDepartmentsWithCounts, invalidateDepartments, invalidateDashboard } from "@/lib/cache";
 import { prisma } from "@/lib/db";
 import { departmentSchema } from "@/lib/validations/organization";
 
@@ -11,13 +12,8 @@ export async function GET() {
   }
 
   try {
-    const departments = await prisma.department.findMany({
-      orderBy: { name: "asc" },
-      include: {
-        _count: { select: { employees: true } },
-      },
-    });
-
+    // Use cached query (15 min TTL)
+    const departments = await getCachedDepartmentsWithCounts();
     return NextResponse.json(departments);
   } catch (error) {
     console.error("Department list error:", error);
@@ -62,6 +58,10 @@ export async function POST(request: NextRequest) {
         updated_by: session.user.id,
       },
     });
+
+    // Invalidate department and dashboard caches
+    invalidateDepartments();
+    invalidateDashboard();
 
     return NextResponse.json(department, { status: 201 });
   } catch (error) {

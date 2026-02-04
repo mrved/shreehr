@@ -112,7 +112,7 @@ export async function POST(req: Request) {
             // Log tool execution (don't await to not block stream)
             logToolExecution(
               toolCall.toolName,
-              toolCall.args as Record<string, unknown>,
+              (toolCall as unknown as { args?: Record<string, unknown> }).args ?? {},
               toolContext.employeeId, // Resource ID is the employee being accessed
               userId
             ).catch((err) => {

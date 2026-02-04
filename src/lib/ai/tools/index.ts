@@ -7,6 +7,12 @@ import {
   getEmployeeLoans,
   getTeamSummary,
 } from './employee-data';
+import {
+  getBirthdaysThisWeek,
+  getAnniversariesThisMonth,
+  getPendingApprovals,
+  getEmployeeStats,
+} from './hr-queries';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 
@@ -117,6 +123,46 @@ export function createEmployeeDataTools(context: ToolContext) {
       // @ts-expect-error - AI SDK v6 tool typing issue with execute parameter
       execute: async () => {
         return getTeamSummary(context);
+      },
+    }),
+
+    getBirthdays: tool({
+      description:
+        'Get employees with birthdays this week. Managers can see all team birthdays.',
+      parameters: z.object({}),
+      // @ts-expect-error - AI SDK v6 tool typing issue with execute parameter
+      execute: async () => {
+        return getBirthdaysThisWeek(context);
+      },
+    }),
+
+    getAnniversaries: tool({
+      description:
+        'Get work anniversaries this month. Shows employees completing work years this month.',
+      parameters: z.object({}),
+      // @ts-expect-error - AI SDK v6 tool typing issue with execute parameter
+      execute: async () => {
+        return getAnniversariesThisMonth(context);
+      },
+    }),
+
+    getPendingApprovals: tool({
+      description:
+        'Get all pending approvals for you (leave requests, attendance corrections, expenses). Only for managers.',
+      parameters: z.object({}),
+      // @ts-expect-error - AI SDK v6 tool typing issue with execute parameter
+      execute: async () => {
+        return getPendingApprovals(context);
+      },
+    }),
+
+    getOrganisationStats: tool({
+      description:
+        'Get organisation stats including employee count by department, recent joiners. Only for managers.',
+      parameters: z.object({}),
+      // @ts-expect-error - AI SDK v6 tool typing issue with execute parameter
+      execute: async () => {
+        return getEmployeeStats(context);
       },
     }),
   };

@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { invalidateLeaveTypes } from "@/lib/cache";
 import { leaveTypeCreateSchema } from "@/lib/validations/leave";
 
 export async function GET(request: NextRequest) {
@@ -52,6 +53,9 @@ export async function POST(request: NextRequest) {
         updated_by: session.user.id,
       },
     });
+
+    // Invalidate leave types cache
+    invalidateLeaveTypes();
 
     return NextResponse.json(leaveType, { status: 201 });
   } catch (error) {
