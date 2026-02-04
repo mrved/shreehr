@@ -61,10 +61,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const item = checklist[itemIndex];
 
-    // RBAC: ADMIN, HR_MANAGER, or user matching assignedTo
+    // RBAC: ADMIN, SUPER_ADMIN, HR_MANAGER, or user matching assignedTo
     const canUpdate =
-      session.user.role === UserRole.ADMIN ||
-      session.user.role === UserRole.HR_MANAGER ||
+      ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(session.user.role) ||
       item.assignedTo === session.user.id;
 
     if (!canUpdate) {

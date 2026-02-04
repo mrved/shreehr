@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Only ADMIN and HR_MANAGER can list all onboarding records
-    if (session.user.role !== UserRole.ADMIN && session.user.role !== UserRole.HR_MANAGER) {
+    // Only ADMIN, SUPER_ADMIN and HR_MANAGER can list all onboarding records
+    if (!["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(session.user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -81,8 +81,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Only ADMIN and HR_MANAGER can create onboarding records
-    if (session.user.role !== UserRole.ADMIN && session.user.role !== UserRole.HR_MANAGER) {
+    // Only ADMIN, SUPER_ADMIN and HR_MANAGER can create onboarding records
+    if (!["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(session.user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

@@ -60,10 +60,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Onboarding record not found" }, { status: 404 });
     }
 
-    // RBAC: ADMIN, HR_MANAGER, or linked employee can view
+    // RBAC: ADMIN, SUPER_ADMIN, HR_MANAGER, or linked employee can view
     const canView =
-      session.user.role === UserRole.ADMIN ||
-      session.user.role === UserRole.HR_MANAGER ||
+      ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(session.user.role) ||
       (record.employee_id && session.user.employeeId === record.employee_id);
 
     if (!canView) {
@@ -200,8 +199,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Only ADMIN and HR_MANAGER can delete
-    if (session.user.role !== UserRole.ADMIN && session.user.role !== UserRole.HR_MANAGER) {
+    // Only ADMIN, SUPER_ADMIN and HR_MANAGER can delete
+    if (!["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(session.user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
