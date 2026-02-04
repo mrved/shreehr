@@ -1,7 +1,7 @@
 import { streamText } from 'ai';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { chatModel } from '@/lib/ai/ollama-client';
+import { getChatModel, getProviderInfo } from '@/lib/ai/model-client';
 import { HR_ASSISTANT_SYSTEM_PROMPT } from '@/lib/ai/prompts';
 import { createEmployeeDataTools, getToolContext } from '@/lib/ai/tools';
 import { createPolicySearchTool } from '@/lib/ai/tools/policy-search';
@@ -10,6 +10,7 @@ import {
   getConversationHistory,
   saveMessage,
 } from '@/lib/ai/conversation';
+import { logToolExecution } from '@/lib/audit';
 
 export const maxDuration = 60; // 60 second timeout for streaming
 
@@ -88,14 +89,38 @@ export async function POST(req: Request) {
       ? `${HR_ASSISTANT_SYSTEM_PROMPT}\n\nYou are assisting ${employee.first_name}.`
       : HR_ASSISTANT_SYSTEM_PROMPT;
 
+    // Get AI model based on provider configuration
+    const model = await getChatModel();
+    const providerInfo = getProviderInfo();
+    console.log(`[Chat] Using AI provider: ${providerInfo.provider}, model: ${providerInfo.model}`);
+
+    // User ID for audit logging
+    const userId = session.user.id;
+
     // Stream response
     const result = streamText({
-      // @ts-expect-error - ollama-ai-provider v1 model incompatible with AI SDK v6 typing
-      model: chatModel,
+      // @ts-expect-error - Provider model types not fully compatible with AI SDK v6 typing
+      model,
       system: systemPrompt,
       messages: fullMessages,
       tools,
       maxSteps: 5, // Prevent infinite tool call loops
+      onStepFinish: async ({ toolCalls }) => {
+        // Log each tool execution for audit trail
+        if (toolCalls && toolCalls.length > 0) {
+          for (const toolCall of toolCalls) {
+            // Log tool execution (don't await to not block stream)
+            logToolExecution(
+              toolCall.toolName,
+              toolCall.args as Record<string, unknown>,
+              toolContext.employeeId, // Resource ID is the employee being accessed
+              userId
+            ).catch((err) => {
+              console.error('[Audit] Failed to log tool execution:', err);
+            });
+          }
+        }
+      },
       onFinish: async ({ text, toolCalls }) => {
         // Save assistant response
         await saveMessage(convId, 'assistant', text, toolCalls);
