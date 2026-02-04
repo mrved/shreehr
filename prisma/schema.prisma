@@ -64,6 +64,7 @@ model User {
   updated_expense_claims    ExpenseClaim[]         @relation("ExpenseClaimUpdatedBy")
   created_loans             EmployeeLoan[]         @relation("LoanCreatedBy")
   updated_loans             EmployeeLoan[]         @relation("LoanUpdatedBy")
+  conversations             Conversation[]
 
   @@map("users")
 }
@@ -1405,4 +1406,78 @@ enum ApprovalStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+// ============================================================================
+// AI ASSISTANT (Conversations and Policy Documents)
+// ============================================================================
+
+model Conversation {
+  id        String    @id @default(cuid())
+  user_id   String
+  user      User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  title     String?   // Auto-generated from first message
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  messages Message[]
+
+  @@index([user_id, updated_at])
+  @@map("conversations")
+}
+
+model Message {
+  id              String       @id @default(cuid())
+  conversation_id String
+  conversation    Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+
+  role    String // 'user' | 'assistant' | 'system' | 'tool'
+  content String @db.Text
+
+  // Tool call tracking (for audit and debugging)
+  tool_calls Json? // Array of { name, args, result }
+
+  created_at DateTime @default(now())
+
+  @@index([conversation_id, created_at])
+  @@map("messages")
+}
+
+model PolicyDocument {
+  id          String @id @default(cuid())
+  title       String
+  description String?
+  category    String // 'LEAVE', 'PAYROLL', 'ATTENDANCE', 'EXPENSE', 'GENERAL'
+
+  // Document content
+  content      String @db.Text
+  file_path    String? // Optional: if uploaded as file
+
+  // Embedding status
+  embedding_status EmbeddingStatus @default(PENDING)
+  chunk_count      Int             @default(0)
+  last_embedded_at DateTime?
+
+  // Visibility (for RBAC filtering in RAG)
+  visible_to_roles String[] // ['EMPLOYEE', 'MANAGER', 'ADMIN'] - empty = all
+
+  is_active Boolean @default(true)
+
+  // Audit fields
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt
+  updated_by String?
+
+  @@index([category, is_active])
+  @@index([embedding_status])
+  @@map("policy_documents")
+}
+
+enum EmbeddingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
