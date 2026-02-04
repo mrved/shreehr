@@ -1,9 +1,6 @@
 // Embedding Generation and Document Chunking
 // For policy document RAG using Ollama nomic-embed-text model
 
-import { embed } from 'ai';
-import { embeddingModel } from '@/lib/ai/ollama-client';
-
 export interface DocumentChunk {
   id: string;
   text: string;
@@ -107,12 +104,23 @@ export function chunkDocument(
  * Vector dimension: 768
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const { embedding } = await embed({
-    model: embeddingModel,
-    value: text,
+  const baseURL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+
+  const response = await fetch(`${baseURL}/api/embeddings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'nomic-embed-text',
+      prompt: text,
+    }),
   });
 
-  return embedding;
+  if (!response.ok) {
+    throw new Error(`Ollama embedding failed: ${response.statusText}`);
+  }
+
+  const data = await response.json() as { embedding: number[] };
+  return data.embedding;
 }
 
 /**

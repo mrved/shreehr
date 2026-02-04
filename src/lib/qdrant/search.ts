@@ -70,7 +70,7 @@ export async function searchPolicies(
 export async function hasPolices(): Promise<boolean> {
   try {
     const info = await qdrant.getCollection(POLICIES_COLLECTION);
-    return info.points_count > 0;
+    return (info.points_count ?? 0) > 0;
   } catch {
     return false;
   }

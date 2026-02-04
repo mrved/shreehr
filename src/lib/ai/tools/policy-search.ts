@@ -19,7 +19,8 @@ export function createPolicySearchTool(context: PolicyToolContext) {
       parameters: z.object({
         query: z.string().describe('The question or topic to search for in policy documents'),
       }),
-      execute: async ({ query }) => {
+      // @ts-expect-error - AI SDK v6 tool typing issue with execute parameter
+      execute: async ({ query }: any) => {
         // Check if we have any policies
         const hasDocs = await hasPolices();
         if (!hasDocs) {
