@@ -25,5 +25,5 @@ export default async function EmployeeLayout({ children }: { children: React.Rea
     redirect("/login");
   }
 
-  return <EmployeeLayoutClient>{children}</EmployeeLayoutClient>;
+  return <EmployeeLayoutClient user={session.user}>{children}</EmployeeLayoutClient>;
 }

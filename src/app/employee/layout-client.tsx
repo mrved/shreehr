@@ -6,6 +6,7 @@ import {
   FileCheck,
   FileText,
   Home,
+  LogOut,
   MoreHorizontal,
   Receipt,
   TrendingUp,
@@ -15,7 +16,9 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { FloatingChatButton } from "@/components/chat";
 import {
   Sheet,
@@ -55,7 +58,16 @@ const mobileMoreItems = [
   { href: "/employee/tax", icon: FileCheck, label: "Tax Docs" },
 ];
 
-export function EmployeeLayoutClient({ children }: { children: React.ReactNode }) {
+interface EmployeeLayoutClientProps {
+  children: React.ReactNode;
+  user: {
+    name?: string | null;
+    email: string;
+    role: string;
+  };
+}
+
+export function EmployeeLayoutClient({ children, user }: EmployeeLayoutClientProps) {
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
       {/* Desktop Sidebar */}
@@ -64,8 +76,31 @@ export function EmployeeLayoutClient({ children }: { children: React.ReactNode }
           <div className="flex h-16 shrink-0 items-center">
             <span className="text-xl font-bold text-gray-900">ShreeHR</span>
           </div>
+          {/* User info */}
+          <div className="border-b border-gray-200 pb-4">
+            <div className="flex items-center gap-x-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+                <User className="h-5 w-5 text-gray-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">{user.name || user.email}</p>
+                <p className="text-xs text-gray-500">Employee</p>
+              </div>
+            </div>
+          </div>
           <nav className="flex flex-1 flex-col">
             <EmployeeNav />
+            {/* Logout button at bottom of sidebar */}
+            <div className="mt-auto pb-4">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+              >
+                <LogOut className="mr-3 h-5 w-5" />
+                Sign out
+              </Button>
+            </div>
           </nav>
         </div>
       </aside>
@@ -192,6 +227,20 @@ function MobileMoreMenu() {
             );
           })}
         </nav>
+        {/* Logout button in mobile menu */}
+        <div className="pt-4 mt-4 border-t">
+          <Button
+            variant="ghost"
+            className="w-full justify-center text-gray-600 hover:text-gray-900"
+            onClick={() => {
+              setOpen(false);
+              signOut({ callbackUrl: "/login" });
+            }}
+          >
+            <LogOut className="h-6 w-6 mr-2" />
+            <span className="text-sm font-medium">Sign out</span>
+          </Button>
+        </div>
       </SheetContent>
     </Sheet>
   );
