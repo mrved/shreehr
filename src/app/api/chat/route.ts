@@ -120,12 +120,10 @@ export async function POST(req: Request) {
 
     // Stream response
     const result = streamText({
-      // @ts-expect-error - Provider model types not fully compatible with AI SDK v6 typing
       model,
       system: systemPrompt,
       messages: fullMessages,
       tools,
-      maxSteps: 5, // Prevent infinite tool call loops
       onStepFinish: async ({ toolCalls }) => {
         // Log each tool execution for audit trail
         if (toolCalls && toolCalls.length > 0) {
