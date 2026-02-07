@@ -1,0 +1,87 @@
+/**
+ * Example template for writing E2E tests for new features
+ * Copy this file and modify for your feature
+ */
+
+import { test, expect } from './fixtures/base';
+
+test.describe('New Feature Name', () => {
+  // Test for each user role if needed
+  test.describe('Employee Access', () => {
+    test.use({ userRole: 'employee' });
+
+    test('should access the feature', async ({ page }) => {
+      // Navigate to the feature
+      await page.goto('/your-feature-path');
+      
+      // Verify page loaded
+      await expect(page.locator('h1')).toContainText('Your Feature Title');
+      
+      // Test main functionality
+      await page.click('button:has-text("Action")');
+      await expect(page.locator('.result')).toBeVisible();
+    });
+
+    test('should handle errors gracefully', async ({ page }) => {
+      // Test error scenarios
+      await page.goto('/your-feature-path');
+      
+      // Trigger an error condition
+      await page.fill('input[name="field"]', 'invalid-data');
+      await page.click('button[type="submit"]');
+      
+      // Verify error is shown
+      await expect(page.locator('[role="alert"]')).toContainText('Error message');
+    });
+  });
+
+  test.describe('Admin Access', () => {
+    test.use({ userRole: 'admin' });
+
+    test('should have additional admin features', async ({ page }) => {
+      await page.goto('/your-feature-path');
+      
+      // Admin-specific elements should be visible
+      await expect(page.locator('button:has-text("Admin Action")')).toBeVisible();
+    });
+  });
+
+  // Test responsiveness
+  test.describe('Mobile View', () => {
+    test.use({ 
+      userRole: 'employee',
+      viewport: { width: 375, height: 667 }
+    });
+
+    test('should work on mobile', async ({ page }) => {
+      await page.goto('/your-feature-path');
+      
+      // Mobile menu might be different
+      await page.click('[aria-label="Menu"]');
+      await expect(page.locator('.mobile-menu')).toBeVisible();
+    });
+  });
+});
+
+/**
+ * Tips for writing good E2E tests:
+ * 
+ * 1. Use data-testid for reliable selection:
+ *    <button data-testid="submit-form">Submit</button>
+ *    await page.click('[data-testid="submit-form"]');
+ * 
+ * 2. Wait for elements properly:
+ *    await page.waitForSelector('.loading', { state: 'hidden' });
+ * 
+ * 3. Test user flows, not implementation:
+ *    ✅ Test: User can submit a leave request
+ *    ❌ Test: Redux action SUBMIT_LEAVE is dispatched
+ * 
+ * 4. Use meaningful assertions:
+ *    expect(isVisible, 'Leave balance should be visible to employees').toBeTruthy();
+ * 
+ * 5. Clean up after tests if needed:
+ *    test.afterEach(async ({ page }) => {
+ *      // Clean up test data
+ *    });
+ */

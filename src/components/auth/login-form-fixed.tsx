@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,12 +11,29 @@ import { Label } from "@/components/ui/label";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect based on role after successful login
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      const userRole = session.user.role;
+      
+      // Role-based redirect
+      if (userRole === "EMPLOYEE") {
+        router.push("/employee/dashboard");
+      } else if (callbackUrl && callbackUrl !== "/dashboard") {
+        router.push(callbackUrl);
+      } else {
+        router.push("/dashboard");
+      }
+    }
+  }, [status, session, router, callbackUrl]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,23 +49,18 @@ export function LoginForm() {
 
       if (result?.error) {
         setError("Invalid email or password");
+        setIsLoading(false);
         return;
       }
 
-      // Fetch the session to get user role
-      const response = await fetch("/api/auth/session");
-      const sessionData = await response.json();
+      // The useEffect hook will handle the redirect once session is updated
+      // Add a small delay to ensure session is loaded
+      setTimeout(() => {
+        router.refresh();
+      }, 500);
       
-      // Redirect based on role
-      if (sessionData?.user?.role === "EMPLOYEE") {
-        router.push("/employee/dashboard");
-      } else {
-        router.push(callbackUrl);
-      }
-      router.refresh();
     } catch (err) {
       setError("An error occurred. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   }
