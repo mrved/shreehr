@@ -13,10 +13,14 @@ import { createMockModel } from './mock-provider';
 let anthropicModule: typeof import('@ai-sdk/anthropic') | null = null;
 
 export async function getChatModel() {
-  const provider = process.env.AI_PROVIDER?.toLowerCase() || 'ollama';
+  // If ANTHROPIC_API_KEY is present, automatically use Anthropic provider
+  // This provides better developer experience - just set the key and it works!
+  const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY;
+  const explicitProvider = process.env.AI_PROVIDER?.toLowerCase();
+  const provider = explicitProvider || (hasAnthropicKey ? 'anthropic' : 'ollama');
   
   if (provider === 'anthropic') {
-    // Fail fast if Anthropic is configured but API key is missing
+    // Fail fast if Anthropic is selected but API key is missing
     if (!process.env.ANTHROPIC_API_KEY) {
       throw new Error(
         'AI_PROVIDER is set to "anthropic" but ANTHROPIC_API_KEY is not configured. ' +
@@ -31,7 +35,7 @@ export async function getChatModel() {
   }
   
   // In production without proper configuration, use mock provider
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && !hasAnthropicKey) {
     console.warn('[AI Model] Using mock provider - AI not configured for production');
     return createMockModel() as any;
   }
@@ -65,8 +69,10 @@ export async function getEmbeddingModel() {
  * Get provider info for debugging
  */
 export function getProviderInfo(): { provider: string; model: string; hasApiKey: boolean } {
-  const provider = process.env.AI_PROVIDER?.toLowerCase() || 'ollama';
+  // Match the logic in getChatModel() - auto-detect Anthropic if key is present
   const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
+  const explicitProvider = process.env.AI_PROVIDER?.toLowerCase();
+  const provider = explicitProvider || (hasApiKey ? 'anthropic' : 'ollama');
   
   if (provider === 'anthropic') {
     return { 
