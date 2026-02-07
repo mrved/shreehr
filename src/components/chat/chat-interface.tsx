@@ -7,7 +7,8 @@ import { MessageList } from './message-list';
 import { MessageInput } from './message-input';
 import { ConversationSidebar } from './conversation-sidebar';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Menu, X, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ChatInterfaceProps {
@@ -19,7 +20,7 @@ export function ChatInterface({ showSidebar = true }: ChatInterfaceProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, status, setMessages } = useChat({
+  const { messages, sendMessage, status, setMessages, error } = useChat({
     transport: new TextStreamChatTransport({
       api: '/api/chat',
       headers: async () => {
@@ -33,6 +34,9 @@ export function ChatInterface({ showSidebar = true }: ChatInterfaceProps) {
         };
       },
     }),
+    onError: (error) => {
+      console.error('[Chat] Error:', error);
+    },
   });
 
   // Auto-scroll to bottom on new messages
@@ -136,6 +140,19 @@ export function ChatInterface({ showSidebar = true }: ChatInterfaceProps) {
         {/* Messages */}
         <MessageList messages={messages} isLoading={isLoading} />
         <div ref={messagesEndRef} />
+
+        {/* Error display */}
+        {error && (
+          <div className="p-4">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Chat Error</AlertTitle>
+              <AlertDescription>
+                {error.message || 'Failed to send message. Please try again.'}
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
 
         {/* Input */}
         <MessageInput onSubmit={handleSendMessage} isLoading={isLoading} />

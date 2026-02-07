@@ -7,6 +7,7 @@
  */
 
 import { createOllama } from 'ollama-ai-provider';
+import { createMockModel } from './mock-provider';
 
 // Dynamically import Anthropic only if needed
 let anthropicModule: typeof import('@ai-sdk/anthropic') | null = null;
@@ -29,14 +30,10 @@ export async function getChatModel() {
     return anthropicModule.anthropic('claude-sonnet-4-20250514');
   }
   
-  // Ollama fallback - fail fast in production since it won't work on serverless
+  // In production without proper configuration, use mock provider
   if (process.env.NODE_ENV === 'production') {
-    throw new Error(
-      'AI Chat is not configured for production. ' +
-      'Ollama (local AI) cannot run on Vercel. ' +
-      'Please set AI_PROVIDER=anthropic and ANTHROPIC_API_KEY in Vercel environment variables, ' +
-      'or configure another cloud AI provider.'
-    );
+    console.warn('[AI Model] Using mock provider - AI not configured for production');
+    return createMockModel() as any;
   }
   
   const ollama = createOllama({

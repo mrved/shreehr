@@ -181,9 +181,25 @@ export async function POST(req: Request) {
       },
     });
     
-    // Return user-friendly error with debug info
+    // Return user-friendly error with helpful info
     const errorMessage = error instanceof Error ? error.message : 'Chat failed';
     const isDev = process.env.NODE_ENV !== 'production';
+    
+    // Check for configuration error
+    if (errorMessage.includes('AI Chat requires configuration')) {
+      return Response.json(
+        { 
+          error: 'AI Chat is not configured. Please contact your administrator to set up the AI service.',
+          configError: true,
+          ...(isDev && { 
+            provider: providerInfo.provider,
+            model: providerInfo.model,
+            hasApiKey: providerInfo.hasApiKey
+          })
+        },
+        { status: 503 } // Service Unavailable
+      );
+    }
     
     return Response.json(
       { 
