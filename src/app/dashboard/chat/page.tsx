@@ -14,11 +14,9 @@ export default async function AdminChatPage() {
     redirect('/auth/login');
   }
 
-  // Only allow admin roles
-  const allowedRoles = ['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER'];
-  if (!allowedRoles.includes(session.user.role)) {
-    redirect('/dashboard');
-  }
+  // Allow all authenticated users to use AI chat
+  // The AI will handle role-based access to data internally
+  // Removed role restriction to match sidebar navigation
 
   return (
     <div className="h-[calc(100vh-4rem)] md:h-[calc(100vh-3.5rem)]">

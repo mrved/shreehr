@@ -14,6 +14,10 @@ interface DashboardShellProps {
 }
 
 export function DashboardShell({ user, children }: DashboardShellProps) {
+  // Debug: Log user role to verify it's being passed correctly
+  if (typeof window !== 'undefined') {
+    console.log('[DashboardShell] User role:', user.role);
+  }
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (

@@ -1,5 +1,9 @@
 "use client";
 
+// Force dynamic rendering to prevent navigation caching issues
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { 
   Building2, 
   Calendar, 
