@@ -10,6 +10,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/login");
   }
 
+  // Redirect employees to their dedicated portal
+  if (session.user.role === "EMPLOYEE") {
+    redirect("/employee/dashboard");
+  }
+
   return (
     <>
       <DashboardShell user={session.user}>
