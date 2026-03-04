@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 14 of 14 (Admin Dashboard) — In progress
-Plan: 4 of 5 complete
-Status: In progress
-Last activity: 2026-03-04 — Completed 14-04-PLAN.md (Widget components: announcements, polls, birthdays, pending-actions; redesigned admin dashboard page)
+Phase: 14 of 14 (Admin Dashboard) — Complete
+Plan: 5 of 5 complete
+Status: Phase complete
+Last activity: 2026-03-04 — Completed 14-05-PLAN.md (Quick check-in widget, employee dashboard redesign with announcements/polls/5 quick actions)
 
-Progress: [██████████████████░░] 88% (46/52 plans complete, counting phases 1-13 + 14-01 + 14-02 + 14-03 + 14-04)
+Progress: [████████████████████] 92% (47/52 plans complete, counting phases 1-13 + 14-01 through 14-05)
 
 ## Performance Metrics
 
@@ -695,12 +695,21 @@ Recent decisions affecting current work:
 - Manager RBAC: PAYROLL_MANAGER and any EMPLOYEE with subordinates both get subordinates-scoped view
 - Individual addEmailJob per recipient (not bulk send) so BullMQ handles rate limiting and retries naturally
 
+**Plan 14-05 (Employee Dashboard Redesign):**
+- Serialize Date objects to ISO strings before passing to 'use client' QuickCheckinWidget (avoids Next.js serialization errors)
+- today.setHours(0,0,0,0) for attendance date computation (consistent with check-in API date handling)
+- Batch query poll votes with findMany where poll_id IN [...] to prevent N+1 queries
+- Poll.author made optional in PollsWidget type (getCachedActivePolls doesn't include author relation)
+- Use local useState in QuickCheckinWidget for immediate UI updates without router.refresh()
+- Reuse widget components across admin and employee dashboards with different prop values (canPost/canCreate)
+
 ### Roadmap Evolution
 
 - Phase 14 added: Admin Dashboard Redesign — Announcements, polls, birthdays/anniversaries, pending actions inbox, summary-only dashboard view
+- Phase 14 complete (2026-03-04): All 5 plans executed
 
 ## Session Continuity
 
-Last session: 2026-03-04 — Completed 14-04-PLAN.md (Widget components: announcements, polls, birthdays, pending-actions; redesigned admin dashboard page)
-Stopped at: Completed Phase 14 Plan 4, ready for 14-05
+Last session: 2026-03-04 — Completed 14-05-PLAN.md (Quick check-in widget, employee dashboard redesign)
+Stopped at: Phase 14 complete — all 5 plans executed
 Resume file: None

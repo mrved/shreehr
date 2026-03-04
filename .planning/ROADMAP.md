@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: AI Assistant** - Chat interface for HR queries and policy Q&A
 - [ ] **Phase 7: AI Enhancement** - Claude API, test data, security hardening, MCP analytics
 - [ ] **Phase 13: Automation Testing** - Playwright E2E tests with heavy test-driven development
-- [ ] **Phase 14: Admin Dashboard** - Announcements, polls, birthdays/anniversaries, pending actions, summary view
+- [x] **Phase 14: Admin Dashboard** - Announcements, polls, birthdays/anniversaries, pending actions, summary view
 
 ## Phase Details
 
@@ -263,4 +263,4 @@ Plans:
 - [x] 14-02-PLAN.md — Announcement CRUD API with org-wide email, Poll CRUD API with voting
 - [x] 14-03-PLAN.md — Birthday/anniversary query logic, pending actions API, birthday cron notifications
 - [x] 14-04-PLAN.md — Admin dashboard redesign with announcements, polls, birthdays, pending actions widgets
-- [ ] 14-05-PLAN.md — Employee dashboard redesign with quick check-in, announcements feed, poll voting
+- [x] 14-05-PLAN.md — Employee dashboard redesign with quick check-in, announcements feed, poll voting
