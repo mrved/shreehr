@@ -6,16 +6,16 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Automated payroll with accurate Indian statutory compliance — if nothing else works, payroll must run correctly and on time with zero compliance errors.
 
-**Current focus:** Project Complete
+**Current focus:** Phase 14 — Admin Dashboard Redesign
 
 ## Current Position
 
-Phase: 6 of 6 (AI Assistant) ✅
-Plan: 6 of 6 (verification skipped)
-Status: COMPLETE
-Last activity: 2026-02-04 — All phases completed, build fixes applied
+Phase: 14 of 14 (Admin Dashboard) — In progress
+Plan: 1 of 5 complete
+Status: In progress
+Last activity: 2026-03-04 — Completed 14-01-PLAN.md (Database Foundation: Announcement/Poll models, email templates, cache helpers)
 
-Progress: [████████████████] 100%
+Progress: [████████████████░░░░] 82% (43/52 plans complete, counting phases 1-13 + 14-01)
 
 ## Performance Metrics
 
@@ -664,8 +664,20 @@ Recent decisions affecting current work:
 5. Verify Ollama: `ollama list` should show both models
 6. Verify Qdrant: `curl http://localhost:6333/collections` should return empty array
 
+**From Phase 14 execution:**
+
+**Plan 14-01 (Database Foundation):**
+- Poll unique constraint at DB level (@@unique([poll_id, employee_id])) prevents duplicate votes under concurrent requests
+- Announcement cache TTL 300s; Poll cache TTL 60s (votes change more frequently); PendingActions cache TTL 120s
+- getCachedPendingActionCounts uses Promise.all across 4 COUNT queries to minimize DB round-trips
+- Birthday notification uses digest style (all celebrations in one email) to avoid email fatigue
+
+### Roadmap Evolution
+
+- Phase 14 added: Admin Dashboard Redesign — Announcements, polls, birthdays/anniversaries, pending actions inbox, summary-only dashboard view
+
 ## Session Continuity
 
-Last session: 2026-02-04 — Completed 06-05-PLAN.md (Chat UI and Policy Management)
-Stopped at: Completed Phase 6 Plan 5, ready for next plan
+Last session: 2026-03-04 — Completed 14-01-PLAN.md (Database Foundation)
+Stopped at: Completed Phase 14 Plan 1, ready for 14-02
 Resume file: None
