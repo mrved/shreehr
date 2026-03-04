@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 14 of 14 (Admin Dashboard) — In progress
-Plan: 1 of 5 complete
+Plan: 2 of 5 complete
 Status: In progress
-Last activity: 2026-03-04 — Completed 14-01-PLAN.md (Database Foundation: Announcement/Poll models, email templates, cache helpers)
+Last activity: 2026-03-04 — Completed 14-02-PLAN.md (Announcement and Poll API routes with org-wide email and upsert voting)
 
-Progress: [████████████████░░░░] 82% (43/52 plans complete, counting phases 1-13 + 14-01)
+Progress: [████████████████░░░░] 83% (44/52 plans complete, counting phases 1-13 + 14-01 + 14-02)
 
 ## Performance Metrics
 
@@ -666,6 +666,14 @@ Recent decisions affecting current work:
 
 **From Phase 14 execution:**
 
+**Plan 14-02 (Announcement and Poll APIs):**
+- HR_MANAGER included in ADMIN_ROLES for announcement/poll management (archive, create, close) — consistent with other management APIs
+- DELETE announcement restricted to ADMIN/SUPER_ADMIN; PATCH archive available to HR_MANAGER
+- myVote merged via single batch query (pollResponse.findMany with poll_id IN []) to avoid N+1 per-poll queries
+- closes_at enforcement at vote time: dual check (is_closed flag OR closes_at < now) prevents late votes
+- Org-wide email filters by employment_status=ACTIVE AND user exists (not all employees have login accounts)
+- params destructured via await params (Next.js 15 async params pattern for route handlers)
+
 **Plan 14-01 (Database Foundation):**
 - Poll unique constraint at DB level (@@unique([poll_id, employee_id])) prevents duplicate votes under concurrent requests
 - Announcement cache TTL 300s; Poll cache TTL 60s (votes change more frequently); PendingActions cache TTL 120s
@@ -678,6 +686,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-04 — Completed 14-01-PLAN.md (Database Foundation)
-Stopped at: Completed Phase 14 Plan 1, ready for 14-02
+Last session: 2026-03-04 — Completed 14-02-PLAN.md (Announcement and Poll API routes)
+Stopped at: Completed Phase 14 Plan 2, ready for 14-03
 Resume file: None

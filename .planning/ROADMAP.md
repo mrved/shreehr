@@ -238,7 +238,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 5. Supporting Workflows | 6/6 | Complete | 2026-02-04 |
 | 6. AI Assistant | 0/6 | Planning complete | - |
 | 13. Automation Testing | 0/0 | Not started | - |
-| 14. Admin Dashboard | 1/5 | In progress | - |
+| 14. Admin Dashboard | 2/5 | In progress | - |
 
 ### Phase 14: Admin Dashboard
 **Goal**: Redesigned admin dashboard with announcements, polls, birthdays/work anniversaries, pending actions inbox, and summary-only view (no employee personal data)
@@ -260,7 +260,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 Plans:
 - [x] 14-01-PLAN.md — Prisma schema (Announcement, Poll models), email templates, cache helpers
-- [ ] 14-02-PLAN.md — Announcement CRUD API with org-wide email, Poll CRUD API with voting
+- [x] 14-02-PLAN.md — Announcement CRUD API with org-wide email, Poll CRUD API with voting
 - [ ] 14-03-PLAN.md — Birthday/anniversary query logic, pending actions API, birthday cron notifications
 - [ ] 14-04-PLAN.md — Admin dashboard redesign with announcements, polls, birthdays, pending actions widgets
 - [ ] 14-05-PLAN.md — Employee dashboard redesign with quick check-in, announcements feed, poll voting
