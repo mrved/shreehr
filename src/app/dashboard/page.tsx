@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Building2, FileText, Users, Play, UserPlus, CheckSquare, Megaphone, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
@@ -19,7 +20,7 @@ const ADMIN_ROLES = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"];
 
 export default async function DashboardPage() {
   const session = await auth();
-  if (!session?.user) return null;
+  if (!session?.user) redirect("/login");
 
   const isAdmin = ADMIN_ROLES.includes(session.user.role);
 
@@ -102,10 +103,22 @@ export default async function DashboardPage() {
     pendingItems = combined.slice(0, 5);
   }
 
-  // Polls: no myVote for server-side render (admin dashboard doesn't track per-user votes here)
+  // Merge per-user myVote into polls (needed to show results vs voting UI)
+  const pollIds = rawPolls.map((p) => p.id);
+  const myVoteRecords =
+    pollIds.length > 0
+      ? await prisma.pollResponse.findMany({
+          where: {
+            poll_id: { in: pollIds },
+            employee: { user: { id: session.user.id } },
+          },
+          select: { poll_id: true, option_id: true },
+        })
+      : [];
+  const myVoteMap = new Map(myVoteRecords.map((v) => [v.poll_id, v.option_id]));
   const polls = rawPolls.map((p) => ({
     ...p,
-    myVote: null as null | string,
+    myVote: myVoteMap.get(p.id) ?? null,
   }));
 
   return (
