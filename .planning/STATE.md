@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 14 of 14 (Admin Dashboard) — In progress
-Plan: 3 of 5 complete
+Plan: 4 of 5 complete
 Status: In progress
-Last activity: 2026-03-04 — Completed 14-03-PLAN.md (Birthday/anniversary APIs, pending-actions inbox with RBAC, birthday cron route)
+Last activity: 2026-03-04 — Completed 14-04-PLAN.md (Widget components: announcements, polls, birthdays, pending-actions; redesigned admin dashboard page)
 
-Progress: [█████████████████░░░] 85% (45/52 plans complete, counting phases 1-13 + 14-01 + 14-02 + 14-03)
+Progress: [██████████████████░░] 88% (46/52 plans complete, counting phases 1-13 + 14-01 + 14-02 + 14-03 + 14-04)
 
 ## Performance Metrics
 
@@ -666,6 +666,14 @@ Recent decisions affecting current work:
 
 **From Phase 14 execution:**
 
+**Plan 14-04 (Admin Dashboard Widget Components and Page Redesign):**
+- myVote fetched after cached polls via separate Prisma query (cache cannot be user-personalized)
+- Widget data flow: server page fetches → passes as props → client widget uses router.refresh() for mutations
+- BirthdaysWidget and PendingActionsWidget are server-renderable (no 'use client') for smaller bundle size
+- AnnouncementsWidget and PollsWidget use 'use client' for interactive forms and vote UI
+- Progress bars rendered with plain div + dynamic style.width (no chart library needed)
+- Pending items normalized inline in page (meta.leaveType → title) to keep widget props clean and reusable
+
 **Plan 14-02 (Announcement and Poll APIs):**
 - HR_MANAGER included in ADMIN_ROLES for announcement/poll management (archive, create, close) — consistent with other management APIs
 - DELETE announcement restricted to ADMIN/SUPER_ADMIN; PATCH archive available to HR_MANAGER
@@ -693,6 +701,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-04 — Completed 14-03-PLAN.md (Birthday/Anniversary APIs, Pending Actions Inbox, Birthday Cron)
-Stopped at: Completed Phase 14 Plan 3, ready for 14-04
+Last session: 2026-03-04 — Completed 14-04-PLAN.md (Widget components: announcements, polls, birthdays, pending-actions; redesigned admin dashboard page)
+Stopped at: Completed Phase 14 Plan 4, ready for 14-05
 Resume file: None
