@@ -67,6 +67,8 @@ model User {
   updated_loans             EmployeeLoan[]         @relation("LoanUpdatedBy")
   conversations             Conversation[]
   audit_logs                AuditLog[]
+  announcements             Announcement[] @relation("AnnouncementCreatedBy")
+  polls                     Poll[]         @relation("PollCreatedBy")
 
   @@map("users")
 }
@@ -214,6 +216,7 @@ model Employee {
   onboarding_record       OnboardingRecord?
   expense_claims          ExpenseClaim[]
   loans                   EmployeeLoan[]
+  poll_responses          PollResponse[]
 
   @@map("employees")
 }
@@ -1508,6 +1511,64 @@ model ErrorLog {
   @@index([error_type, severity])
   @@index([notified, severity])
   @@map("error_logs")
+}
+
+// ============================================================================
+// ADMIN DASHBOARD — ANNOUNCEMENTS AND POLLS
+// ============================================================================
+
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   // Plain text or Markdown
+  is_archived Boolean  @default(false)
+  created_by  String
+  author      User     @relation("AnnouncementCreatedBy", fields: [created_by], references: [id])
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("announcements")
+}
+
+model Poll {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  is_closed   Boolean        @default(false)
+  closes_at   DateTime?
+  created_by  String
+  author      User           @relation("PollCreatedBy", fields: [created_by], references: [id])
+  options     PollOption[]
+  responses   PollResponse[]
+  created_at  DateTime       @default(now())
+  updated_at  DateTime       @updatedAt
+
+  @@map("polls")
+}
+
+model PollOption {
+  id        String         @id @default(cuid())
+  poll_id   String
+  poll      Poll           @relation(fields: [poll_id], references: [id], onDelete: Cascade)
+  label     String
+  order     Int            @default(0)
+  responses PollResponse[]
+
+  @@map("poll_options")
+}
+
+model PollResponse {
+  id          String     @id @default(cuid())
+  poll_id     String
+  poll        Poll       @relation(fields: [poll_id], references: [id], onDelete: Cascade)
+  option_id   String
+  option      PollOption @relation(fields: [option_id], references: [id])
+  employee_id String
+  employee    Employee   @relation(fields: [employee_id], references: [id])
+  created_at  DateTime   @default(now())
+
+  @@unique([poll_id, employee_id])
+  @@map("poll_responses")
 }
 
 // ============================================================================
