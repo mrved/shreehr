@@ -261,6 +261,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 Plans:
 - [x] 14-01-PLAN.md — Prisma schema (Announcement, Poll models), email templates, cache helpers
 - [x] 14-02-PLAN.md — Announcement CRUD API with org-wide email, Poll CRUD API with voting
-- [ ] 14-03-PLAN.md — Birthday/anniversary query logic, pending actions API, birthday cron notifications
+- [x] 14-03-PLAN.md — Birthday/anniversary query logic, pending actions API, birthday cron notifications
 - [ ] 14-04-PLAN.md — Admin dashboard redesign with announcements, polls, birthdays, pending actions widgets
 - [ ] 14-05-PLAN.md — Employee dashboard redesign with quick check-in, announcements feed, poll voting

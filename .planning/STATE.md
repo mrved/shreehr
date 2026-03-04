@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 14 of 14 (Admin Dashboard) — In progress
-Plan: 2 of 5 complete
+Plan: 3 of 5 complete
 Status: In progress
-Last activity: 2026-03-04 — Completed 14-02-PLAN.md (Announcement and Poll API routes with org-wide email and upsert voting)
+Last activity: 2026-03-04 — Completed 14-03-PLAN.md (Birthday/anniversary APIs, pending-actions inbox with RBAC, birthday cron route)
 
-Progress: [████████████████░░░░] 83% (44/52 plans complete, counting phases 1-13 + 14-01 + 14-02)
+Progress: [█████████████████░░░] 85% (45/52 plans complete, counting phases 1-13 + 14-01 + 14-02 + 14-03)
 
 ## Performance Metrics
 
@@ -680,12 +680,19 @@ Recent decisions affecting current work:
 - getCachedPendingActionCounts uses Promise.all across 4 COUNT queries to minimize DB round-trips
 - Birthday notification uses digest style (all celebrations in one email) to avoid email fatigue
 
+**Plan 14-03 (Birthday/Anniversary APIs and Pending Actions Inbox):**
+- Pure functions (no Prisma) for birthday/anniversary logic enables Vitest testing without DB mocking
+- nextOccurrence uses Date.UTC ms arithmetic to avoid DST issues in Indian timezone (IST +5:30)
+- ExpenseClaim has no title field — uses description (plan had wrong field name, auto-fixed)
+- Manager RBAC: PAYROLL_MANAGER and any EMPLOYEE with subordinates both get subordinates-scoped view
+- Individual addEmailJob per recipient (not bulk send) so BullMQ handles rate limiting and retries naturally
+
 ### Roadmap Evolution
 
 - Phase 14 added: Admin Dashboard Redesign — Announcements, polls, birthdays/anniversaries, pending actions inbox, summary-only dashboard view
 
 ## Session Continuity
 
-Last session: 2026-03-04 — Completed 14-02-PLAN.md (Announcement and Poll API routes)
-Stopped at: Completed Phase 14 Plan 2, ready for 14-03
+Last session: 2026-03-04 — Completed 14-03-PLAN.md (Birthday/Anniversary APIs, Pending Actions Inbox, Birthday Cron)
+Stopped at: Completed Phase 14 Plan 3, ready for 14-04
 Resume file: None
