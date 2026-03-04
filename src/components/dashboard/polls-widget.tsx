@@ -22,7 +22,7 @@ interface Poll {
   options: PollOption[];
   _count: { responses: number };
   myVote: string | null; // optionId the current user voted for, or null
-  author: { name: string | null };
+  author?: { name: string | null } | null;
 }
 
 interface PollsWidgetProps {
