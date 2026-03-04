@@ -19,6 +19,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Supporting Workflows** - Onboarding, expenses, and loan management
 - [x] **Phase 6: AI Assistant** - Chat interface for HR queries and policy Q&A
 - [ ] **Phase 7: AI Enhancement** - Claude API, test data, security hardening, MCP analytics
+- [ ] **Phase 13: Automation Testing** - Playwright E2E tests with heavy test-driven development
+- [ ] **Phase 14: Admin Dashboard** - Announcements, polls, birthdays/anniversaries, pending actions, summary view
 
 ## Phase Details
 
@@ -201,6 +203,27 @@ Plans:
 - [ ] 07-03-PLAN.md — Claude API integration (replace Ollama)
 - [ ] 07-04-PLAN.md — MCP for SUPER_ADMIN analytics
 
+### Phase 13: Automation Testing
+**Goal**: Comprehensive Playwright E2E test suite with test-driven development covering all critical user workflows
+
+**Depends on**: Phase 6
+
+**Requirements**: Enhanced from user request — automation testing with Playwright (existing setup), heavy TDD focus
+
+**Success Criteria** (what must be TRUE):
+  1. Playwright test infrastructure enhanced with comprehensive page objects and fixtures
+  2. End-to-end tests cover authentication flows (login, logout, role-based redirects)
+  3. End-to-end tests cover employee CRUD operations (create, edit, view, search)
+  4. End-to-end tests cover attendance workflows (check-in, check-out, lock, corrections)
+  5. End-to-end tests cover leave management (apply, approve, reject, balance validation)
+  6. End-to-end tests cover payroll processing (run payroll, generate payslips, statutory files)
+  7. End-to-end tests cover employee self-service portal (payslips, leave, investments, profile)
+  8. Test data seeding and teardown automated for repeatable test runs
+  9. CI-compatible test execution with headless browser support
+  10. Test coverage report generated after each run
+
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
@@ -214,3 +237,30 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. Employee Self-Service | 8/8 | Complete | 2026-02-04 |
 | 5. Supporting Workflows | 6/6 | Complete | 2026-02-04 |
 | 6. AI Assistant | 0/6 | Planning complete | - |
+| 13. Automation Testing | 0/0 | Not started | - |
+| 14. Admin Dashboard | 0/5 | Planning complete | - |
+
+### Phase 14: Admin Dashboard
+**Goal**: Redesigned admin dashboard with announcements, polls, birthdays/work anniversaries, pending actions inbox, and summary-only view (no employee personal data)
+
+**Depends on**: Phase 5
+
+**Requirements**: From stakeholder meeting — dashboard redesign with announcements (post + org-wide email), polls (e.g., holiday shifts), birthday/anniversary notifications (dashboard + org-wide email), unified pending actions inbox, max 5 core actions, employee quick check-in on their dashboard
+
+**Success Criteria** (what must be TRUE):
+  1. Admin can post announcements that appear on dashboard AND trigger org-wide email
+  2. Admin can create polls (e.g., shift holiday dates) visible to all with instant results
+  3. Dashboard shows upcoming birthdays and work anniversaries with org-wide email notifications
+  4. Unified pending actions section shows leave requests, expense approvals, and other actionable items
+  5. Dashboard is summary-only view — no employee personal data, just metrics and numbers
+  6. Max 5 core action buttons visible to avoid UI clutter
+  7. Employees can quick check-in for attendance directly from their dashboard
+
+**Plans**: 5 plans
+
+Plans:
+- [ ] 14-01-PLAN.md — Prisma schema (Announcement, Poll models), email templates, cache helpers
+- [ ] 14-02-PLAN.md — Announcement CRUD API with org-wide email, Poll CRUD API with voting
+- [ ] 14-03-PLAN.md — Birthday/anniversary query logic, pending actions API, birthday cron notifications
+- [ ] 14-04-PLAN.md — Admin dashboard redesign with announcements, polls, birthdays, pending actions widgets
+- [ ] 14-05-PLAN.md — Employee dashboard redesign with quick check-in, announcements feed, poll voting
