@@ -143,3 +143,86 @@ export function invalidatePTSlabs() {
 export function invalidateExpensePolicies() {
   revalidateTag('expense-policies', INVALIDATE_NOW);
 }
+
+// ============================================================================
+// ADMIN DASHBOARD — ANNOUNCEMENTS, POLLS, AND PENDING ACTIONS
+// ============================================================================
+
+// Active announcements — cache for 5 minutes (TTL: 300s)
+export const getCachedActiveAnnouncements = unstable_cache(
+  async () => {
+    logCacheMiss('announcements-active');
+    return prisma.announcement.findMany({
+      where: { is_archived: false },
+      orderBy: { created_at: 'desc' },
+      take: 5,
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        created_at: true,
+        author: { select: { name: true } },
+      },
+    });
+  },
+  ['announcements-active'],
+  { revalidate: 300, tags: ['announcements'] }
+);
+
+// Active polls with options and response counts — cache for 1 minute (TTL: 60s, votes change frequently)
+export const getCachedActivePolls = unstable_cache(
+  async () => {
+    logCacheMiss('polls-active');
+    return prisma.poll.findMany({
+      where: { is_closed: false },
+      orderBy: { created_at: 'desc' },
+      include: {
+        options: {
+          orderBy: { order: 'asc' },
+          include: {
+            _count: { select: { responses: true } },
+          },
+        },
+        _count: { select: { responses: true } },
+      },
+    });
+  },
+  ['polls-active'],
+  { revalidate: 60, tags: ['polls'] }
+);
+
+// Pending action counts for admin dashboard inbox — cache for 2 minutes (TTL: 120s)
+export const getCachedPendingActionCounts = unstable_cache(
+  async () => {
+    logCacheMiss('pending-action-counts');
+    const [leave, expense, profile, correction] = await Promise.all([
+      prisma.leaveRequest.count({ where: { status: 'PENDING' } }),
+      prisma.expenseClaim.count({ where: { status: 'PENDING_APPROVAL' } }),
+      prisma.profileUpdateRequest.count({ where: { status: 'PENDING' } }),
+      prisma.attendanceCorrection.count({ where: { status: 'PENDING' } }),
+    ]);
+    return {
+      leave,
+      expense,
+      profile,
+      correction,
+      total: leave + expense + profile + correction,
+    };
+  },
+  ['pending-action-counts'],
+  { revalidate: 120, tags: ['pending-actions'] }
+);
+
+export function invalidateAnnouncements() {
+  revalidateTag('announcements', INVALIDATE_NOW);
+  revalidateTag('dashboard', INVALIDATE_NOW);
+}
+
+export function invalidatePolls() {
+  revalidateTag('polls', INVALIDATE_NOW);
+}
+
+export function invalidatePendingActions() {
+  revalidateTag('pending-actions', INVALIDATE_NOW);
+  revalidateTag('dashboard', INVALIDATE_NOW);
+}
